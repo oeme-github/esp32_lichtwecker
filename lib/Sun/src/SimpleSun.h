@@ -5,6 +5,8 @@
 #include <SimpleTimer.h> 
 #include <genericstate.h>
 
+#include <MDispatcher.h>
+
 #ifndef SUN_H
 #define SUN_H
 
@@ -69,14 +71,12 @@ private:
     int currentAurora      = 100;
     int oldAurora          = 0;
 
-    //int intSunriseDelay    = WAKE_DELAY;
     int sun                = (SUNSIZE * NUM_LEDS)/100;
     int aurora             = NUM_LEDS;
 
     sunmode_t mode         = SUNOFF; 
     
     int numTimer           = 0; 
-    int blueLightCicles    = 0;
 
     uint32_t iOffsetSun    = 30;
 
@@ -84,8 +84,6 @@ private:
 
     TaskHandle_t hTaskSunLoop;
     TaskFunction_t pvTaskCode;
-
-    int calWhiteValue();
 
 /* methodes */
 public:
@@ -131,6 +129,11 @@ public:
     }
 
     void startSunLoopTask();
+
+    void registerCB(MDispatcher<String, EventEnum> &dispatcher) {
+        using namespace std::placeholders;
+        dispatcher.addCB(std::bind(&SimpleSun::listener, this, _1, _2));
+    }    
 
     /* sun */
     void sunDown() 
@@ -182,6 +185,7 @@ private:
     void drawAmbient();
     void drawAurora();
     void drawSun();
+    int calWhiteValue();
 
     void increaseSunFadeStep();
     void decreaseSunFadeStep();
@@ -202,6 +206,15 @@ private:
 
     void taskSunLoopCode( void * pvParameters );
     void stopSunLoopTask();
+
+    void listener(String string_, EventEnum event_) {
+        print( "listener() for ", false);
+        print( "simpleSun"      , false);
+        print( ", got: "        , false );
+        print( string_.c_str()  , false );
+        print( ", "             , false );
+        print( event_ ); 
+    }    
 
 private:
 

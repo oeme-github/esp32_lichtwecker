@@ -32,6 +32,7 @@ int sound_count = 0 SOUND_TABLE;
  */
 Lichtwecker lichtwecker;
 
+
 /** 
  * === TASKS ===
  */
@@ -65,20 +66,20 @@ void taskSunLoopCode( void * pvParameters ){
 
   while(true)
   {
-//     /* -------------------------------------------------- */    
-//     /* check the sun and run it                           */
-//     if( lichtwecker.getSimpleSun()->getRc() == 0 )
-//     {
-//       /* run the timer                                    */
-// #ifdef _WITH_LOOP_DEBUG_
-//       dbSerialPrint( "SunState:" );
-//       dbSerialPrintln( lichtwecker.getSimpleSun()->getSunState() );
-// #endif
-//       if( strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunRise") == 0 )
-//       {
-//         lichtwecker.getSimpleSun()->run();
-//       }
-//     }
+    /* -------------------------------------------------- */    
+    /* check the sun and run it                           */
+    if( lichtwecker.getSimpleSun()->getRc() == 0 )
+    {
+      /* run the timer                                    */
+#ifdef _WITH_LOOP_DEBUG_
+      dbSerialPrint( "SunState:" );
+      dbSerialPrintln( lichtwecker.getSimpleSun()->getSunState() );
+#endif
+      if( strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunRise") == 0 )
+      {
+        lichtwecker.getSimpleSun()->run();
+      }
+    }
     /* need to delay the task because of warchdog         */
     vTaskDelay(100/portTICK_PERIOD_MS);
   }
@@ -125,7 +126,7 @@ void sunRiseMain()
   dbSerialPrintln( simpleSun.getSunPhase());
 #endif
   /* let sun rise (without parameter) */
-  // lichtwecker.getSimpleSun()->letSunRise();
+  lichtwecker.getSimpleSun()->letSunRise();
 }
 
 /** 
@@ -157,14 +158,14 @@ void page0_tmSerialCmdCallback(void *ptr)
   if( (strncmp("light_on", (char *)ptr, 8 ) == 0))  
   {
     dbSerialPrintln("light_on");
-    // lichtwecker.getSimpleSun()->lightOn();
+    lichtwecker.getSimpleSun()->lightOn();
   }
   /* -------------------------------------------------- */
   /* switch light off                                   */
   if( (strncmp("light_off", (char *)ptr, 9 ) == 0))  
   {
     dbSerialPrintln("light_off");
-    // lichtwecker.getSimpleSun()->lightOff();
+    lichtwecker.getSimpleSun()->lightOff();
   }
   /* -------------------------------------------------- */
   /* sunup -> start sunrise                             */
@@ -188,9 +189,9 @@ void page0_tmSerialCmdCallback(void *ptr)
     {
       iOffsetSun=WAKE_DELAY;
     }
-    // lichtwecker.getSimpleSun()->setWakeDelay(iOffsetSun);  
-    // lichtwecker.getSimpleSun()->setTimerCB( sunRiseMain );
-    // lichtwecker.getSimpleSun()->sunRise();
+    lichtwecker.getSimpleSun()->setWakeDelay(iOffsetSun);  
+    lichtwecker.getSimpleSun()->setTimerCB( sunRiseMain );
+    lichtwecker.getSimpleSun()->sunRise();
   }
   /* -------------------------------------------------- */
   /* alaup -> switch alarm on                           */
@@ -310,7 +311,7 @@ void setup(void)
     lichtwecker.start();
     /* -------------------------------------------------- */
     /* set function for sun loop task                     */
-    // lichtwecker.getSimpleSun()->setTaskFunction(taskSunLoopCode);                
+    lichtwecker.getSimpleSun()->setTaskFunction(taskSunLoopCode);                
     /* -------------------------------------------------- */
     /* set function for sound loop task                   */
     lichtwecker.getDFPlayer()->setTaskFunction(taskSoundLoopCode);                
@@ -341,17 +342,17 @@ void loop(void){
 #ifdef _WITH_SOUND_TEST_
     lichtwecker.getDFPlayer()->play(sirene);
 #endif
-    // for(int i=1;i<8;i++)
-    // {
-    //     lichtwecker.getSimpleSun()->lightBlue();
-    //     vTaskDelay(BL_DELAY/portTICK_PERIOD_MS);
-    //     lichtwecker.getSimpleSun()->lightOff();
-    //     vTaskDelay(BL_DELAY/portTICK_PERIOD_MS);
-    // }
-    // lichtwecker.getSimpleSun()->lightOn();
-    // vTaskDelay(5000/portTICK_PERIOD_MS);
-    // lichtwecker.getSimpleSun()->lightOff();
-    // lichtwecker.getDFPlayer()->play(kodack);
+    for(int i=1;i<8;i++)
+    {
+        lichtwecker.getSimpleSun()->lightBlue();
+        vTaskDelay(BL_DELAY/portTICK_PERIOD_MS);
+        lichtwecker.getSimpleSun()->lightOff();
+        vTaskDelay(BL_DELAY/portTICK_PERIOD_MS);
+    }
+    lichtwecker.getSimpleSun()->lightOn();
+    vTaskDelay(5000/portTICK_PERIOD_MS);
+    lichtwecker.getSimpleSun()->lightOff();
+    lichtwecker.getDFPlayer()->play(kodack);
     /* -------------------------------------------------- */
     /* delete the task                                    */
     vTaskDelete(NULL);

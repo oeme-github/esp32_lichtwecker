@@ -127,7 +127,7 @@ void MyDFPlayer::startDFPlayer()
  * @brief create sun loop task
  * 
  */
-void MyDFPlayer::startSunLoopTask()
+void MyDFPlayer::startSoundLoopTask()
 {
     xTaskCreatePinnedToCore(
                     this->pvTaskCode,       /* Task function. */

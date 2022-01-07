@@ -19,7 +19,6 @@ Lichtwecker::~Lichtwecker()
 
 }
 
-
 /**
  * @brief start()
  * 
@@ -52,16 +51,20 @@ void Lichtwecker::start(){
       print("updateDateTime went wrong!");
     }
     vTaskDelay(200/portTICK_PERIOD_MS);
-    // /* LED */
-    // if( !simpleSun.init_ledDriver() )
-    // {
-    //   print("ERROR: could not init ledDriver!! rc := " + simpleSun.getRc() );
-    // }
-    // else
-    // {
-    //   vTaskDelay(100/portTICK_PERIOD_MS);
-    //   print("LED initialized. RC:" + simpleSun.getRc());
-    // }
+    /* LED */
+    if( !simpleSun.init_ledDriver() )
+    {
+      print("ERROR: could not init ledDriver!! rc := " + simpleSun.getRc() );
+    }
+    else
+    {
+      vTaskDelay(100/portTICK_PERIOD_MS);
+      print("LED initialized. RC:" + simpleSun.getRc());
+    }
+    /* register dispatcher */
+    simpleSun.registerCB(dispatcher);
+    myDFPlayer.registerCB(dispatcher);
+    dispatcher.broadcast("Test", EVENT1);
 }
 
 

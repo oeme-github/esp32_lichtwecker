@@ -4,6 +4,7 @@
 #include <Nextion.h>
 #include <genericstate.h>
 
+#include <MDispatcher.h>
 
 #ifndef _MYDFPLAYER_H_
 #define _MYDFPLAYER_H_
@@ -31,77 +32,178 @@ private:
     /* data */
     SoftwareSerial softwareSerial;
 
-    TaskHandle_t hTaskSoundLoop;
+    TaskHandle_t   hTaskSoundLoop;
     TaskFunction_t pvTaskCode;
 
+public:
+    /**
+     * @brief Construct a new My D F Player object
+     * 
+     * @param rx_ 
+     * @param tx_ 
+     */
+    MyDFPlayer(int8_t rx_=SWSERIAL_RX, int8_t tx_=SWSERIAL_TX );
+    /**
+     * @brief Destroy the My D F Player object
+     * 
+     */
+    ~MyDFPlayer();
+    /**
+     * @brief Get the Detail object
+     * 
+     * @param type 
+     * @param value 
+     * @return const char* 
+     */
+    const char *getDetail(uint8_t type, int value);
+    /**
+     * @brief Get the Software Serial object
+     * 
+     * @return SoftwareSerial* 
+     */
+    SoftwareSerial *getSoftwareSerial(){return &softwareSerial;}
+    /**
+     * @brief wrapper for SoftwareSerial.beginn()
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool _begin_(){ return begin(softwareSerial,false,true); }
+    /**
+     * @brief startup sequence
+     * 
+     */
+    void startDFPlayer();
+    /**
+     * @brief start task for audio processing
+     * 
+     */
+    void startSoundLoopTask();
+    /**
+     * @brief stop task for audio processing
+     * 
+     */
+    void stopSoundLoopTask();
+    /**
+     * @brief register receiving function to MDispatcher
+     * 
+     * @param dispatcher 
+     */
+    void registerCB(MDispatcher<String, EventEnum> &dispatcher) {
+        using namespace std::placeholders;
+        dispatcher.addCB(std::bind(&MyDFPlayer::listener, this, _1, _2));
+    }    
+    /**
+     * @brief Set the Task Function object
+     * 
+     * @param pvTaskCode_ 
+     */
+    void setTaskFunction( TaskFunction_t pvTaskCode_ )
+    {
+        pvTaskCode = pvTaskCode_;
+    }
+    /**
+     * @brief switch off alarm
+     * 
+     */
+    void alaramOff()
+    { 
+        alarmState->alarmOff(); 
+    }
+    /**
+     * @brief switch on alarm
+     * 
+     */
+    void alaramOn()
+    { 
+        alarmState->alarmOn(); 
+    }
+    /**
+     * @brief initialize snoozeState 
+     * 
+     */
+    void snoozeInit()
+    { 
+        alarmState->initSnooze(); 
+    }
+    /**
+     * @brief switch snooze off
+     * 
+     */
+    void snoozeOff()
+    { 
+        alarmState->snoozeOff(); 
+    }
+    /**
+     * @brief switch snooze on
+     * 
+     */
+    void snoozeOn()
+    { 
+        alarmState->snoozeOn(); 
+    }
+
 private:
+    /**
+     * @brief print function for string 
+     * 
+     * @param str 
+     * @param bNewLine 
+     */
     static void print(const std::string &str, bool bNewLine = true) {
         if( bNewLine )
             dbSerialPrintln(str.c_str());
         else
             dbSerialPrint(str.c_str());
     }
+    /**
+     * @brief print function for int 
+     * 
+     * @param iNum 
+     * @param bNewLine 
+     */
     static void print(int iNum, bool bNewLine = false) { 
         if( bNewLine )
             dbSerialPrintln(iNum);
         else
             dbSerialPrintln(iNum);
     }
+    /**
+     * @brief default unhandelt event function
+     * 
+     * @param str 
+     */
     static void unhandledEvent(const std::string &str) { print("unhandled event " + str); }
-
-public:
-    // MyDFPlayer();
-    MyDFPlayer(int8_t rx_=SWSERIAL_RX, int8_t tx_=SWSERIAL_TX );
-    ~MyDFPlayer();
-
-    const char *getDetail(uint8_t type, int value);
-    
-    SoftwareSerial *getSoftwareSerial(){return &softwareSerial;}
-
-    bool _begin_(){ return begin(softwareSerial,false,true); }
-
-    void startDFPlayer();
-
-    void startSunLoopTask();
-    void stopSoundLoopTask();
-
-    void setTaskFunction( TaskFunction_t pvTaskCode_ )
-    {
-        pvTaskCode = pvTaskCode_;
-    }
-
-    void alaramOff()
-    { 
-        alarmState->alarmOff(); 
-    }
-    void alaramOn()
-    { 
-        alarmState->alarmOn(); 
-    }
-
-    void snoozeInit()
-    { 
-        alarmState->initSnooze(); 
-    }
-    void snoozeOff()
-    { 
-        alarmState->snoozeOff(); 
-    }
-    void snoozeOn()
-    { 
-        alarmState->snoozeOn(); 
-    }
-
+    /**
+     * @brief listerner function for MDispatcher
+     * 
+     * @param string_ 
+     * @param event_ 
+     */
+    void listener(String string_, EventEnum event_) {
+        print( "listener() for ", false);
+        print( "MyDFPlayer"     , false);
+        print( ", got: "        , false );
+        print( string_.c_str()  , false );
+        print( ", "             , false );
+        print( event_ ); 
+    }    
 
 /* states */
 private:
-    /* snooze */
+    /**
+     * @brief generic snooze state
+     * 
+     */
     struct SnoozeState : public GenericState<MyDFPlayer, SnoozeState> {
         using GenericState::GenericState;
         virtual void snoozeOn(int iTime) { (void)iTime; unhandledEvent("SnoozeState"); }
         virtual void snoozeOff() { unhandledEvent("SnoozeState"); }
     };
-
+    /**
+     * @brief snooze on state
+     * 
+     */
     struct SnoozeOn : public SnoozeState {
         using SnoozeState::SnoozeState;
         void entry() 
@@ -123,7 +225,10 @@ private:
             print("leaving SnoozeOn");
         }
     };
-
+    /**
+     * @brief snooze of state
+     * 
+     */
     struct SnoozeOff : public SnoozeState {
         using SnoozeState::SnoozeState;
         void entry() 
@@ -147,7 +252,10 @@ private:
     };
 
 private:
-    /* alarm */
+    /**
+     * @brief generic alarm state
+     * 
+     */
     struct AlarmState : public GenericState<MyDFPlayer, AlarmState> {
         using GenericState::GenericState;
         virtual void alarmOn() { unhandledEvent("alarm on"); }
@@ -157,7 +265,10 @@ private:
         virtual void initSnooze() { unhandledEvent("initSnooze"); }
     };
     StateRef<AlarmState> alarmState;
-
+    /**
+     * @brief alarm on state
+     * 
+     */
     struct AlarmOn : public AlarmState {
         using AlarmState::AlarmState;
         void initSnooze()
@@ -169,7 +280,7 @@ private:
         { 
             print("entering AlarmOn");
             /* start sound task */
-            stm.startSunLoopTask(); 
+            stm.startSoundLoopTask(); 
         }
         void alarmOn() 
         { 
@@ -200,7 +311,10 @@ private:
         // snooze is state of AlarmOn
         StateRef<SnoozeState> snoozeState;
     };
-
+    /**
+     * @brief alarm off state
+     * 
+     */
     struct AlarmOff : public AlarmState {
         using AlarmState::AlarmState;
         void entry() 

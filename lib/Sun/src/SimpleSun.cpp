@@ -472,20 +472,11 @@ int SimpleSun::getSunPhase()
 void SimpleSun::blaulicht()
 {
     strand_t* strip = this->STRANDS[0];
-    this->blueLightCicles++;
     for(int i = 0; i < this->getNumLeds(); i++)
     {
         strip->pixels[i] = pixelFromRGBW( 0, 0, 255, 0 ); 
     }
-    if( this->blueLightCicles <= 100 )
-    {
-        this->drawPixels();
-    }
-    else
-    {
-        this->blueLightCicles = 0;
-        this->setMode(SUNOFF);
-    }
+    this->drawPixels();
 }
 /**
  * @brief set all leds to blue

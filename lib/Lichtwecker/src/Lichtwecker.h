@@ -19,6 +19,8 @@
 #include <ESPmDNS.h>
 #include <SPIFFS.h>
 
+#include "MDispatcher.h"
+
 #ifndef LICHTWECKER_H
 #define LICHTWECKER_H
 
@@ -59,6 +61,8 @@ private:
     NextionDisplay nextionDisplay;
     NexRtc nexRtc;
     SimpleSun simpleSun;
+
+    MDispatcher<String, EventEnum> dispatcher;
     
     // ESPNexUpload espNexUpload;
     // WebServer webServer;
@@ -74,12 +78,24 @@ private:
     bool result   = true;
 
 private:
+    /**
+     * @brief print for string
+     * 
+     * @param str 
+     * @param bNewLine 
+     */
     static void print(const std::string &str, bool bNewLine = true) {
         if( bNewLine )
             dbSerialPrintln(str.c_str());
         else
             dbSerialPrint(str.c_str());
     }
+    /**
+     * @brief print for int
+     * 
+     * @param iNum 
+     * @param bNewLine 
+     */
     static void print(int iNum, bool bNewLine = false) { 
         if( bNewLine )
             dbSerialPrintln(iNum);
@@ -88,24 +104,87 @@ private:
     }
 
 public:
-    Lichtwecker(/* args */);
+    /**
+     * @brief Construct a new Lichtwecker object
+     * 
+     */
+    Lichtwecker();
+    /**
+     * @brief Destroy the Lichtwecker object
+     * 
+     */
     ~Lichtwecker();
     
 private:
+    /**
+     * @brief start sequence
+     * 
+     * @return true 
+     * @return false 
+     */
     bool startFS();
+    /**
+     * @brief start filesystem
+     * 
+     * @param ssid_ 
+     * @param password_ 
+     * @param host_ 
+     * @return true 
+     * @return false 
+     */
     bool startWifi(const char *ssid_, const char *password_, const char *host_ );
-
+    /**
+     * @brief Get the Content Type object
+     * 
+     * @param filename 
+     * @return String 
+     */
     String getContentType(String filename);
+    /**
+     * @brief handle file read
+     * 
+     * @param path 
+     * @return true 
+     * @return false 
+     */
     bool handleFileRead(String path);
+    /**
+     * @brief handle file upload
+     * 
+     * @return true 
+     * @return false 
+     */
     bool handleFileUpload();
 
 public:
-    /* start functions */
+    /**
+     * @brief start sequence
+     * 
+     */
     void start();
-    /* getter and setter */
+    /**
+     * @brief get pointer to DFPlayer
+     * 
+     * @return MyDFPlayer* 
+     */
     MyDFPlayer *getDFPlayer(){ return &myDFPlayer; }
-    //SimpleSun *getSimpleSun(){ return &simpleSun; }
+    /**
+     * @brief Get the Simple Sun object
+     * 
+     * @return SimpleSun* 
+     */
+    SimpleSun *getSimpleSun(){ return &simpleSun; }
+    /**
+     * @brief Get the Nextion Display object
+     * 
+     * @return NextionDisplay* 
+     */
     NextionDisplay *getNextionDisplay(){ return &nextionDisplay; }
+    /**
+     * @brief Get the Nex Rtc object
+     * 
+     * @return NexRtc* 
+     */
     NexRtc *getNexRtc(){ return &nexRtc; }
 
     void setOffsetSun( int iOffset_) { iOffsetSun = iOffset_; }
