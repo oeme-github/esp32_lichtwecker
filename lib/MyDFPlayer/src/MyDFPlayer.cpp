@@ -9,8 +9,11 @@
  */
 MyDFPlayer::MyDFPlayer(int8_t rx_, int8_t tx_):softwareSerial(rx_,tx_)
 {
+  /* -------------------------------------------------- */
+  /* set pin mode for busy chanal                       */
   pinMode(GPIO_MP3, INPUT);
-  /* init states */
+  /* -------------------------------------------------- */
+  /* init states                                        */
   AlarmState::init<AlarmOff>(*this, alarmState);
   this->snoozeInit();
 }
@@ -91,9 +94,11 @@ void MyDFPlayer::startDFPlayer()
 {
   print("DFRobot DFPlayer Mini Demo");
   print("Initializing DFPlayer ... (May take 3~5 seconds)");
-  /* softwareserail */
+  /* -------------------------------------------------- */
+  /* softwareserail                                     */
   getSoftwareSerial()->begin(9600);
-  /* DFPlayer begin */  
+  /* -------------------------------------------------- */
+  /* DFPlayer begin                                     */  
   if (!_begin_()) 
   {   
     print("Unable to begin:");
@@ -102,7 +107,8 @@ void MyDFPlayer::startDFPlayer()
     while(true);
   }
   print("DFPlayer Mini online.");
-  /* test sound */
+  /* -------------------------------------------------- */
+  /* test sound                                         */
   int8_t file_count = readFileCounts();
   print("Files:", false);
   print(file_count);
@@ -129,6 +135,8 @@ void MyDFPlayer::startDFPlayer()
  */
 void MyDFPlayer::startSoundLoopTask()
 {
+    volume(10);
+    start();
     xTaskCreatePinnedToCore(
                     this->pvTaskCode,       /* Task function. */
                     "TaskSoundLoop",        /* name of task. */
@@ -146,5 +154,7 @@ void MyDFPlayer::startSoundLoopTask()
  */
 void MyDFPlayer::stopSoundLoopTask()
 {
+    volume(0);
+    stop();
     vTaskDelete(this->hTaskSoundLoop);
 }

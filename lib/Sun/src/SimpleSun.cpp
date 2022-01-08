@@ -28,14 +28,13 @@ void SimpleSun::init(int iWhite, int iSunPhase, int iFadeStep, int iSunFadeStep,
 bool SimpleSun::init_ledDriver()
 {
     dbSunSerialPrintln("init_ledDriver()");
-
+    /* -------------------------------------------------- */
+    /* initialize led driver and strands                  */
     digitalLeds_initDriver();
-
     this->STRANDS[0]  = { &strand };
     this->STRANDCNT   = COUNT_OF(STRANDS);
-    /** 
-     * Init unused outputs low to reduce noise
-     */
+    /* -------------------------------------------------- */
+    /* Init unused outputs low to reduce noise            */
     gpioSetup(14, OUTPUT, LOW);
     gpioSetup(15, OUTPUT, LOW);
     gpioSetup(26, OUTPUT, LOW);
@@ -44,18 +43,22 @@ bool SimpleSun::init_ledDriver()
     this->rc = digitalLeds_addStrands(this->STRANDS, this->STRANDCNT);
     dbSunSerialPrint( "LED-RC:"); dbSunSerialPrintln(this->rc);
     if(digitalLeds_initDriver() == 0) {
-        #ifdef _WITH_TEST_LED_
+#ifdef _WITH_TEST_LED_
             weislicht();
             vTaskDelay(5000/portTICK_PERIOD_MS);
             resetPixels();
             vTaskDelay(5000/portTICK_PERIOD_MS);
-        #endif
-        /* init states */
+#endif
+        /* ---------------------------------------------- */
+        /* init states                                    */
         LightState::init<LightOff>(*this, lightState);
         SunState::init<SunDown>(*this, sunState);
-        /* return */
+        /* ---------------------------------------------- */
+        /* return                                         */
         return true;
     }
+    /* -------------------------------------------------- */
+    /* default return                                     */
     dbSunSerialPrint( "LED-ERROR: something went wrong.");
     return false;
 }
@@ -159,14 +162,16 @@ int SimpleSun::calWhiteValue()
  */
 void SimpleSun::drawAmbient()
 {
-    // ab 25 wird led nicht mehr wirklich heller
-    // insgesamt wird es zu schnell hell
-    // -> erste einzelne led zuschalten -> bis Anzahl led erreicht
-    // dann durch die Reihe heller werden
-    // this->whiteLevel läuft von 1 - 100
-    // -> 0 - 28 je eine led dazu
-    // -> ab 28 je 2 erhöhen
-    strand_t* strip = this->STRANDS[0];
+    /* -------------------------------------------------- */
+    /* ab 25 wird led nicht mehr wirklich heller          */
+    /* insgesamt wird es zu schnell hell                  */
+    /* -> erste einzelne led zuschalten                   */ 
+    /* -> bis Anzahl led erreicht                         */
+    /* dann durch die Reihe heller werden                 */
+    /* this->whiteLevel läuft von 1 - 100                 */
+    /* -> 0 - 28 je eine led dazu                         */
+    /* -> ab 28 je 2 erhöhen                              */
+    strand_t* strip = this->STRANDS[0]; 
 #ifdef _DEBUG_SUN_DETAILS_
     print("drawAmbient() - whiteLevel: ", false);
     print( this->whiteLevel );
@@ -202,13 +207,10 @@ void SimpleSun::drawSun()
     {
         this->sunFadeStep = 0;
     }
-
     int sunStart    = (this->getNumLeds()/2)-(this->currentSun/2);
     int newSunLeft  = sunStart-1;
     int newSunRight = sunStart+this->currentSun;
-
     int whiteVale   = this->calWhiteValue();
-
     if(newSunLeft >= 0 && newSunRight <= this->getNumLeds() && this->sunPhase > 0)
     {
         int redValue   = map(this->sunFadeStep, 0, 100, 0, max(this->whiteLevel,50));
@@ -264,34 +266,6 @@ void SimpleSun::sunset()
     this->drawPixels();
 }
 /**
- * @brief returns true if sunPahes >= 100, else false
- * 
- * @return true 
- * @return false 
- */
-bool SimpleSun::isLight()
-{
-    if( this->getMode() == LIGHT )
-    {
-        return true;
-    }
-    return false;
-}
-/**
- * @brief returns true if sunPahes >= 100, else false
- * 
- * @return true 
- * @return false 
- */
-bool SimpleSun::isDark()
-{
-    if( this->getMode() == DARK )
-    {
-        return true;
-    }
-    return false;
-}
-/**
  * @brief increase value of sunPhase and call increase functions
  * 
  */
@@ -310,7 +284,6 @@ void SimpleSun::increaseSunPhase()
     else
     {
         dbSunSerialPrintln("...and it is light.");
-        this->setMode(LIGHT);
         this->sunUp();
     }
 }
@@ -333,7 +306,7 @@ void SimpleSun::decreaseSunPhase()
     else
     {
         dbSunSerialPrintln("...and it is darkness.");
-        this->setMode( DARK );
+        this->sunDown();
     }
 }
 /**
@@ -492,73 +465,6 @@ void SimpleSun::weislicht()
     this->drawPixels();
 }
 /**
- * @brief get mode from sun
- * 
- * @return sunmode_t 
- */
-sunmode_t SimpleSun::getMode()
-{
-    return this->mode;
-}
-/**
- * @brief set mode in sun
- * 
- * @param newmode 
- * @return true 
- * @return false 
- */
-bool SimpleSun::setMode(sunmode_t newmode)
-{
-    if(this->mode != newmode)
-    {
-        if(this->mode == SUNOFF)
-        {
-            // sun is off and can get any other mode
-            this->mode = newmode;
-        }
-        else
-        {
-            // sun is not off
-            if( this->getMode() == SUNRISE && newmode == LIGHT )
-            {
-                // it is light
-                this->mode = newmode;
-                this->delTimer();
-            }
-            else if( this->getMode() == SUNSET && newmode == DARK )
-            {
-                // it is dark
-                this->mode = newmode;
-                this->delTimer();
-            }
-            else if( this->getMode() == DARK || this->getMode() == LIGHT )
-            {
-                // all newmodes allowed
-                this->mode = newmode;
-            }
-            else if( newmode == SUNOFF )
-            {
-                // swith the sun off
-                this->mode = newmode;
-                this->delTimer();
-                this->resetPixels();
-                this->drawPixels();
-            }
-            else
-            {
-                // we can not change the mode
-                dbSunSerialPrint("ERROR: old mode[");
-                dbSunSerialPrint( this->getMode() );
-                dbSunSerialPrint("] new mode[");
-                dbSunSerialPrint( newmode );
-                dbSunSerialPrintln( "] - switch mode not alowed." );
-                return false;
-            }
-        }
-    }
-    return true;
-}
-/**
  * @brief deletes a timer
  * 
  */
@@ -577,7 +483,7 @@ void SimpleSun::delTimer()
  */
 void SimpleSun::setNumTimer( int iTimer )
 {
-#ifdef SHOW_DEBUG_DETAILS     
+#ifdef _DEBUG_SUN_DETAILS_     
     dbSunSerialPrint("setNumTimer():");
     dbSunSerialPrintln(this->numTimer);
 #endif
@@ -598,22 +504,31 @@ int SimpleSun::getNumTimer()
  * 
  * @param intPayload 
  */
-void SimpleSun::letSunRise( int intPayload_, bool bInit_)
+void SimpleSun::letSunRise( int intPayload_, bool bInit_ )
 {
-#ifdef SHOW_DEBUG_DETAILS
-    dbSerialPrintln("letSunRise:");
-    printDateTime();
+#ifdef _DEBUG_SUN_DETAILS_
+    dbSunSerialPrint("SimpleSun::letSunRise( ");
+    dbSunSerialPrint( intPayload_ );
+    dbSunSerialPrint( ", " );
+    dbSunSerialPrint( bInit_ );
+    dbSunSerialPrintln( " )");
 #endif
     if( bInit_ )
     {
+#ifdef _DEBUG_SUN_DETAILS_
+        dbSunSerialPrintln("init sun parameters....");
+#endif
         /* set start parameters */
         this->init(0,0,0,0,intPayload_);
     }
     /* rise the sun */
     this->sunrise();
     /* start timer */
-    if( !this->isLight() )
+    if( strcmp( this->getSunState(), "SunRise" ) == 0 )
     {
+#ifdef _DEBUG_SUN_DETAILS_
+        dbSunSerialPrintln( "-> set NumTimer");
+#endif
         /* continue sunrise */
         this->setNumTimer(this->setTimeout( this->getWakeDelay(), this->ptrTimerCB ));
     }

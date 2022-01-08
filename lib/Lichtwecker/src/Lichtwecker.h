@@ -61,11 +61,10 @@ private:
     NextionDisplay nextionDisplay;
     NexRtc nexRtc;
     SimpleSun simpleSun;
-
     MDispatcher<String, EventEnum> dispatcher;
     
-    // ESPNexUpload espNexUpload;
-    // WebServer webServer;
+    ESPNexUpload espNexUpload;
+    WebServer webServer;
 
     /* WIFI */
     const char* ssid      = SSID_NAME;
@@ -74,8 +73,8 @@ private:
     /* SUN */
     int iOffsetSun        = OFFSET_SUN; 
     /* Upload Server */
-    int fileSize  = 0;
-    bool result   = true;
+    int fileSize          = 0;
+    bool result           = true;
 
 private:
     /**
@@ -84,7 +83,8 @@ private:
      * @param str 
      * @param bNewLine 
      */
-    static void print(const std::string &str, bool bNewLine = true) {
+    static void print(const std::string &str, bool bNewLine = true) 
+    {
         if( bNewLine )
             dbSerialPrintln(str.c_str());
         else
@@ -96,7 +96,8 @@ private:
      * @param iNum 
      * @param bNewLine 
      */
-    static void print(int iNum, bool bNewLine = false) { 
+    static void print(int iNum, bool bNewLine = false) 
+    { 
         if( bNewLine )
             dbSerialPrintln(iNum);
         else
@@ -141,20 +142,11 @@ private:
      */
     String getContentType(String filename);
     /**
-     * @brief handle file read
+     * @brief webserver task
      * 
-     * @param path 
-     * @return true 
-     * @return false 
+     * @param pvParameters 
      */
-    bool handleFileRead(String path);
-    /**
-     * @brief handle file upload
-     * 
-     * @return true 
-     * @return false 
-     */
-    bool handleFileUpload();
+    void taskWebServerCode( void * pvParameters );
 
 public:
     /**
@@ -167,28 +159,90 @@ public:
      * 
      * @return MyDFPlayer* 
      */
-    MyDFPlayer *getDFPlayer(){ return &myDFPlayer; }
+    MyDFPlayer *getDFPlayer()
+    { 
+        return &myDFPlayer; 
+    }
     /**
      * @brief Get the Simple Sun object
      * 
      * @return SimpleSun* 
      */
-    SimpleSun *getSimpleSun(){ return &simpleSun; }
+    SimpleSun *getSimpleSun()
+    { 
+        return &simpleSun; 
+    }
     /**
      * @brief Get the Nextion Display object
      * 
      * @return NextionDisplay* 
      */
-    NextionDisplay *getNextionDisplay(){ return &nextionDisplay; }
+    NextionDisplay *getNextionDisplay()
+    { 
+        return &nextionDisplay; 
+    }
     /**
      * @brief Get the Nex Rtc object
      * 
      * @return NexRtc* 
      */
-    NexRtc *getNexRtc(){ return &nexRtc; }
-
-    void setOffsetSun( int iOffset_) { iOffsetSun = iOffset_; }
-    int  getOffsetSun( ) { return iOffsetSun; }
+    NexRtc *getNexRtc()
+    { 
+        return &nexRtc; 
+    }
+    /**
+     * @brief Get the Web Server object
+     * 
+     * @return WebServer* 
+     */
+    WebServer *getWebServer()
+    {
+        return &webServer;
+    }
+    /**
+     * @brief Get the Esp Nex Upload object
+     * 
+     * @return ESPNexUpload* 
+     */
+    ESPNexUpload *getEspNexUpload()
+    {
+        return &espNexUpload;
+    }
+    /**
+     * @brief Set the Offset Sun object
+     * 
+     * @param iOffset_ 
+     */
+    void setOffsetSun( int iOffset_) 
+    { 
+        iOffsetSun = iOffset_; 
+    }
+    /**
+     * @brief Get the Offset Sun object
+     * 
+     * @return int 
+     */
+    int  getOffsetSun( ) 
+    { 
+        return iOffsetSun; 
+    }
+    /**
+     * @brief broadcast message
+     * 
+     * @param msg_ 
+     */
+    void broadcastMessage( const char* msg_ )
+    { 
+        dispatcher.broadcast(msg_, EVENT1); 
+    }
+    /**
+     * @brief handle file read
+     * 
+     * @param path 
+     * @return true 
+     * @return false 
+     */
+    bool handleFileRead(String path);
 
 };
 

@@ -22,7 +22,7 @@
 
 #define DEBUG_SERIAL_SUN_ENABLE
 #define _WITH_TEST_LED_
-// _DEBUG_SUN_DETAILS_
+#define _DEBUG_SUN_DETAILS_
 
 #ifdef DEBUG_SERIAL_SUN_ENABLE
     #define dbSunSerialPrint(a)    Serial.print(a)
@@ -36,14 +36,6 @@
     #define dbSunSerialBegin(a)    do{}while(0)
 #endif
 
-typedef enum {
-    SUNRISE   = 1,
-    LIGHT     = 11,
-    SUNSET    = 2,
-    DARK      = 22,
-    SUNBLAULI = 3,
-    SUNOFF    = 0
-} sunmode_t;
 
 class SimpleSun : public SimpleTimer {
 /* data */
@@ -74,8 +66,6 @@ private:
     int sun                = (SUNSIZE * NUM_LEDS)/100;
     int aurora             = NUM_LEDS;
 
-    sunmode_t mode         = SUNOFF; 
-    
     int numTimer           = 0; 
 
     uint32_t iOffsetSun    = 30;
@@ -87,126 +77,323 @@ private:
 
 /* methodes */
 public:
+    /**
+     * @brief Construct a new Simple Sun object
+     * 
+     */
     SimpleSun(){};
+    /**
+     * @brief Destroy the Simple Sun object
+     * 
+     */
     ~SimpleSun(){};
-    
+    /**
+     * @brief initialize parameter of sun
+     * 
+     * @param iWhite 
+     * @param iSunPhase 
+     * @param iFadeStep 
+     * @param iSunFadeStep 
+     * @param iWakeDelay 
+     */
     void init(int iWhite, int iSunPhase, int iFadeStep, int iSunFadeStep, int iWakeDelay);
+    /**
+     * @brief initialize led driver
+     * 
+     * @return true 
+     * @return false 
+     */
     bool init_ledDriver();
-    
+    /**
+     * @brief Set the Num Leds object
+     * 
+     * @param iLeds 
+     */
     void setNumLeds(int iLeds);
+    /**
+     * @brief Get the Num Leds object
+     * 
+     * @return int 
+     */
     int  getNumLeds();
-
+    /**
+     * @brief Get the Rc object
+     * 
+     * @return int 
+     */
     int getRc();
-    sunmode_t getMode();
-    bool setMode(sunmode_t newmode);
-
+    /**
+     * @brief Get the Sun Phase object
+     * 
+     * @return int 
+     */
     int getSunPhase();
-
-    void sunrise();
-    void sunset();
-
-    bool isLight();
-    bool isDark();
-
+    /**
+     * @brief Set the Wake Delay object
+     * 
+     * @param iDelay 
+     */
     void setWakeDelay(unsigned int iDelay);
+    /**
+     * @brief Get the Wake Delay object
+     * 
+     * @return unsigned int 
+     */
     unsigned int getWakeDelay();
-
+    /**
+     * @brief delete timer
+     * 
+     */
     void delTimer();
-
+    /**
+     * @brief Set the Num Timer object
+     * 
+     * @param iNumTimer 
+     */
     void setNumTimer( int iNumTimer );
+    /**
+     * @brief Get the Num Timer object
+     * 
+     * @return int 
+     */
     int  getNumTimer();
-
-    void letSunRise( int intPayload_ = 0, bool bInit_ = false );
-
+    /**
+     * @brief Set the Timer C B object
+     * 
+     * @param ptrTimerCB_ 
+     */
     void setTimerCB(timer_callback ptrTimerCB_ )
     {
         ptrTimerCB = ptrTimerCB_;
     }
-
+    /**
+     * @brief Set the Task Function object
+     * 
+     * @param pvTaskCode_ 
+     */
     void setTaskFunction( TaskFunction_t pvTaskCode_ )
     {
         pvTaskCode = pvTaskCode_;
     }
-
+    /**
+     * @brief sunrise function
+     * 
+     */
+    void sunrise();
+    /**
+     * @brief sunset function
+     * 
+     */
+    void sunset();
+    /**
+     * @brief let the sun rise
+     * 
+     * @param intPayload_ 
+     * @param bInit_ 
+     */
+    void letSunRise( int intPayload_ = 0, bool bInit_ = false );
+    /**
+     * @brief start the sun loop task
+     * 
+     */
     void startSunLoopTask();
-
-    void registerCB(MDispatcher<String, EventEnum> &dispatcher) {
+    /**
+     * @brief register to dispatcher
+     * 
+     * @param dispatcher 
+     */
+    void registerCB(MDispatcher<String, EventEnum> &dispatcher) 
+    {
         using namespace std::placeholders;
         dispatcher.addCB(std::bind(&SimpleSun::listener, this, _1, _2));
     }    
-
-    /* sun */
+    /* -------------------------------------------------- */
+    /* sun state functions                                */
+    /**
+     * @brief companion function sun down state
+     * 
+     */
     void sunDown() 
     {  
         print("sunDown() - sunState->sunDown()");
         sunState->sunDown();  
     }
+    /**
+     * @brief companion function sun rise state
+     * 
+     */
     void sunRise()
     {
         print("sunRise() - sunState->sunRise()");
-        sunState->sunRise();  
+        sunState->sunRise(); 
     }
+    /**
+     * @brief companion function sun up state
+     * 
+     */
     void sunUp()
     { 
         print("sunUp() - sunState->sunUp()");
         sunState->sunUp();  
     }
+    /**
+     * @brief Get the Sun State object
+     * 
+     * @return const char* 
+     */
     const char *getSunState()
     {
         return sunState->getSunState();
     }
-
-    /* light */
+    /* -------------------------------------------------- */
+    /* light state function                               */
+    /**
+     * @brief light on companion 
+     * 
+     */
     void lightOn()
     {
         print("lightOn()");  
         lightState->lightOn();  
     }
+    /**
+     * @brief light off companion
+     * 
+     */
     void lightOff()
     { 
         print("lightOn()");
         lightState->lightOff();
     }
+    /**
+     * @brief light blue companion
+     * 
+     */
     void lightBlue()
     { 
         print("lightBlue()");
         lightState->lightBlue();
     }
+    /**
+     * @brief Get the Light State object
+     * 
+     * @return const char* 
+     */
     const char *getLightState()
     {
         return lightState->getLightState();
     }
 
 private:
+    /**
+     * @brief switch on the lamp with wight light 
+     * 
+     */
     void weislicht();
+    /**
+     * @brief switch on the lamp with blue light
+     * 
+     */
     void blaulicht();
-
+    /**
+     * @brief calculate the sun
+     * 
+     */
     void calSun();
+    /**
+     * @brief draw the ambiente during sunrise/sunset
+     * 
+     */
     void drawAmbient();
+    /**
+     * @brief draw aurora during sunrise/sunset
+     * 
+     */
     void drawAurora();
+    /**
+     * @brief draw sun
+     * 
+     */
     void drawSun();
+    /**
+     * @brief calculate white level
+     * 
+     * @return int 
+     */
     int calWhiteValue();
-
+    /**
+     * @brief increase sun fade during sinrise
+     * 
+     */
     void increaseSunFadeStep();
+    /**
+     * @brief decrease sun fade during sunset
+     * 
+     */
     void decreaseSunFadeStep();
-
+    /**
+     * @brief increase fade during sunrise
+     * 
+     */
     void increaseFadeStep();
+    /**
+     * @brief decrease fade during sunset
+     * 
+     */
     void decreaseFadeStep();
-
+    /**
+     * @brief increase white level during sunrise
+     * 
+     */
     void increaseWhiteLevel();
+    /**
+     * @brief decrease white level during sunset
+     * 
+     */
     void decreaseWhiteLevel();
-
+    /**
+     * @brief increase sunphase during sunrise
+     * 
+     */
     void increaseSunPhase();
+    /**
+     * @brief decrease sunphase during sunset
+     * 
+     */
     void decreaseSunPhase();
-
+    /**
+     * @brief reset pixels of sun (leds)
+     * 
+     */
     void resetPixels();
+    /**
+     * @brief draw pixels
+     * 
+     */
     void drawPixels();
-
+    /**
+     * @brief Get the Strand object
+     * 
+     * @return strand_t 
+     */
     strand_t getStrand();
-
+    /**
+     * @brief 
+     * 
+     * @param pvParameters 
+     */
     void taskSunLoopCode( void * pvParameters );
+    /**
+     * @brief stop the sunloop task
+     * 
+     */
     void stopSunLoopTask();
-
+    /**
+     * @brief listener function for receiving message from dispatcher
+     * 
+     * @param string_ 
+     * @param event_ 
+     */
     void listener(String string_, EventEnum event_) {
         print( "listener() for ", false);
         print( "simpleSun"      , false);
@@ -217,23 +404,44 @@ private:
     }    
 
 private:
-
+    /**
+     * @brief print function for string
+     * 
+     * @param str 
+     * @param bNewLine 
+     */
     static void print(const std::string &str, bool bNewLine = true) {
         if( bNewLine )
             dbSunSerialPrintln(str.c_str());
         else
             dbSunSerialPrint(str.c_str());
     }
+    /**
+     * @brief print function for int
+     * 
+     * @param iNum 
+     * @param bNewLine 
+     */
     static void print(int iNum, bool bNewLine = true) { 
         if( bNewLine )
             dbSunSerialPrintln(iNum);
         else
             dbSunSerialPrint(iNum);
     }
+    /**
+     * @brief default unhandled event function
+     * 
+     * @param str 
+     */
     static void unhandledEvent(const std::string &str) { print("unhandled event " + str); }
 
 private:
-    /* sun */
+    /* -------------------------------------------------- */
+    /* sun states                                         */
+    /**
+     * @brief generic sun state
+     * 
+     */
     struct SunState : public GenericState<SimpleSun, SunState> {
         using GenericState::GenericState;
         virtual void sunDown() { unhandledEvent("sunDown"); }
@@ -242,7 +450,10 @@ private:
         virtual const char *getSunState() { unhandledEvent("getLightState"); return "unhandledEvent";}
     };
     StateRef<SunState> sunState;
-
+    /**
+     * @brief sun down state
+     * 
+     */
     struct SunDown : public SunState {
         using SunState::SunState;
         void entry() 
@@ -273,14 +484,24 @@ private:
             print("exit SunDown"); 
         }
     };
-
+    /**
+     * @brief sun rise state
+     * 
+     */
     struct SunRise : public SunState {
         using SunState::SunState;
         void entry() 
         { 
-            print("entry SunRise");
+            print( "entry SunRise" );
             /* start sunrise */
+            print( "call stm.startSunLoopTask()" );
             stm.startSunLoopTask();
+            vTaskDelay(100/portTICK_PERIOD_MS);
+            
+            print( "call stm.letSunRise( ", false );
+            print( stm.getWakeDelay()*60, false );
+            print( ", true )");
+            
             stm.letSunRise( stm.getWakeDelay()*60, true );
         }
         void sunDown() 
@@ -306,7 +527,10 @@ private:
             stm.stopSunLoopTask();
         }
     };
-
+    /**
+     * @brief sun up state
+     * 
+     */
     struct SunUp : public SunState {
         using SunState::SunState;
         void entry() 
@@ -338,7 +562,12 @@ private:
     };
 
 private:
-    /* light */
+    /* -------------------------------------------------- */
+    /* light states                                       */
+    /**
+     * @brief generic light state
+     * 
+     */
     struct LightState : public GenericState<SimpleSun, LightState> {
         using GenericState::GenericState;
         virtual void lightOn() { unhandledEvent("light on"); }
@@ -347,7 +576,10 @@ private:
         virtual const char *getLightState() { unhandledEvent("getLightState"); return "unhandledEvent";}        
     };
     StateRef<LightState> lightState;
-
+    /**
+     * @brief light on state
+     * 
+     */
     struct LightOn : public LightState {
         using LightState::LightState;
         void entry() 
@@ -378,7 +610,10 @@ private:
             print("leaving LightOn"); 
         }
     };
-
+    /**
+     * @brief light off state
+     * 
+     */
     struct LightOff : public LightState {
         using LightState::LightState;
         void entry() 
@@ -409,7 +644,10 @@ private:
             print("exit LightOff"); 
         }
     };
-
+    /**
+     * @brief light blue state
+     * 
+     */
     struct LightBlue : public LightState {
         using LightState::LightState;
         void entry() 

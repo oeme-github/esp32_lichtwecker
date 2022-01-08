@@ -1,6 +1,10 @@
 #include <Lichtwecker.h>
 #include <CallbackFunctions.h>
 
+#include <WebServer.h>
+
+#define _DEBUG_SUNRISE_
+
 /**
  * @brief define section
  */
@@ -32,11 +36,15 @@ int sound_count = 0 SOUND_TABLE;
  */
 Lichtwecker lichtwecker;
 
+// used only internally
+int fileSize  = 0;
+bool result   = true;
 
 /** 
  * === TASKS ===
  */
 TaskHandle_t hTaskNexLoop;
+TaskHandle_t hTaskWebServer;
 
 /**
  * @brief taskNexLoopCode()
@@ -53,7 +61,6 @@ void taskNexLoopCode( void * pvParameters ){
     vTaskDelay(100/portTICK_PERIOD_MS);
   }
 }
-
 /**
  * @brief taskSunLoopCode()
  * 
@@ -74,10 +81,15 @@ void taskSunLoopCode( void * pvParameters ){
 #ifdef _WITH_LOOP_DEBUG_
       dbSerialPrint( "SunState:" );
       dbSerialPrintln( lichtwecker.getSimpleSun()->getSunState() );
+      dbSerialPrint( "SunRise? " );
+      dbSerialPrintln( strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunRise") );
 #endif
       if( strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunRise") == 0 )
       {
-        lichtwecker.getSimpleSun()->run();
+#ifdef _WITH_LOOP_DEBUG_
+          dbSunSerialPrintln("run the timer...");
+#endif
+          lichtwecker.getSimpleSun()->run();
       }
     }
     /* need to delay the task because of warchdog         */
@@ -116,14 +128,152 @@ void taskSoundLoopCode( void * pvParameters ){
  */
 
 /**
- * @brief function to increase the sun phase
- * 
+ * === Web-Server functions ===
  */
+
+/**
+ * @brief handle upload rft files to nextion
+ * 
+ * @return true 
+ * @return false 
+ */
+bool handleFileUpload()
+{
+    /* -------------------------------------------------- */
+    /* prepare upload server                              */
+    HTTPUpload& upload = lichtwecker.getWebServer()->upload();
+    /* -------------------------------------------------- */
+    /* Check if file seems valid nextion tft file         */
+    if(!upload.filename.endsWith(F(".tft"))){
+        lichtwecker.getWebServer()->send(500, F("text/plain"), F("ONLY TFT FILES ALLOWED\n"));
+        return false;
+    }
+    /* -------------------------------------------------- */
+    /* handle send errors                                 */  
+    if(!result){
+        /* ---------------------------------------------- */
+        lichtwecker.getWebServer()->sendHeader(F("Location"),"/failure.html?reason=" + lichtwecker.getEspNexUpload()->statusMessage);
+        lichtwecker.getWebServer()->send(303);
+        return false;
+    }
+    /* -------------------------------------------------- */
+    /* check upload status                                */
+    if(upload.status == UPLOAD_FILE_START){
+        /* ---------------------------------------------- */
+        /* Prepare the Nextion display by seting up serial*/ 
+        /* and telling it the file size to expect         */
+        result = lichtwecker.getEspNexUpload()->prepareUpload(fileSize);    
+        if(result){
+            dbSerialPrint("Start upload. File size is: ");
+            dbSerialPrintln( (String(fileSize)+ String(" bytes")).c_str() );
+        }else{
+            dbSerialPrintln(lichtwecker.getEspNexUpload()->statusMessage.c_str());
+            return false;
+        }      
+    }
+    else if(upload.status == UPLOAD_FILE_WRITE)
+    {
+        /* ---------------------------------------------- */
+        /* Write the received bytes to the nextion        */
+        result = lichtwecker.getEspNexUpload()->upload(upload.buf, upload.currentSize);    
+        if(result){
+            dbSerialPrint(".");
+        }else{
+            dbSerialPrintln(lichtwecker.getEspNexUpload()->statusMessage.c_str());
+            return false;
+        }
+        vTaskDelay(10);
+    }
+    else if(upload.status == UPLOAD_FILE_END)
+    {
+        /* ---------------------------------------------- */
+        /* End the serial connection to the Nextion and   */
+        /* softrest it                                    */
+        lichtwecker.getEspNexUpload()->end();
+    }
+    /* -------------------------------------------------- */
+    /* default return                                     */
+    return true;
+}
+
+/**
+ * @brief handle success page
+ * 
+ * @return true 
+ * @return false 
+ */
+bool handleSuccess()
+{
+    dbSerialPrintln(F("Succesfully updated Nextion!\n"));
+    // Redirect the client to the success page after handeling the file upload
+    lichtwecker.getWebServer()->sendHeader(F("Location"),F("/success.html"));
+    lichtwecker.getWebServer()->send(303);
+    return true;
+}
+
+
+/**
+ * @brief htaskWebServerCode()
+ * 
+ * @param pvParameters 
+ */
+void taskWebServerCode( void * pvParameters ){
+    dbSerialPrint("hTaskWebServer running on core ");
+    dbSerialPrintln(xPortGetCoreID());
+
+    /* -------------------------------------------------- */
+    /* switch webserver on                                */ 
+    lichtwecker.getWebServer()->on( "/"
+                                  , HTTP_POST
+                                  , handleSuccess
+                                  , handleFileUpload
+    );
+    /* -------------------------------------------------- */ 
+    /* receive fileSize once a file is selected           */
+    /* (Workaround as the file content-length is          */
+    /* of by +/- 200 bytes.                               */
+    /* Known issue:                                       */ 
+    /*    https://github.com/esp8266/Arduino/issues/3787) */
+    lichtwecker.getWebServer()->on( "/fs"
+                                  , HTTP_POST
+                                  , [](){
+                                          fileSize = lichtwecker.getWebServer()->arg(F("fileSize")).toInt();
+                                          lichtwecker.getWebServer()->send(200, F("text/plain"), "");
+                                        }
+    );
+    /* -------------------------------------------------- */ 
+    /* called when the url is not defined here use it to  */
+    /* load content from SPIFFS                           */
+    lichtwecker.getWebServer()->onNotFound([](){
+                                                  if( !lichtwecker.handleFileRead( lichtwecker.getWebServer()->uri() ) )
+                                                  {
+                                                      lichtwecker.getWebServer()->send(404, F("text/plain"), F("FileNotFound"));
+                                                  }
+                                                }
+    );
+    /* -------------------------------------------------- */ 
+    /* start HTTP server                                  */
+    lichtwecker.getWebServer()->begin();
+    dbSerialPrintln(F("\nHTTP server started"));
+    /* -------------------------------------------------- */ 
+    /* catch upload server events                         */
+    while(true)
+    {
+        lichtwecker.getWebServer()->handleClient();
+        vTaskDelay(10/portTICK_PERIOD_MS);
+    }
+}
+
+/**
+ * === END Web-Server functions ===
+ */
+
+
 void sunRiseMain()
 {
-#ifdef SHOW_DEBUG_DETAILS
-  dbSerialPrint("sunRise()...");
-  dbSerialPrintln( simpleSun.getSunPhase());
+#ifdef _DEBUG_SUNRISE_
+  dbSerialPrint("sunRiseMain()...");
+  dbSerialPrintln( lichtwecker.getSimpleSun()->getSunPhase());
 #endif
   /* let sun rise (without parameter) */
   lichtwecker.getSimpleSun()->letSunRise();
@@ -181,6 +331,7 @@ void page0_tmSerialCmdCallback(void *ptr)
       lichtwecker.getNextionDisplay()->getNexVariableByName("vaOffsetSun")->getValue(&iOffsetSun);
       if(iOffsetSun > 0)
       {
+        dbSerialPrintln("got the offset...");
         lichtwecker.setOffsetSun(iOffsetSun);
         break;
       }
@@ -199,6 +350,7 @@ void page0_tmSerialCmdCallback(void *ptr)
   {
     dbSerialPrintln("alaup");
     lichtwecker.getDFPlayer()->alaramOn();
+    
   }
   /* -------------------------------------------------- */
   /* a_off -> switch alarm off                          */
@@ -290,12 +442,12 @@ void page3_btSnoozePushCallback(void *ptr)
 //     }
 //   }
 }
-
 /** 
  * === END CALLBACK SECTION ===
  */
-
-
+/* ================================================== */
+/* setup and main loop                                */
+/* ================================================== */
 /**
  * @brief setup() function
  * 
@@ -312,9 +464,10 @@ void setup(void)
     /* -------------------------------------------------- */
     /* set function for sun loop task                     */
     lichtwecker.getSimpleSun()->setTaskFunction(taskSunLoopCode);                
+    lichtwecker.getSimpleSun()->setTimerCB(sunRiseMain);  
     /* -------------------------------------------------- */
     /* set function for sound loop task                   */
-    lichtwecker.getDFPlayer()->setTaskFunction(taskSoundLoopCode);                
+    lichtwecker.getDFPlayer()->setTaskFunction(taskSoundLoopCode);  
     /* -------------------------------------------------- */
     /* just wait a while                                  */
     vTaskDelay(500/portTICK_PERIOD_MS);
@@ -327,10 +480,25 @@ void setup(void)
                     NULL,                   /* parameter of the task                     */
                     1,                      /* priority of the task                      */
                     &hTaskNexLoop,          /* Task handle to keep track of created task */
-                    1                       /* pin task to core 1                        */
+                    0                       /* pin task to core 1                        */
     );      
+    /* -------------------------------------------------- */
+    /* just wait a while                                  */
+    vTaskDelay(500/portTICK_PERIOD_MS);
+    /* -------------------------------------------------- */
+    /* start web-server                                   */
+    xTaskCreatePinnedToCore(
+                  taskWebServerCode,        /* Task function. */
+                  "TaskWebServer",          /* name of task. */
+                  10000,                    /* Stack size of task */
+                  NULL,                     /* parameter of the task */
+                  1,                        /* priority of the task */
+                  &hTaskWebServer,          /* Task handle to keep track of created task */
+                  1);                       /* pin task to core 0 */                    
+    /* -------------------------------------------------- */
+    /* just wait a while                                  */
+    vTaskDelay(500/portTICK_PERIOD_MS);
 }
-
 /**
  * @brief loop() function
  * 
