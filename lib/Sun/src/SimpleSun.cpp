@@ -138,13 +138,21 @@ void SimpleSun::drawAurora()
 int SimpleSun::calWhiteValue()
 {
     int whiteValue = 0;
-    if( this->whiteLevel <= 60 )
+    if( this->whiteLevel <= 40 )
     {
-        whiteValue = map(this->whiteLevel, 0, 60, 0, 30);
+        whiteValue = map(this->whiteLevel, 0, 40, 0, 20);
     }
-    else if( this->whiteLevel > 60 && this->whiteLevel <= 90 )
+    else if( this->whiteLevel > 40 && this->whiteLevel <= 60 )
     {
-        whiteValue = map(this->whiteLevel, 0, 90, 0, 80);
+        whiteValue = map(this->whiteLevel, 0, 60, 0, 50);
+    }
+    else if( this->whiteLevel > 60 && this->whiteLevel <= 80 )
+    {
+        whiteValue = map(this->whiteLevel, 0, 80, 0, 80);
+    }
+    else if( this->whiteLevel > 80 && this->whiteLevel <= 90 )
+    {
+        whiteValue = map(this->whiteLevel, 0, 90, 0, 110);
     }
     else
     {
@@ -283,7 +291,7 @@ void SimpleSun::increaseSunPhase()
     }
     else
     {
-        dbSunSerialPrintln("...and it is light.");
+        dbSunSerialPrintln("...and it is light -> switch to SunUp");
         this->sunUp();
     }
 }
@@ -548,7 +556,9 @@ void SimpleSun::startSunLoopTask()
                     1,                      /* priority of the task */
                     &this->hTaskSunLoop,    /* Task handle to keep track of created task */
                     1                       /* pin task to core 1 */
-    );                          
+    );    
+
+    vTaskSuspend(this->hTaskSunLoop);
 }
 
 /**
@@ -557,5 +567,60 @@ void SimpleSun::startSunLoopTask()
  */
 void SimpleSun::stopSunLoopTask()
 {
-    vTaskDelete(this->hTaskSunLoop);
+    vTaskSuspend(this->hTaskSunLoop);
 }
+
+/**
+ * @brief listener function for receiving message from dispatcher
+ * 
+ * @param string_ 
+ * @param event_ 
+ */
+void SimpleSun::listener(String string_, EventEnum event_) {
+    print( "listener() for ", false);
+    print( "simpleSun"      , false);
+    print( ", got: "        , false );
+    print( string_.c_str()  , false );
+    print( ", "             , false );
+    print( event_ ); 
+    print( "SunState: ", false );
+    print( this->getSunState() );
+    print( "LightState: ", false );
+    print( this->getLightState() );
+
+    /* -------------------------------------------------- */
+    /* switch light on                                    */
+    if( (strcmp("light_on", string_.c_str() ) == 0))  
+    {
+        print("light_on");
+        this->lightOn();
+    }
+    /* -------------------------------------------------- */
+    /* switch light off                                   */
+    if( (strcmp("light_off", string_.c_str() ) == 0))  
+    {
+        print("light_off");
+        this->lightOff();
+    }
+    /* -------------------------------------------------- */
+    /* sunup -> start sunrise                             */
+    if( (strcmp("sunup", string_.c_str() ) == 0))  
+    {
+        /* --------------------------------------------- */
+        /* let the sun rise                              */
+        this->sunRise();
+    }
+    /* -------------------------------------------------- */
+    /* alaup -> switch alarm on                           */
+    if( (strcmp("alaup", string_.c_str() ) == 0))  
+    {
+        this->sunDown();
+        this->lightOn();
+    }
+    /* -------------------------------------------------- */
+    /* a_off -> switch alarm off                          */
+    // if( (strcmp("a_off", string_.c_str() ) == 0))  
+    // {
+    //     print("a_off");
+    // }
+}    

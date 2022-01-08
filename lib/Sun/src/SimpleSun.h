@@ -22,7 +22,7 @@
 
 #define DEBUG_SERIAL_SUN_ENABLE
 #define _WITH_TEST_LED_
-#define _DEBUG_SUN_DETAILS_
+//#define _DEBUG_SUN_DETAILS_
 
 #ifdef DEBUG_SERIAL_SUN_ENABLE
     #define dbSunSerialPrint(a)    Serial.print(a)
@@ -253,7 +253,7 @@ public:
      */
     void lightOn()
     {
-        print("lightOn()");  
+        print("lightOn() -> lightState->lightOn()");  
         lightState->lightOn();  
     }
     /**
@@ -262,7 +262,7 @@ public:
      */
     void lightOff()
     { 
-        print("lightOn()");
+        print("lightOff() -> lightState->lightOff()");
         lightState->lightOff();
     }
     /**
@@ -394,14 +394,7 @@ private:
      * @param string_ 
      * @param event_ 
      */
-    void listener(String string_, EventEnum event_) {
-        print( "listener() for ", false);
-        print( "simpleSun"      , false);
-        print( ", got: "        , false );
-        print( string_.c_str()  , false );
-        print( ", "             , false );
-        print( event_ ); 
-    }    
+    void listener(String string_, EventEnum event_);
 
 private:
     /**
@@ -494,14 +487,8 @@ private:
         { 
             print( "entry SunRise" );
             /* start sunrise */
-            print( "call stm.startSunLoopTask()" );
-            stm.startSunLoopTask();
-            vTaskDelay(100/portTICK_PERIOD_MS);
-            
-            print( "call stm.letSunRise( ", false );
-            print( stm.getWakeDelay()*60, false );
-            print( ", true )");
-            
+            vTaskResume(stm.hTaskSunLoop);
+            vTaskDelay(50/portTICK_PERIOD_MS);
             stm.letSunRise( stm.getWakeDelay()*60, true );
         }
         void sunDown() 
@@ -523,8 +510,7 @@ private:
         }
         void exit() 
         { 
-            print("exit SunRise");
-            stm.stopSunLoopTask();
+            print("exit SunRise (stop sun loop task)."); 
         }
     };
     /**
@@ -536,6 +522,7 @@ private:
         void entry() 
         { 
             print("entry SunUp");
+            vTaskSuspend(stm.hTaskSunLoop);
             stm.lightOn();
         }
         void sunDown() 

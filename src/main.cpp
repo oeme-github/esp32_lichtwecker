@@ -122,7 +122,6 @@ void taskSoundLoopCode( void * pvParameters ){
     vTaskDelay(2000/portTICK_PERIOD_MS);
   }
 }
-
 /** 
  * === END TASKS SECTION ===
  */
@@ -195,7 +194,6 @@ bool handleFileUpload()
     /* default return                                     */
     return true;
 }
-
 /**
  * @brief handle success page
  * 
@@ -210,8 +208,6 @@ bool handleSuccess()
     lichtwecker.getWebServer()->send(303);
     return true;
 }
-
-
 /**
  * @brief htaskWebServerCode()
  * 
@@ -268,7 +264,14 @@ void taskWebServerCode( void * pvParameters ){
  * === END Web-Server functions ===
  */
 
+/**
+ * === Sun functions ===
+ */
 
+/**
+ * @brief sun timer function
+ * 
+ */
 void sunRiseMain()
 {
 #ifdef _DEBUG_SUNRISE_
@@ -278,6 +281,9 @@ void sunRiseMain()
   /* let sun rise (without parameter) */
   lichtwecker.getSimpleSun()->letSunRise();
 }
+/**
+ * === END Sun functions ===
+ */
 
 /** 
  * === NEXTION CALLBACK SECTION ===
@@ -301,64 +307,31 @@ void page0_tmSerialCmdCallback(void *ptr)
     dbSerialPrintln(elem->getName());
     elem->disable();
   }
-  /* ================================================== */
-  /* Check what tot do?                                 */
-  /* -------------------------------------------------- */
-  /* switch light on                                    */
-  if( (strncmp("light_on", (char *)ptr, 8 ) == 0))  
-  {
-    dbSerialPrintln("light_on");
-    lichtwecker.getSimpleSun()->lightOn();
-  }
-  /* -------------------------------------------------- */
-  /* switch light off                                   */
-  if( (strncmp("light_off", (char *)ptr, 9 ) == 0))  
-  {
-    dbSerialPrintln("light_off");
-    lichtwecker.getSimpleSun()->lightOff();
-  }
   /* -------------------------------------------------- */
   /* sunup -> start sunrise                             */
   if( (strncmp("sunup", (char *)ptr, 5 ) == 0))  
   {
-    dbSerialPrintln("sunup -> SunRise()");
-    uint32_t iOffsetSun = 0;
-    /* start loop task                                  */
-    dbSerialPrintln("create sun loop task...");
-    /* get the offset from nextion dixplay              */
-    for(int i=0; i<=5; i++)
-    {
-      lichtwecker.getNextionDisplay()->getNexVariableByName("vaOffsetSun")->getValue(&iOffsetSun);
-      if(iOffsetSun > 0)
+      uint32_t iOffsetSun = 0;
+      /* ---------------------------------------------- */
+      /* get the offset from nextion dixplay            */
+      for(int i=0; i<=5; i++)
       {
-        dbSerialPrintln("got the offset...");
-        lichtwecker.setOffsetSun(iOffsetSun);
-        break;
+          lichtwecker.getNextionDisplay()->getNexVariableByName("vaOffsetSun")->getValue(&iOffsetSun);
+          if(iOffsetSun > 0)
+          {
+              dbSerialPrintln("got the offset...");
+              break;
+          }
       }
-    }
-    if(iOffsetSun==0)
-    {
-      iOffsetSun=WAKE_DELAY;
-    }
-    lichtwecker.getSimpleSun()->setWakeDelay(iOffsetSun);  
-    lichtwecker.getSimpleSun()->setTimerCB( sunRiseMain );
-    lichtwecker.getSimpleSun()->sunRise();
+      if(iOffsetSun==0)
+      {
+          iOffsetSun=WAKE_DELAY;
+      }
+      lichtwecker.getSimpleSun()->setWakeDelay(iOffsetSun);  
   }
   /* -------------------------------------------------- */
-  /* alaup -> switch alarm on                           */
-  if( (strncmp("alaup", (char *)ptr, 5 ) == 0))  
-  {
-    dbSerialPrintln("alaup");
-    lichtwecker.getDFPlayer()->alaramOn();
-    
-  }
-  /* -------------------------------------------------- */
-  /* a_off -> switch alarm off                          */
-  if( (strncmp("a_off", (char *)ptr, 5 ) == 0))  
-  {
-    dbSerialPrintln("a_off");
-    lichtwecker.getDFPlayer()->alaramOff();
-  }
+  /* broadcast to all                                   */
+  lichtwecker.broadcastMessage((const char *)ptr);
   /* ================================================== */
   /* enable the time                                    */
   dbSerialPrintln("enable timer...");
@@ -464,10 +437,14 @@ void setup(void)
     /* -------------------------------------------------- */
     /* set function for sun loop task                     */
     lichtwecker.getSimpleSun()->setTaskFunction(taskSunLoopCode);                
-    lichtwecker.getSimpleSun()->setTimerCB(sunRiseMain);  
+    lichtwecker.getSimpleSun()->setTimerCB( sunRiseMain );
     /* -------------------------------------------------- */
     /* set function for sound loop task                   */
     lichtwecker.getDFPlayer()->setTaskFunction(taskSoundLoopCode);  
+    /* -------------------------------------------------- */
+    /* just wait a while                                  */
+    vTaskDelay(500/portTICK_PERIOD_MS);
+    lichtwecker.getSimpleSun()->startSunLoopTask();
     /* -------------------------------------------------- */
     /* just wait a while                                  */
     vTaskDelay(500/portTICK_PERIOD_MS);
@@ -521,6 +498,10 @@ void loop(void){
     vTaskDelay(5000/portTICK_PERIOD_MS);
     lichtwecker.getSimpleSun()->lightOff();
     lichtwecker.getDFPlayer()->play(kodack);
+    vTaskDelay(5000/portTICK_PERIOD_MS);
+    lichtwecker.getSimpleSun()->sunUp();
+    vTaskDelay(5000/portTICK_PERIOD_MS);
+    lichtwecker.getSimpleSun()->sunDown();
     /* -------------------------------------------------- */
     /* delete the task                                    */
     vTaskDelete(NULL);

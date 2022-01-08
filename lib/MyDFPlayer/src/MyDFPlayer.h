@@ -142,6 +142,15 @@ public:
     { 
         alarmState->snoozeOn(); 
     }
+    /**
+     * @brief Get the Alarm State object
+     * 
+     * @return const char* 
+     */
+    const char *getAlarmState()
+    {
+        return alarmState->getAlarmState();
+    }
 
 private:
     /**
@@ -180,14 +189,7 @@ private:
      * @param string_ 
      * @param event_ 
      */
-    void listener(String string_, EventEnum event_) {
-        print( "listener() for ", false);
-        print( "MyDFPlayer"     , false);
-        print( ", got: "        , false );
-        print( string_.c_str()  , false );
-        print( ", "             , false );
-        print( event_ ); 
-    }    
+    void listener(String string_, EventEnum event_);
 
 /* states */
 private:
@@ -263,6 +265,7 @@ private:
         virtual void snoozeOn() { unhandledEvent("snooze on"); }
         virtual void snoozeOff() { unhandledEvent("snooze on"); }
         virtual void initSnooze() { unhandledEvent("initSnooze"); }
+        virtual const char *getAlarmState(){ unhandledEvent( "AlaramState"); return "unhandledEvent"; }
     };
     StateRef<AlarmState> alarmState;
     /**
@@ -290,8 +293,6 @@ private:
         {
             print("switch Alarm off"); 
             change<AlarmOff>();
-            /* stop sound task */
-            stm.stopSoundLoopTask();
         }
         void snozzeOn() 
         {
@@ -303,9 +304,15 @@ private:
             // snooze for 5 minutes
             snoozeState->snoozeOff();
         }
+        const char *getAlarmState()
+        {
+            return "AlarmOn";
+        }
         void exit() 
         { 
-            print("leaving AlarmOff"); 
+            print("leaving AlarmOn"); 
+            /* stop sound task */
+            stm.stopSoundLoopTask();
         }
     private:
         // snooze is state of AlarmOn
@@ -329,6 +336,10 @@ private:
         {
             print("switch Alarm on"); 
             change<AlarmOn>(); 
+        }
+        const char *getAlarmState()
+        {
+            return "AlarmOff";
         }
         void exit() 
         { 

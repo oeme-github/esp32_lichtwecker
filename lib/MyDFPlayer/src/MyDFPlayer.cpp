@@ -158,3 +158,33 @@ void MyDFPlayer::stopSoundLoopTask()
     stop();
     vTaskDelete(this->hTaskSoundLoop);
 }
+/**
+ * @brief listerner function for MDispatcher
+ * 
+ * @param string_ 
+ * @param event_ 
+ */
+void MyDFPlayer::listener(String string_, EventEnum event_) {
+    print( "listener() for ", false);
+    print( "MyDFPlayer"     , false);
+    print( ", got: "        , false );
+    print( string_.c_str()  , false );
+    print( ", "             , false );
+    print( event_ ); 
+    print( "AlarmState: ", false );
+    print( this->getAlarmState() );
+    /* -------------------------------------------------- */
+    /* alaup -> switch alarm on                           */
+    if( (strcmp("alaup", string_.c_str() ) == 0))  
+    {
+        print("alaup");
+        this->alaramOn();
+    }
+    /* -------------------------------------------------- */
+    /* a_off -> switch alarm off                          */
+    if( (strcmp("a_off", string_.c_str() ) == 0))  
+    {
+        print("a_off");
+        this->alaramOff();
+    }
+}    
