@@ -1,14 +1,11 @@
-
-
 #include <esp32_digital_led_lib.h>
 #include <esp32_digital_led_funcs.h>
 #include <SimpleTimer.h> 
 #include <genericstate.h>
-
 #include <MDispatcher.h>
 
-#ifndef SUN_H
-#define SUN_H
+#ifndef SIMPLE_SUN_H
+#define SIMPLE_SUN_H
 
 #define NUM_LEDS 28                      //number of LEDs in the strip
 #define BRIGHTNESS 255                   //strip brightness 255 max
@@ -22,7 +19,7 @@
 
 #define DEBUG_SERIAL_SUN_ENABLE
 #define _WITH_TEST_LED_
-//#define _DEBUG_SUN_DETAILS_
+#define _DEBUG_SUN_DETAILS_
 
 #ifdef DEBUG_SERIAL_SUN_ENABLE
     #define dbSunSerialPrint(a)    Serial.print(a)
@@ -67,8 +64,6 @@ private:
     int aurora             = NUM_LEDS;
 
     int numTimer           = 0; 
-
-    uint32_t iOffsetSun    = 30;
 
     timer_callback ptrTimerCB;
 
@@ -176,16 +171,6 @@ public:
         pvTaskCode = pvTaskCode_;
     }
     /**
-     * @brief sunrise function
-     * 
-     */
-    void sunrise();
-    /**
-     * @brief sunset function
-     * 
-     */
-    void sunset();
-    /**
      * @brief let the sun rise
      * 
      * @param intPayload_ 
@@ -285,6 +270,16 @@ public:
     }
 
 private:
+    /**
+     * @brief sunrise function
+     * 
+     */
+    void sunrise();
+    /**
+     * @brief sunset function
+     * 
+     */
+    void sunset();
     /**
      * @brief switch on the lamp with wight light 
      * 
@@ -428,6 +423,7 @@ private:
      */
     static void unhandledEvent(const std::string &str) { print("unhandled event " + str); }
 
+
 private:
     /* -------------------------------------------------- */
     /* sun states                                         */
@@ -485,11 +481,14 @@ private:
         using SunState::SunState;
         void entry() 
         { 
-            print( "entry SunRise" );
             /* start sunrise */
+            print( "entry SunRise" );
+            print( "-> resume sun loop task..." );
             vTaskResume(stm.hTaskSunLoop);
             vTaskDelay(50/portTICK_PERIOD_MS);
+            print( "-> letSunRise..." );
             stm.letSunRise( stm.getWakeDelay()*60, true );
+            print("entry SunRise done.");
         }
         void sunDown() 
         { 
@@ -511,6 +510,9 @@ private:
         void exit() 
         { 
             print("exit SunRise (stop sun loop task)."); 
+            // print("-> stop sun loop task");
+            // stm.stopSunLoopTask();
+            print( "exit SunRise done.");
         }
     };
     /**
@@ -522,8 +524,9 @@ private:
         void entry() 
         { 
             print("entry SunUp");
-            vTaskSuspend(stm.hTaskSunLoop);
+            print("-> switch light on");
             stm.lightOn();
+            print("entry SunUp done.");
         }
         void sunDown() 
         { 
@@ -573,6 +576,7 @@ private:
         { 
             print("entry LightOn");
             stm.weislicht();
+            print("entry LightOn done.");
         }
         void lightOn() 
         { 
@@ -605,8 +609,10 @@ private:
         using LightState::LightState;
         void entry() 
         { 
-            print("entering LightOff"); 
+            print("entering LightOff");
+            print("-> reset pixels...");
             stm.resetPixels();
+            print("entry LightOff done.");
         }
         void lightOff() 
         { 

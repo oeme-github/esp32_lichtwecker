@@ -103,9 +103,20 @@ void NexTouch::iterate(NexTouch **list, uint8_t pid, uint8_t cid, int32_t event,
 #ifdef _WITH_NEXLOOP_DEBUG_
     dbSerialPrint("event:");
     dbSerialPrintln(event);
+    dbSerialPrint("pid:");
+    dbSerialPrintln(pid);
+    dbSerialPrint("cid:");
+    dbSerialPrintln(cid);
 #endif    
+
+// ToDo - vernünftiges Abbruchkriterium für die for-Schleife
     for(i = 0; (e = list[i]) != NULL; i++)
     {
+#ifdef _WITH_NEXLOOP_DEBUG_
+        dbSerialPrint("i: ");
+        dbSerialPrintln( i );
+        e->printObjInfo();
+#endif    
         if (e->getObjPid() == pid && e->getObjCid() == cid)
         {
             e->printObjInfo();

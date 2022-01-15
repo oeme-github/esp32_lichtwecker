@@ -127,27 +127,37 @@ NexTimer* NextionDisplay::Create_Timers(int8_t iPage_, int8_t iElemet_, const ch
  */
 void NextionDisplay::initPages(){
     dbSerialPrintln("initPages()");
-    /**
-     * create pages
-     */
+    /* -------------------------------------------------- */
+    /* create pages                                       */
     for(auto & elem : pages.page_vec)
     {        
         addPage( Create_Pages(elem.first, elem.second) );
     }
-    /* buttons */
+    /* -------------------------------------------------- */
+    /* buttons                                            */
     for(auto & elem : pages.btn_vec )
     {
         addBtn( Create_Btns(std::get<0>(elem), std::get<1>(elem), std::get<2>(elem)) );
     }
-    /* varaibles */
+    /* -------------------------------------------------- */
+    /* varaibles                                          */
     for(auto & elem : pages.var_vec )
     {
         addVar( Create_Vars(std::get<0>(elem), std::get<1>(elem), std::get<2>(elem)) );
     }
-    /* timers */
+    /* -------------------------------------------------- */
+    /* timers                                             */
     for(auto & elem : pages.tim_vec )
     {
         addTimer( Create_Timers(std::get<0>(elem), std::get<1>(elem), std::get<2>(elem)) );
+    }
+    /* -------------------------------------------------- */
+    /* add NULL                                           */
+    /* nex_listen_list_vec.push_back(NULL); */
+
+    for( int i=0; i < nex_listen_list_vec.size(); i++ )
+    {
+        nex_listen_list_vec[i]->printObjInfo();
     }
 }
 
@@ -274,13 +284,24 @@ std::vector<NexTimer *> NextionDisplay::getNexTimer()
 
 std::vector<NexVariable *> NextionDisplay::getNexVariable()
 {
-    return vars_vec;    
+    return this->vars_vec;    
 }
 
 NexVariable * NextionDisplay::getNexVariableByName(const char * name_)
 {
     /* find object in  vars_vec*/
-    for(auto & elem :  vars_vec )
+    for(auto & elem : this->vars_vec )
+    {
+        if( elem->getName() == name_ )
+            return elem;
+    }
+    return NULL;
+}
+
+NexDSButton *NextionDisplay::getNexButtonByName(const char * name_)
+{
+    /* find object in  vars_vec*/
+    for(auto & elem : this->buttons_vec )
     {
         if( elem->getName() == name_ )
             return elem;

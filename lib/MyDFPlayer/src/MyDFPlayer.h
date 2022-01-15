@@ -35,6 +35,15 @@ private:
     TaskHandle_t   hTaskSoundLoop;
     TaskFunction_t pvTaskCode;
 
+    uint32_t iVolume = 20;
+
+public:
+    enum Snooze_t
+    {
+        SNOOZE_ON,
+        SNOOZE_OFF
+    };
+
 public:
     /**
      * @brief Construct a new My D F Player object
@@ -85,6 +94,11 @@ public:
      */
     void stopSoundLoopTask();
     /**
+     * @brief resume task for audio processing
+     * 
+     */
+    void resumeSoundLoopTask();
+    /**
      * @brief register receiving function to MDispatcher
      * 
      * @param dispatcher 
@@ -102,6 +116,18 @@ public:
     {
         pvTaskCode = pvTaskCode_;
     }
+    /**
+     * @brief Set the Volume object
+     * 
+     * @param iVolume_ 
+     */
+    void setVolume( uint32_t iVolume_ ){ this->iVolume = iVolume_;}
+    /**
+     * @brief Get the Volume object
+     * 
+     * @return uint32_t 
+     */
+    uint32_t getVolume(){ return this->iVolume; }
     /**
      * @brief switch off alarm
      * 
@@ -127,21 +153,10 @@ public:
         alarmState->initSnooze(); 
     }
     /**
-     * @brief switch snooze off
+     * @brief switch snooze
      * 
      */
-    void snoozeOff()
-    { 
-        alarmState->snoozeOff(); 
-    }
-    /**
-     * @brief switch snooze on
-     * 
-     */
-    void snoozeOn()
-    { 
-        alarmState->snoozeOn(); 
-    }
+    void snooze_on_off(Snooze_t snooze_) { alarmState->snooze(snooze_); }
     /**
      * @brief Get the Alarm State object
      * 
@@ -184,6 +199,12 @@ private:
      */
     static void unhandledEvent(const std::string &str) { print("unhandled event " + str); }
     /**
+     * @brief print snooze state after chage
+     * 
+     * @param snooze 
+     */
+    void changedSnooze(const std::string &snooze) { print( "changed snooze to " + snooze ); }
+    /**
      * @brief listerner function for MDispatcher
      * 
      * @param string_ 
@@ -199,8 +220,7 @@ private:
      */
     struct SnoozeState : public GenericState<MyDFPlayer, SnoozeState> {
         using GenericState::GenericState;
-        virtual void snoozeOn(int iTime) { (void)iTime; unhandledEvent("SnoozeState"); }
-        virtual void snoozeOff() { unhandledEvent("SnoozeState"); }
+        virtual void snooze(Snooze_t snooze_){ (void)snooze_; unhandledEvent("SnoozeState"); };
     };
     /**
      * @brief snooze on state
@@ -211,17 +231,9 @@ private:
         void entry() 
         { 
             print("entry in SnoozeOn");
-            vTaskSuspend(stm.hTaskSoundLoop); 
+            stm.changedSnooze("ON"); 
         }
-        void snoozeOn(int iTime_) 
-        {
-            print("snooze already on");
-        }
-        void snoozeOff()
-        {
-            print("snoozeOff called");
-            change<SnoozeOff>();
-        }
+        void snooze( Snooze_t snooze ); // implemented in MyDFPlayer.cpp
         void exit() 
         { 
             print("leaving SnoozeOn");
@@ -236,17 +248,9 @@ private:
         void entry() 
         { 
             print("entry in SnoozeOff");
-            vTaskResume(stm.hTaskSoundLoop);
+            stm.changedSnooze("OFF"); 
         }
-        void snoozeOn(int iTime_) 
-        {
-            print("switch snooze on");
-            change<SnoozeOn>();
-        }
-        void snoozeOff()
-        {
-            print("snooze already off");
-        }
+        void snooze( Snooze_t snooze ); // implemented in MyDFPlayer.cpp
         void exit() 
         { 
             print("leaving SnoozeOff"); 
@@ -262,10 +266,9 @@ private:
         using GenericState::GenericState;
         virtual void alarmOn() { unhandledEvent("alarm on"); }
         virtual void alarmOff() { unhandledEvent("alarm off"); }
-        virtual void snoozeOn() { unhandledEvent("snooze on"); }
-        virtual void snoozeOff() { unhandledEvent("snooze on"); }
         virtual void initSnooze() { unhandledEvent("initSnooze"); }
         virtual const char *getAlarmState(){ unhandledEvent( "AlaramState"); return "unhandledEvent"; }
+        virtual void snooze(Snooze_t snooze) { print("AlaramState.snooze"); (void)snooze; unhandledEvent("snooze in AlarmSatet"); }
     };
     StateRef<AlarmState> alarmState;
     /**
@@ -283,7 +286,7 @@ private:
         { 
             print("entering AlarmOn");
             /* start sound task */
-            stm.startSoundLoopTask(); 
+            stm.resumeSoundLoopTask(); 
         }
         void alarmOn() 
         { 
@@ -294,15 +297,9 @@ private:
             print("switch Alarm off"); 
             change<AlarmOff>();
         }
-        void snozzeOn() 
+        void snooze() 
         {
-            // snooze for 5 minutes
-            snoozeState->snoozeOn(5);
-        }
-        void snozzeOff() 
-        {
-            // snooze for 5 minutes
-            snoozeState->snoozeOff();
+            print("snoozeOn in AlarmOn");
         }
         const char *getAlarmState()
         {

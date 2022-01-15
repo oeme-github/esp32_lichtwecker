@@ -138,21 +138,41 @@ void SimpleSun::drawAurora()
 int SimpleSun::calWhiteValue()
 {
     int whiteValue = 0;
-    if( this->whiteLevel <= 40 )
+    if( this->whiteLevel <= 20 )
     {
-        whiteValue = map(this->whiteLevel, 0, 40, 0, 20);
+        whiteValue = map(this->whiteLevel, 0, 20, 0, 10);
     }
-    else if( this->whiteLevel > 40 && this->whiteLevel <= 60 )
+    else if( this->whiteLevel > 40 && this->whiteLevel <= 40 )
     {
-        whiteValue = map(this->whiteLevel, 0, 60, 0, 50);
+        whiteValue = map(this->whiteLevel, 0, 40, 0, 15);
     }
-    else if( this->whiteLevel > 60 && this->whiteLevel <= 80 )
+    else if( this->whiteLevel > 40 && this->whiteLevel <= 50 )
     {
-        whiteValue = map(this->whiteLevel, 0, 80, 0, 80);
+        whiteValue = map(this->whiteLevel, 0, 50, 0, 20);
     }
-    else if( this->whiteLevel > 80 && this->whiteLevel <= 90 )
+    else if( this->whiteLevel > 50 && this->whiteLevel <= 60 )
     {
-        whiteValue = map(this->whiteLevel, 0, 90, 0, 110);
+        whiteValue = map(this->whiteLevel, 0, 60, 0, 25);
+    }
+    else if( this->whiteLevel > 60 && this->whiteLevel <= 70 )
+    {
+        whiteValue = map(this->whiteLevel, 0, 70, 0, 35);
+    }
+    else if( this->whiteLevel > 70 && this->whiteLevel <= 80 )
+    {
+        whiteValue = map(this->whiteLevel, 0, 80, 0, 50);
+    }
+    else if( this->whiteLevel > 80 && this->whiteLevel <= 85 )
+    {
+        whiteValue = map(this->whiteLevel, 0, 90, 0, 80);
+    }
+    else if( this->whiteLevel > 85 && this->whiteLevel <= 90 )
+    {
+        whiteValue = map(this->whiteLevel, 0, 90, 0, 120);
+    }
+    else if( this->whiteLevel > 90 && this->whiteLevel <= 95 )
+    {
+        whiteValue = map(this->whiteLevel, 0, 90, 0, 180);
     }
     else
     {
@@ -289,11 +309,6 @@ void SimpleSun::increaseSunPhase()
         this->increaseFadeStep();
         this->increaseSunFadeStep();      
     }
-    else
-    {
-        dbSunSerialPrintln("...and it is light -> switch to SunUp");
-        this->sunUp();
-    }
 }
 /**
  * @brief decrease value of sunPhase and call decrease functions
@@ -310,11 +325,6 @@ void SimpleSun::decreaseSunPhase()
         this->decreaseWhiteLevel();
         this->decreaseFadeStep();
         this->decreaseSunFadeStep();      
-    }
-    else
-    {
-        dbSunSerialPrintln("...and it is darkness.");
-        this->sunDown();
     }
 }
 /**
@@ -452,6 +462,7 @@ int SimpleSun::getSunPhase()
  */
 void SimpleSun::blaulicht()
 {
+    print("SimpleSun::blaulicht()");
     strand_t* strip = this->STRANDS[0];
     for(int i = 0; i < this->getNumLeds(); i++)
     {
@@ -465,6 +476,7 @@ void SimpleSun::blaulicht()
  */
 void SimpleSun::weislicht()
 {
+    print("SimpleSun::weislicht()");
     strand_t* strip = this->STRANDS[0];
     for(int i = 0; i < this->getNumLeds(); i++)
     {
@@ -526,20 +538,34 @@ void SimpleSun::letSunRise( int intPayload_, bool bInit_ )
 #ifdef _DEBUG_SUN_DETAILS_
         dbSunSerialPrintln("init sun parameters....");
 #endif
-        /* set start parameters */
+        /* ----------------------------------------------- */
+        /* set start parameters                            */
         this->init(0,0,0,0,intPayload_);
     }
-    /* rise the sun */
+    /* -------------------------------------------------- */
+    /* rise the sun                                       */
     this->sunrise();
-    /* start timer */
-    if( strcmp( this->getSunState(), "SunRise" ) == 0 )
+#ifdef _DEBUG_SUN_DETAILS_
+        dbSunSerialPrintln(getSunState());
+#endif
+    /* -------------------------------------------------- */
+    /* start timer                                        */
+    if( this->getSunPhase() < 100 )
     {
 #ifdef _DEBUG_SUN_DETAILS_
         dbSunSerialPrintln( "-> set NumTimer");
 #endif
-        /* continue sunrise */
+        /* ----------------------------------------------- */
+        /* continue sunrise                                */
         this->setNumTimer(this->setTimeout( this->getWakeDelay(), this->ptrTimerCB ));
     }
+    else
+    {
+        /* ----------------------------------------------- */
+        /* sun is risen                                    */
+        print("-> Sun is up!");
+        this->sunUp();
+    }    
 }
 
 /**
@@ -548,6 +574,7 @@ void SimpleSun::letSunRise( int intPayload_, bool bInit_ )
  */
 void SimpleSun::startSunLoopTask()
 {
+    print("SimpleSun::startSunLoopTask()");
     xTaskCreatePinnedToCore(
                     this->pvTaskCode,       /* Task function. */
                     "TaskSunLoop",          /* name of task. */
@@ -557,8 +584,9 @@ void SimpleSun::startSunLoopTask()
                     &this->hTaskSunLoop,    /* Task handle to keep track of created task */
                     1                       /* pin task to core 1 */
     );    
-
+    print("suspend the task");
     vTaskSuspend(this->hTaskSunLoop);
+    print("startSunLoopTask done.");
 }
 
 /**
@@ -567,7 +595,12 @@ void SimpleSun::startSunLoopTask()
  */
 void SimpleSun::stopSunLoopTask()
 {
+    print("SimpleSun::stopSunLoopTask()");
+    print("-> disable timer");
+    this->deleteTimer(this->numTimer);
+    print("-> suspend task");
     vTaskSuspend(this->hTaskSunLoop);
+    print("stopSunLoopTask() done.");
 }
 
 /**
@@ -601,6 +634,7 @@ void SimpleSun::listener(String string_, EventEnum event_) {
     {
         print("light_off");
         this->lightOff();
+        this->sunDown();
     }
     /* -------------------------------------------------- */
     /* sunup -> start sunrise                             */
@@ -610,17 +644,4 @@ void SimpleSun::listener(String string_, EventEnum event_) {
         /* let the sun rise                              */
         this->sunRise();
     }
-    /* -------------------------------------------------- */
-    /* alaup -> switch alarm on                           */
-    if( (strcmp("alaup", string_.c_str() ) == 0))  
-    {
-        this->sunDown();
-        this->lightOn();
-    }
-    /* -------------------------------------------------- */
-    /* a_off -> switch alarm off                          */
-    // if( (strcmp("a_off", string_.c_str() ) == 0))  
-    // {
-    //     print("a_off");
-    // }
 }    

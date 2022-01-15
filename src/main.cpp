@@ -77,6 +77,7 @@ void taskSunLoopCode( void * pvParameters ){
     /* check the sun and run it                           */
     if( lichtwecker.getSimpleSun()->getRc() == 0 )
     {
+      /* ------------------------------------------------ */
       /* run the timer                                    */
 #ifdef _WITH_LOOP_DEBUG_
       dbSerialPrint( "SunState:" );
@@ -84,14 +85,22 @@ void taskSunLoopCode( void * pvParameters ){
       dbSerialPrint( "SunRise? " );
       dbSerialPrintln( strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunRise") );
 #endif
-      if( strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunRise") == 0 )
+      if( strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunRise") == 0 
+          || strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunSet") == 0 )
       {
 #ifdef _WITH_LOOP_DEBUG_
           dbSunSerialPrintln("run the timer...");
 #endif
           lichtwecker.getSimpleSun()->run();
       }
+      else
+      {
+        dbSerialPrint( "TASK - SunState:" );
+        dbSerialPrintln( lichtwecker.getSimpleSun()->getSunState() );
+        vTaskSuspend(NULL);        
+      }
     }
+    /* -------------------------------------------------- */
     /* need to delay the task because of warchdog         */
     vTaskDelay(100/portTICK_PERIOD_MS);
   }
@@ -206,6 +215,8 @@ bool handleSuccess()
     // Redirect the client to the success page after handeling the file upload
     lichtwecker.getWebServer()->sendHeader(F("Location"),F("/success.html"));
     lichtwecker.getWebServer()->send(303);
+    vTaskDelay(100/portTICK_PERIOD_MS);
+    ESP.restart();
     return true;
 }
 /**
@@ -275,11 +286,19 @@ void taskWebServerCode( void * pvParameters ){
 void sunRiseMain()
 {
 #ifdef _DEBUG_SUNRISE_
-  dbSerialPrint("sunRiseMain()...");
+  dbSerialPrint("sunRiseMain() - SunPhase: ");
   dbSerialPrintln( lichtwecker.getSimpleSun()->getSunPhase());
 #endif
-  /* let sun rise (without parameter) */
-  lichtwecker.getSimpleSun()->letSunRise();
+  if( lichtwecker.getSimpleSun()->getSunPhase() < 100 )
+  {
+    /* let sun rise (without parameter) */
+    lichtwecker.getSimpleSun()->letSunRise();
+  }
+  else
+  {
+    /* sun is risen */
+    lichtwecker.getSimpleSun()->sunUp();
+  }
 }
 /**
  * === END Sun functions ===
@@ -328,6 +347,14 @@ void page0_tmSerialCmdCallback(void *ptr)
           iOffsetSun=WAKE_DELAY;
       }
       lichtwecker.getSimpleSun()->setWakeDelay(iOffsetSun);  
+  }
+  /* -------------------------------------------------- */
+  /* alaup                                              */
+  if((strncmp("alaup", (char *)ptr, 5 ) == 0))
+  {
+      uint32_t iVolume = 0; 
+      lichtwecker.getNextionDisplay()->getNexVariableByName("vaVolume")->getValue(&iVolume);
+      lichtwecker.getDFPlayer()->setVolume(iVolume);
   }
   /* -------------------------------------------------- */
   /* broadcast to all                                   */
@@ -396,24 +423,25 @@ void page2_btTimeSyncPushCallback(void *ptr)
 void page3_btSnoozePushCallback(void *ptr)
 {
   dbSerialPrintln("btSnoozePushCallback()");
-  // var
-//   uint32_t bValue;
-//   if( btSnooze.getValue(&bValue) )
-//   {
-//     // we have the value
-//     if( bValue == 1 )
-//     {
-//       // snooze_on
-//       dbSerialPrintln("snooze_on");
-//       g_bSnoozeOnOff = true;
-//     }
-//     else
-//     {
-//       // snooze_off
-//       dbSerialPrintln("snooze_off");
-//       g_bSnoozeOnOff = false;
-//     }
-//   }
+  /* -------------------------------------------------- */
+  uint32_t bValue = 0;
+  lichtwecker.getNextionDisplay()->getNexButtonByName("btSnooze")->getValue(&bValue);
+  if( bValue == 1 )
+  {
+    // snooze_on
+    dbSerialPrintln("snooze_on");
+    /* ----------------------------------------------- */
+    /* broadcast to all                                */
+    lichtwecker.broadcastMessage("SnoozeOn");
+  }
+  else
+  {
+    // snooze_off
+    dbSerialPrintln("snooze_off");
+    /* ----------------------------------------------- */
+    /* broadcast to all                                */
+    lichtwecker.broadcastMessage("SnoozeOff");
+  }
 }
 /** 
  * === END CALLBACK SECTION ===
@@ -445,6 +473,10 @@ void setup(void)
     /* just wait a while                                  */
     vTaskDelay(500/portTICK_PERIOD_MS);
     lichtwecker.getSimpleSun()->startSunLoopTask();
+    /* -------------------------------------------------- */
+    /* just wait a while                                  */
+    vTaskDelay(500/portTICK_PERIOD_MS);
+    lichtwecker.getDFPlayer()->startSoundLoopTask();
     /* -------------------------------------------------- */
     /* just wait a while                                  */
     vTaskDelay(500/portTICK_PERIOD_MS);
@@ -486,7 +518,6 @@ void loop(void){
     dbSerialPrintln("loop: start test licht...");
 #ifdef _WITH_SOUND_TEST_
     lichtwecker.getDFPlayer()->play(sirene);
-#endif
     for(int i=1;i<8;i++)
     {
         lichtwecker.getSimpleSun()->lightBlue();
@@ -494,14 +525,27 @@ void loop(void){
         lichtwecker.getSimpleSun()->lightOff();
         vTaskDelay(BL_DELAY/portTICK_PERIOD_MS);
     }
+#endif
     lichtwecker.getSimpleSun()->lightOn();
     vTaskDelay(5000/portTICK_PERIOD_MS);
     lichtwecker.getSimpleSun()->lightOff();
     lichtwecker.getDFPlayer()->play(kodack);
+#ifdef _WITH_SOUND_TEST_
     vTaskDelay(5000/portTICK_PERIOD_MS);
     lichtwecker.getSimpleSun()->sunUp();
     vTaskDelay(5000/portTICK_PERIOD_MS);
     lichtwecker.getSimpleSun()->sunDown();
+    vTaskDelay(5000/portTICK_PERIOD_MS);
+
+    lichtwecker.getSimpleSun()->setWakeDelay(1);
+    lichtwecker.getSimpleSun()->sunRise();
+    while ( strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunRise") == 0 )
+    {
+      dbSerialPrintln("===>>> sun still rising... <<<===");
+      vTaskDelay(10000/portTICK_PERIOD_MS);
+    }
+    lichtwecker.getSimpleSun()->sunDown();
+#endif
     /* -------------------------------------------------- */
     /* delete the task                                    */
     vTaskDelete(NULL);

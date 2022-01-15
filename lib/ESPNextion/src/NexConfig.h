@@ -37,7 +37,7 @@
 #define nexSerial Serial2
 #define nexSerialSpeed 115200
 
-//#define _WITH_NEXLOOP_DEBUG_
+#define _WITH_NEXLOOP_DEBUG_
 
 #ifdef DEBUG_SERIAL_ENABLE
 #define dbSerialPrint(a)    dbSerial.print(a)

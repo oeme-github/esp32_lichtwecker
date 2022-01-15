@@ -135,28 +135,37 @@ void MyDFPlayer::startDFPlayer()
  */
 void MyDFPlayer::startSoundLoopTask()
 {
-    volume(10);
-    start();
     xTaskCreatePinnedToCore(
                     this->pvTaskCode,       /* Task function. */
                     "TaskSoundLoop",        /* name of task. */
                     10000,                  /* Stack size of task */
                     NULL,                   /* parameter of the task */
-                    1,                      /* priority of the task */
+                    2 | portPRIVILEGE_BIT,  /* priority of the task */
                     &this->hTaskSoundLoop,  /* Task handle to keep track of created task */
                     0                       /* pin task to core 1 */
     );                          
-}
 
+    this->stopSoundLoopTask();
+}
 /**
- * @brief delete sound loop task
+ * @brief suspend sound loop task
  * 
  */
 void MyDFPlayer::stopSoundLoopTask()
 {
-    volume(0);
-    stop();
-    vTaskDelete(this->hTaskSoundLoop);
+    this->stop();
+    this->sleep();
+    vTaskSuspend(this->hTaskSoundLoop);
+}
+/**
+ * @brief delete sound loop task
+ * 
+ */
+void MyDFPlayer::resumeSoundLoopTask()
+{
+    this->volume(this->iVolume);
+    this->start();
+    vTaskResume(this->hTaskSoundLoop);
 }
 /**
  * @brief listerner function for MDispatcher
@@ -187,4 +196,56 @@ void MyDFPlayer::listener(String string_, EventEnum event_) {
         print("a_off");
         this->alaramOff();
     }
+    /* -------------------------------------------------- */
+    /* SnoozeOn -> switch snooze on                       */
+    if( (strcmp("SnoozeOn", string_.c_str() ) == 0))  
+    {
+        print("SnoozeOn");
+        vTaskSuspend(this->hTaskSoundLoop);
+    }
+    /* -------------------------------------------------- */
+    /* SnoozeOff -> switch snooze off                       */
+    if( (strcmp("snoozeoff", string_.c_str() ) == 0))  
+    {
+        print("SnoozeOff");
+        vTaskResume(this->hTaskSoundLoop);
+    }
 }    
+/**
+ * @brief switch snooze on
+ * 
+ * @param snooze_ 
+ */
+void MyDFPlayer::SnoozeOn::snooze(MyDFPlayer::Snooze_t snooze_)
+{
+     switch (snooze_)
+     {
+     case SNOOZE_OFF:
+          print("SnoozeOn machine SNOOZE_OFF");
+          change<SnoozeOff>();
+          break;
+     
+     default:
+          print("snooze already on");
+          break;
+     }
+}
+/**
+ * @brief switch snooze off
+ * 
+ * @param snooze_ 
+ */
+void MyDFPlayer::SnoozeOff::snooze(MyDFPlayer::Snooze_t snooze_)
+{
+     switch (snooze_)
+     {
+     case SNOOZE_ON:
+          print("SnoozeOff machine SNOOZE_ON");
+          change<SnoozeOn>();
+          break;
+     
+     default:
+          print("snooze already off");
+          break;
+     }
+}

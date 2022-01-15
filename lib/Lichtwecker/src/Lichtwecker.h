@@ -1,24 +1,15 @@
 #include <iostream>
 #include <string>
-#include <map>
-#include <esp_log.h>
 
-#include <Nextion.h>
-#include <genericstate.h>
-#include <SimpleSun.h>
-#include <NextionDisplay.h>
-#include <ESPNexUpload.h>
 #include <SoftwareSerial.h>
-#include <MyDFPlayer.h>
-#include <WebServer.h>
-
-#include <FS.h>
-#include <WiFi.h>
-#include <WiFiUdp.h>
-#include <WebServer.h>
 #include <ESPmDNS.h>
 #include <SPIFFS.h>
 
+#include <SimpleSun.h>
+#include <NextionDisplay.h>
+#include <ESPNexUpload.h>
+#include <MyDFPlayer.h>
+#include <WebServer.h>
 #include "MDispatcher.h"
 
 #ifndef LICHTWECKER_H
@@ -70,11 +61,6 @@ private:
     const char* ssid      = SSID_NAME;
     const char* password  = WIFI_PWD;
     const char* host      = HOST_NAME;     
-    /* SUN */
-    int iOffsetSun        = OFFSET_SUN; 
-    /* Upload Server */
-    int fileSize          = 0;
-    bool result           = true;
 
 private:
     /**
@@ -207,24 +193,6 @@ public:
     ESPNexUpload *getEspNexUpload()
     {
         return &espNexUpload;
-    }
-    /**
-     * @brief Set the Offset Sun object
-     * 
-     * @param iOffset_ 
-     */
-    void setOffsetSun( int iOffset_) 
-    { 
-        iOffsetSun = iOffset_; 
-    }
-    /**
-     * @brief Get the Offset Sun object
-     * 
-     * @return int 
-     */
-    int  getOffsetSun( ) 
-    { 
-        return iOffsetSun; 
     }
     /**
      * @brief broadcast message

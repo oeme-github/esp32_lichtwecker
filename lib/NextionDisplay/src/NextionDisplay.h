@@ -38,18 +38,21 @@ typedef struct Pages_t {
     };
     /* varaibales */
     std::vector <std::tuple<int, int,const char*>> var_vec={
-        std::tuple<int,int,const char*>{ 0, 31, "vaOffsetSun" }
+        std::tuple<int,int,const char*>{ 0, 31, "vaOffsetSun" },
+        std::tuple<int,int,const char*>{ 2, 29, "vaVolume" },
     };
     /* timers */
     std::vector <std::tuple<int, int,const char*>> tim_vec={
-        std::tuple<int,int,const char*>{ 0, 28, "tmSerial" }
+        std::tuple<int,int,const char*>{ 0, 28, "tmSerial" },
+        std::tuple<int,int,const char*>{ 3,  4, "tmPage3"  }
     };
 
     std::vector <std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>> callback_vec={
-        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "btSound"    , push, page0_btSoundPushCallback },
-        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "tmSerial"   , cmd , page0_tmSerialCmdCallback }, 
+        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "btSound"    , push, page0_btSoundPushCallback    },
+        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "tmSerial"   , cmd , page0_tmSerialCmdCallback    }, 
+        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "tmPage3"    , cmd , page0_tmSerialCmdCallback    }, 
         std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "btTimeSync" , push, page2_btTimeSyncPushCallback },
-        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "btSnooze"   , push, page3_btSnoozePushCallback },
+        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "btSnooze"   , push, page3_btSnoozePushCallback   },
     };
 } PAGES_T;
 
@@ -85,7 +88,8 @@ public:
     std::vector<NexTouch *> getNexListenList();
     std::vector<NexTimer *> getNexTimer();
     std::vector<NexVariable *> getNexVariable(); 
-    NexVariable * getNexVariableByName(const char * name_); 
+    NexVariable *getNexVariableByName(const char * name_); 
+    NexDSButton *getNexButtonByName(const char * name_);
 
 private:
     /* page factory */
