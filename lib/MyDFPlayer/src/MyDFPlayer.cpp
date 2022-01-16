@@ -135,6 +135,8 @@ void MyDFPlayer::startDFPlayer()
  */
 void MyDFPlayer::startSoundLoopTask()
 {
+    /* -------------------------------------------------- */
+    /* start the sound task                               */
     xTaskCreatePinnedToCore(
                     this->pvTaskCode,       /* Task function. */
                     "TaskSoundLoop",        /* name of task. */
@@ -144,28 +146,37 @@ void MyDFPlayer::startSoundLoopTask()
                     &this->hTaskSoundLoop,  /* Task handle to keep track of created task */
                     0                       /* pin task to core 1 */
     );                          
-
-    this->stopSoundLoopTask();
+    /* --------------------------------------------------- */
+    /* suspend the sound task                              */
+    this->suspendSoundLoopTask();
 }
 /**
  * @brief suspend sound loop task
  * 
  */
-void MyDFPlayer::stopSoundLoopTask()
+void MyDFPlayer::suspendSoundLoopTask()
 {
+    /* --------------------------------------------------- */
+    /* stop the player                                     */
     this->stop();
     this->sleep();
     vTaskSuspend(this->hTaskSoundLoop);
+    //this->setPlay(false);
 }
 /**
- * @brief delete sound loop task
+ * @brief resume the soundloop task
  * 
  */
 void MyDFPlayer::resumeSoundLoopTask()
 {
+    /* --------------------------------------------------- */
+    /* set the volume ans start the player                 */  
     this->volume(this->iVolume);
     this->start();
+    /* --------------------------------------------------- */
+    /* resume the task                                     */
     vTaskResume(this->hTaskSoundLoop);
+    //this->setPlay(true);
 }
 /**
  * @brief listerner function for MDispatcher
@@ -198,17 +209,19 @@ void MyDFPlayer::listener(String string_, EventEnum event_) {
     }
     /* -------------------------------------------------- */
     /* SnoozeOn -> switch snooze on                       */
-    if( (strcmp("SnoozeOn", string_.c_str() ) == 0))  
+    if( (strcmp("SnoozeOn", string_.c_str() ) == 0) || (strcmp("snoozeon", string_.c_str() ) == 0))  
     {
         print("SnoozeOn");
-        vTaskSuspend(this->hTaskSoundLoop);
+        //vTaskSuspend(this->hTaskSoundLoop);
+        this->setPlay(false);
     }
     /* -------------------------------------------------- */
     /* SnoozeOff -> switch snooze off                       */
-    if( (strcmp("snoozeoff", string_.c_str() ) == 0))  
+    if( (strcmp("snoozeoff", string_.c_str() ) == 0) || (strcmp("SnoozeOff", string_.c_str() ) == 0))  
     {
         print("SnoozeOff");
-        vTaskResume(this->hTaskSoundLoop);
+        //vTaskResume(this->hTaskSoundLoop);
+        this->setPlay(true);
     }
 }    
 /**

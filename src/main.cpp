@@ -1,7 +1,8 @@
 #include <Lichtwecker.h>
 #include <CallbackFunctions.h>
 
-#include <WebServer.h>
+#include <WebServer.h> 
+
 
 #define _DEBUG_SUNRISE_
 
@@ -116,18 +117,17 @@ void taskSoundLoopCode( void * pvParameters ){
   dbSerialPrint( "taskSoundLoop running on core " );
   dbSerialPrintln( xPortGetCoreID() );
 
-  lichtwecker.getDFPlayer()->volume(10);
   while(true)
   {
     /* -------------------------------------------------- */    
     /* check the sun and run it                           */
     /* need to delay the task because of warchdog         */
-    lichtwecker.getDFPlayer()->play( kodack);
+    lichtwecker.getDFPlayer()->play(kodack);
     while(!digitalRead(GPIO_MP3))
     {
         dbSerialPrintln("player still busy...");
         vTaskDelay(100/portTICK_PERIOD_MS);
-    }             
+    }
     vTaskDelay(2000/portTICK_PERIOD_MS);
   }
 }
@@ -347,14 +347,6 @@ void page0_tmSerialCmdCallback(void *ptr)
           iOffsetSun=WAKE_DELAY;
       }
       lichtwecker.getSimpleSun()->setWakeDelay(iOffsetSun);  
-  }
-  /* -------------------------------------------------- */
-  /* alaup                                              */
-  if((strncmp("alaup", (char *)ptr, 5 ) == 0))
-  {
-      uint32_t iVolume = 0; 
-      lichtwecker.getNextionDisplay()->getNexVariableByName("vaVolume")->getValue(&iVolume);
-      lichtwecker.getDFPlayer()->setVolume(iVolume);
   }
   /* -------------------------------------------------- */
   /* broadcast to all                                   */

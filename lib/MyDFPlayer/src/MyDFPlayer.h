@@ -37,6 +37,8 @@ private:
 
     uint32_t iVolume = 20;
 
+    bool bPlay = false;
+
 public:
     enum Snooze_t
     {
@@ -92,12 +94,25 @@ public:
      * @brief stop task for audio processing
      * 
      */
-    void stopSoundLoopTask();
+    void suspendSoundLoopTask();
     /**
      * @brief resume task for audio processing
      * 
      */
     void resumeSoundLoopTask();
+    /**
+     * @brief Set the Play object
+     * 
+     * @param bPlay_ 
+     */
+    void setPlay( bool bPlay_ ){ this->bPlay=bPlay_; }
+    /**
+     * @brief Get the Play object
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool getPlay(){ return this->bPlay; }
     /**
      * @brief register receiving function to MDispatcher
      * 
@@ -309,7 +324,7 @@ private:
         { 
             print("leaving AlarmOn"); 
             /* stop sound task */
-            stm.stopSoundLoopTask();
+            stm.suspendSoundLoopTask();
         }
     private:
         // snooze is state of AlarmOn
