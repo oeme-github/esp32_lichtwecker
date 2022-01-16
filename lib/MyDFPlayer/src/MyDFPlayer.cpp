@@ -212,16 +212,16 @@ void MyDFPlayer::listener(String string_, EventEnum event_) {
     if( (strcmp("SnoozeOn", string_.c_str() ) == 0) || (strcmp("snoozeon", string_.c_str() ) == 0))  
     {
         print("SnoozeOn");
-        //vTaskSuspend(this->hTaskSoundLoop);
-        this->setPlay(false);
+        vTaskSuspend(this->hTaskSoundLoop);
+        //this->setPlay(false);
     }
     /* -------------------------------------------------- */
     /* SnoozeOff -> switch snooze off                       */
     if( (strcmp("snoozeoff", string_.c_str() ) == 0) || (strcmp("SnoozeOff", string_.c_str() ) == 0))  
     {
         print("SnoozeOff");
-        //vTaskResume(this->hTaskSoundLoop);
-        this->setPlay(true);
+        vTaskResume(this->hTaskSoundLoop);
+        //this->setPlay(true);
     }
 }    
 /**
