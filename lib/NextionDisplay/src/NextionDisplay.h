@@ -26,7 +26,8 @@ typedef struct Pages_t {
             { 1,"page1" },
             { 2,"page2" },
             { 3,"page3" },
-            { 4,"page4" }
+            { 4,"page4" },
+            { 5,"page5" }
     };    
     std::vector <std::pair<int,const char*>>::iterator it_page_vec;
 
@@ -39,7 +40,8 @@ typedef struct Pages_t {
     /* varaibales */
     std::vector <std::tuple<int, int,const char*>> var_vec={
         std::tuple<int,int,const char*>{ 0, 31, "vaOffsetSun" },
-        std::tuple<int,int,const char*>{ 2, 29, "vaVolume" },
+        std::tuple<int,int,const char*>{ 2, 29, "vaVolume"    },
+        std::tuple<int,int,const char*>{ 5,  3, "vaMaxDimSR"  },
     };
     /* timers */
     std::vector <std::tuple<int, int,const char*>> tim_vec={

@@ -352,7 +352,7 @@ void page0_tmSerialCmdCallback(void *ptr)
   /* broadcast to all                                   */
   lichtwecker.broadcastMessage((const char *)ptr);
   /* ================================================== */
-  /* enable the time                                    */
+  /* enable the timer                                    */
   dbSerialPrintln("enable timer...");
   for(auto & elem : lichtwecker.getNextionDisplay()->getNexTimer() )
   {

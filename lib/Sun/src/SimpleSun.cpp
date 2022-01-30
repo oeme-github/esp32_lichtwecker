@@ -118,7 +118,7 @@ void SimpleSun::drawAurora()
     if(newAuroraLeft >= 0 && newAuroraRight <= this->getNumLeds())
     {
         int redValue   =  map(this->fadeStep, 0, 100, this->whiteLevel, 95);
-        int greenValue =  map(this->fadeStep, 0, 100,                0, 15);
+        int greenValue =  map(this->fadeStep, 0, 100, this->whiteLevel, 10);
 
         strip->pixels[newAuroraRight] = pixelFromRGBW( redValue, greenValue, 0, 0);
         strip->pixels[newAuroraLeft]  = pixelFromRGBW( redValue, greenValue, 0, 0);
@@ -126,7 +126,9 @@ void SimpleSun::drawAurora()
     for(int i = sunStart; i < sunStart+this->currentAurora; i++)
     {
         strip->pixels[i] = pixelFromRGBW( min(strip->pixels[i].r+4, 127)
-                                        , min(strip->pixels[i].g+1, 25), 0, 0); 
+                                        , min(strip->pixels[i].g+1, 25)
+                                        , 0
+                                        , 0); 
     }
     this->oldAurora   = this->currentAurora;
 }
@@ -140,43 +142,43 @@ int SimpleSun::calWhiteValue()
     int whiteValue = 0;
     if( this->whiteLevel <= 20 )
     {
-        whiteValue = map(this->whiteLevel, 0, 20, 0, 10);
+        whiteValue = map(this->whiteLevel, 0, 20, 0, 5);
     }
     else if( this->whiteLevel > 40 && this->whiteLevel <= 40 )
     {
-        whiteValue = map(this->whiteLevel, 0, 40, 0, 15);
+        whiteValue = map(this->whiteLevel, 0, 40, 0, 8);
     }
     else if( this->whiteLevel > 40 && this->whiteLevel <= 50 )
     {
-        whiteValue = map(this->whiteLevel, 0, 50, 0, 20);
+        whiteValue = map(this->whiteLevel, 0, 50, 0, 12);
     }
     else if( this->whiteLevel > 50 && this->whiteLevel <= 60 )
     {
-        whiteValue = map(this->whiteLevel, 0, 60, 0, 25);
+        whiteValue = map(this->whiteLevel, 0, 60, 0, 16);
     }
     else if( this->whiteLevel > 60 && this->whiteLevel <= 70 )
     {
-        whiteValue = map(this->whiteLevel, 0, 70, 0, 35);
+        whiteValue = map(this->whiteLevel, 0, 70, 0, 20);
     }
     else if( this->whiteLevel > 70 && this->whiteLevel <= 80 )
     {
-        whiteValue = map(this->whiteLevel, 0, 80, 0, 50);
+        whiteValue = map(this->whiteLevel, 0, 80, 0, 30);
     }
     else if( this->whiteLevel > 80 && this->whiteLevel <= 85 )
     {
-        whiteValue = map(this->whiteLevel, 0, 90, 0, 80);
+        whiteValue = map(this->whiteLevel, 0, 90, 0, 50);
     }
     else if( this->whiteLevel > 85 && this->whiteLevel <= 90 )
     {
-        whiteValue = map(this->whiteLevel, 0, 90, 0, 120);
+        whiteValue = map(this->whiteLevel, 0, 90, 0, 80);
     }
     else if( this->whiteLevel > 90 && this->whiteLevel <= 95 )
     {
-        whiteValue = map(this->whiteLevel, 0, 90, 0, 180);
+        whiteValue = map(this->whiteLevel, 0, 90, 0, 100);
     }
     else
     {
-        whiteValue = min((int)map(this->whiteLevel, 0, 100, 0, 255), 255);
+        whiteValue = min((int)map(this->whiteLevel, 0, 100, 0, 200), 200);
     }
 #ifdef _DEBUG_SUN_DETAILS_
     print("calWhiteValue() : ", false);
@@ -241,9 +243,9 @@ void SimpleSun::drawSun()
     int whiteVale   = this->calWhiteValue();
     if(newSunLeft >= 0 && newSunRight <= this->getNumLeds() && this->sunPhase > 0)
     {
-        int redValue   = map(this->sunFadeStep, 0, 100, 0, max(this->whiteLevel,50));
+        int redValue   = map(this->sunFadeStep, 0, 100, 0, max(this->whiteLevel,60));
         int greenValue = map(this->sunFadeStep, 0, 100, 0, min(this->whiteLevel,25));
-        int blueValue  = map(this->sunFadeStep, 0, 100, 0, min(this->whiteLevel,20));
+        int blueValue  = map(this->sunFadeStep, 0, 100, 0, min(this->whiteLevel,10));
         
         strip->pixels[newSunLeft]  = pixelFromRGBW( redValue, greenValue, blueValue, whiteVale);
         strip->pixels[newSunRight] = pixelFromRGBW( redValue, greenValue, blueValue, whiteVale);
@@ -480,7 +482,9 @@ void SimpleSun::weislicht()
     strand_t* strip = this->STRANDS[0];
     for(int i = 0; i < this->getNumLeds(); i++)
     {
-        strip->pixels[i] = pixelFromRGBW( 255, 255, 255, 255 ); 
+        /* -------------------------------------------------- */
+        /*                                  r,   g,   b, w    */
+        strip->pixels[i] = pixelFromRGBW( 255, 255, 204, 200 ); 
     }
     this->drawPixels();
 }

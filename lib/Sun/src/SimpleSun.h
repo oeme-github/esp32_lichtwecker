@@ -61,7 +61,7 @@ private:
     int oldAurora          = 0;
 
     int sun                = (SUNSIZE * NUM_LEDS)/100;
-    int aurora             = NUM_LEDS;
+    int aurora             = NUM_LEDS-sun;
 
     int numTimer           = 0; 
 
@@ -356,6 +356,12 @@ private:
      * 
      */
     void decreaseSunPhase();
+    /**
+     * @brief Set the Sun Phase object
+     * 
+     * @param iSunPahse_ 
+     */
+    void setSunPhase(int8_t iSunPahse_ ){ this->sunPhase = iSunPahse_; }
     /**
      * @brief reset pixels of sun (leds)
      * 
