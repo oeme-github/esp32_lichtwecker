@@ -39,9 +39,9 @@ typedef struct Pages_t {
     };
     /* varaibales */
     std::vector <std::tuple<int, int,const char*>> var_vec={
-        std::tuple<int,int,const char*>{ 0, 31, "vaOffsetSun" },
-        std::tuple<int,int,const char*>{ 2, 29, "vaVolume"    },
-        std::tuple<int,int,const char*>{ 5,  3, "vaMaxDimSR"  },
+        std::tuple<int,int,const char*>{ 0, 30, "vaOffsetSun" },
+        std::tuple<int,int,const char*>{ 0, 38, "vaBright"},
+        std::tuple<int,int,const char*>{ 2, 31, "vaVolume"    },
     };
     /* timers */
     std::vector <std::tuple<int, int,const char*>> tim_vec={

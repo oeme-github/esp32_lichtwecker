@@ -51,6 +51,9 @@ bool recvRetNumber(uint32_t *number, uint32_t timeout)
     bool ret = false;
     uint8_t temp[8] = {0};
 
+    uint8_t iTempSize;
+    uint8_t iBuffRead;
+
     if (!number)
     {
         dbSerialPrintln("!number");
@@ -58,7 +61,15 @@ bool recvRetNumber(uint32_t *number, uint32_t timeout)
     }
     
     nexSerial.setTimeout(timeout);
-    if (sizeof(temp) != nexSerial.readBytes((char *)temp, sizeof(temp)))
+
+    iTempSize = sizeof(temp);
+    iBuffRead = nexSerial.readBytes((char *)temp, sizeof(temp));
+
+    dbSerialPrint("iTempSize:"); dbSerialPrintln(iTempSize);
+    dbSerialPrint("iBuffRead:"); dbSerialPrintln(iBuffRead);
+
+    if( iTempSize != iBuffRead )
+    //if (sizeof(temp) != nexSerial.readBytes((char *)temp, sizeof(temp)))
     {
         dbSerialPrintln("not same count");
         goto __return;

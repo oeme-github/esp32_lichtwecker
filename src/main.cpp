@@ -338,7 +338,8 @@ void page0_tmSerialCmdCallback(void *ptr)
           lichtwecker.getNextionDisplay()->getNexVariableByName("vaOffsetSun")->getValue(&iOffsetSun);
           if(iOffsetSun > 0)
           {
-              dbSerialPrintln("got the offset...");
+              dbSerialPrint("got the offset: ");
+              dbSerialPrintln(iOffsetSun);
               break;
           }
       }
@@ -347,6 +348,30 @@ void page0_tmSerialCmdCallback(void *ptr)
           iOffsetSun=WAKE_DELAY;
       }
       lichtwecker.getSimpleSun()->setWakeDelay(iOffsetSun);  
+  }
+  /* -------------------------------------------------- */
+  /* sunup -> start sunrise                             */
+  if( (strncmp("light_on", (char *)ptr, 8 ) == 0))  
+  {
+      dbSerialPrintln("---> in light on...");
+      uint32_t iBrightness = 0;
+      /* ---------------------------------------------- */
+      /* get the offset from nextion dixplay            */
+      for(int i=0; i<=5; i++)
+      {
+          lichtwecker.getNextionDisplay()->getNexVariableByName("vaBright")->getValue(&iBrightness);
+          if(iBrightness > 0)
+          {
+              dbSerialPrint("got vaBright: ");
+              dbSerialPrintln(iBrightness);
+              break;
+          }
+      }
+      if(iBrightness==0)
+      {
+          iBrightness=10;
+      }
+      lichtwecker.getSimpleSun()->setBrightness(iBrightness);  
   }
   /* -------------------------------------------------- */
   /* broadcast to all                                   */
@@ -538,6 +563,49 @@ void loop(void){
     }
     lichtwecker.getSimpleSun()->sunDown();
 #endif
+
+
+      uint32_t iTemp = 0;
+      /* ---------------------------------------------- */
+      /* get the offset from nextion dixplay            */
+      for(int i=0; i<=5; i++)
+      {
+          lichtwecker.getNextionDisplay()->getNexVariableByName("vaOffsetSun")->getValue(&iTemp);
+          if(iTemp > 0)
+          {
+              dbSerialPrint("got vaOffsetSun: ");
+              dbSerialPrintln(iTemp);
+              lichtwecker.getSimpleSun()->setWakeDelay(iTemp);
+              break;
+          }
+      }
+      /* ---------------------------------------------- */
+      /* get the offset from nextion dixplay            */
+      for(int i=0; i<=5; i++)
+      {
+          lichtwecker.getNextionDisplay()->getNexVariableByName("vaBright")->getValue(&iTemp);
+          if(iTemp > 0)
+          {
+              dbSerialPrint("got vaBright: ");
+              dbSerialPrintln(iTemp);
+              lichtwecker.getSimpleSun()->setBrightness(iTemp);
+              break;
+          }
+      }
+      /* ---------------------------------------------- */
+      /* get the offset from nextion dixplay            */
+      for(int i=0; i<=5; i++)
+      {
+          lichtwecker.getNextionDisplay()->getNexVariableByName("vaVolume")->getValue(&iTemp);
+          if(iTemp > 0)
+          {
+              dbSerialPrint("got vaVolume: ");
+              dbSerialPrintln(iTemp);
+              lichtwecker.getDFPlayer()->setVolume(iTemp);
+              break;
+          }
+      }
+
     /* -------------------------------------------------- */
     /* delete the task                                    */
     vTaskDelete(NULL);

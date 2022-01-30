@@ -479,12 +479,18 @@ void SimpleSun::blaulicht()
 void SimpleSun::weislicht()
 {
     print("SimpleSun::weislicht()");
+    print("this->iBrightness:", false); 
+    print(this->iBrightness);
+    
     strand_t* strip = this->STRANDS[0];
     for(int i = 0; i < this->getNumLeds(); i++)
     {
         /* -------------------------------------------------- */
         /*                                  r,   g,   b, w    */
-        strip->pixels[i] = pixelFromRGBW( 255, 255, 204, 200 ); 
+        strip->pixels[i] = pixelFromRGBW( map(255, 0, 255, 0, this->iBrightness)
+                                        , map(255, 0, 255, 0, this->iBrightness)
+                                        , map(100, 0, 255, 0, this->iBrightness)
+                                        , map(255, 0, 255, 0, this->iBrightness) ); 
     }
     this->drawPixels();
 }

@@ -9,7 +9,7 @@
 
 #define NUM_LEDS 28                      //number of LEDs in the strip
 #define BRIGHTNESS 255                   //strip brightness 255 max
-#define SUNSIZE 50                       //percentage of the strip that is the "sun"
+#define SUNSIZE 40                       //percentage of the strip that is the "sun"
 
 #ifndef WAKE_DELAY
 #define WAKE_DELAY 1800                  //sunrise span in sec
@@ -64,6 +64,8 @@ private:
     int aurora             = NUM_LEDS-sun;
 
     int numTimer           = 0; 
+
+    int iBrightness        = 8;
 
     timer_callback ptrTimerCB;
 
@@ -161,6 +163,12 @@ public:
     {
         ptrTimerCB = ptrTimerCB_;
     }
+    /**
+     * @brief Set the Brightness object
+     * 
+     * @param iBrightness_ 
+     */
+    void setBrightness(int iBrightness_){ this->iBrightness=iBrightness_; }
     /**
      * @brief Set the Task Function object
      * 
