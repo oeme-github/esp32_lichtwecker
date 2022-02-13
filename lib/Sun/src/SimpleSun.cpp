@@ -486,11 +486,12 @@ void SimpleSun::weislicht()
     for(int i = 0; i < this->getNumLeds(); i++)
     {
         /* -------------------------------------------------- */
+        /* map(long x, long in_min, long in_max, long out_min, long out_max) */
         /*                                  r,   g,   b, w    */
-        strip->pixels[i] = pixelFromRGBW( map(255, 0, 255, 0, this->iBrightness)
-                                        , map(255, 0, 255, 0, this->iBrightness)
-                                        , map(100, 0, 255, 0, this->iBrightness)
-                                        , map(255, 0, 255, 0, this->iBrightness) ); 
+        strip->pixels[i] = pixelFromRGBW( map(this->iBrightness, 0, 10, 0, 255 )
+                                        , map(this->iBrightness, 0, 10, 0, 240 )
+                                        , map(this->iBrightness, 0, 10, 0, 200 )
+                                        , map(this->iBrightness, 0, 10, 0, 255 ) ); 
     }
     this->drawPixels();
 }
