@@ -13,6 +13,7 @@
  * the License, or (at your option) any later version.
  */
 #include "NexRtc.h"
+#include <ctime>
 
 bool NexRtc::write_rtc_time(char *time)
 {

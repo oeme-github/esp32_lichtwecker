@@ -19,6 +19,7 @@
      
 #include "NexTouch.h"
 #include "NexHardware.h"
+#include <ctime>
 /**
  * @addtogroup Component 
  * @{ 

@@ -1,7 +1,7 @@
 #include <Nextion.h>
 #include <ESPNexUpload.h>
 #include <CallbackFunctions.h>
-#include <list>
+#include <vector>
 
 #ifndef __NEXTIONDISPL_H__
 #define __NEXTIONDISPL_H__
