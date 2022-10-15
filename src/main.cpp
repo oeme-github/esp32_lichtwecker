@@ -1,35 +1,8 @@
 #include <Lichtwecker.h>
 #include <CallbackFunctions.h>
-
 #include <WebServer.h> 
 
-
 #define _DEBUG_SUNRISE_
-
-/**
- * @brief define section
- */
-#define SOUND_TABLE \
-X(no_sound)  \
-X(piep)    \
-X(amsel)   \
-X(pmh)     \
-X(hahn)    \
-X(sirene)  \
-X(kodack)  \
-X(qubodup) \
-X(samster)
-
-#define X(a) a,
-typedef enum SOUND_T {
-  SOUND_TABLE
-} sound_t;
-#undef X
-
-#define X(a) +1
-int sound_count = 0 SOUND_TABLE;
-#undef X
-
 #define WAKE_DELAY 1800
 
 /**
@@ -122,7 +95,7 @@ void taskSoundLoopCode( void * pvParameters ){
     /* -------------------------------------------------- */    
     /* check the sun and run it                           */
     /* need to delay the task because of warchdog         */
-    lichtwecker.getDFPlayer()->play(kodack);
+    //TODO - lichtwecker.getDFPlayer()->play(kodack);
     while(!digitalRead(GPIO_MP3))
     {
         dbSerialPrintln("player still busy...");
@@ -485,7 +458,7 @@ void setup(void)
     lichtwecker.getSimpleSun()->setTimerCB( sunRiseMain );
     /* -------------------------------------------------- */
     /* set function for sound loop task                   */
-    lichtwecker.getDFPlayer()->setTaskFunction(taskSoundLoopCode);  
+    // TODO - lichtwecker.getDFPlayer()->setTaskFunction(taskSoundLoopCode);  
     /* -------------------------------------------------- */
     /* just wait a while                                  */
     vTaskDelay(500/portTICK_PERIOD_MS);
@@ -493,7 +466,7 @@ void setup(void)
     /* -------------------------------------------------- */
     /* just wait a while                                  */
     vTaskDelay(500/portTICK_PERIOD_MS);
-    lichtwecker.getDFPlayer()->startSoundLoopTask();
+    // TODO - lichtwecker.getDFPlayer()->startSoundLoopTask();
     /* -------------------------------------------------- */
     /* just wait a while                                  */
     vTaskDelay(500/portTICK_PERIOD_MS);
@@ -546,7 +519,7 @@ void loop(void){
     lichtwecker.getSimpleSun()->lightOn();
     vTaskDelay(5000/portTICK_PERIOD_MS);
     lichtwecker.getSimpleSun()->lightOff();
-    lichtwecker.getDFPlayer()->play(kodack);
+    //lichtwecker.getDFPlayer()->play(kodack);
 #ifdef _WITH_SOUND_TEST_
     vTaskDelay(5000/portTICK_PERIOD_MS);
     lichtwecker.getSimpleSun()->sunUp();
@@ -601,7 +574,7 @@ void loop(void){
           {
               dbSerialPrint("got vaVolume: ");
               dbSerialPrintln(iTemp);
-              lichtwecker.getDFPlayer()->setVolume(iTemp);
+              //TODO lichtwecker.getDFPlayer()->setVolume(iTemp);
               break;
           }
       }

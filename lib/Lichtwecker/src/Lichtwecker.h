@@ -8,7 +8,6 @@
 #include <SimpleSun.h>
 #include <NextionDisplay.h>
 #include <ESPNexUpload.h>
-#include <MyDFPlayer.h>
 #include <WebServer.h>
 #include "MDispatcher.h"
 
@@ -47,8 +46,6 @@ class Lichtwecker
 {
 private:
     /* data */
-    MyDFPlayer myDFPlayer;
-    MyDFPlayer *ptrMyDFPlayer = &myDFPlayer;
     NextionDisplay nextionDisplay;
     NexRtc nexRtc;
     SimpleSun simpleSun;
@@ -140,15 +137,6 @@ public:
      * 
      */
     void start();
-    /**
-     * @brief get pointer to DFPlayer
-     * 
-     * @return MyDFPlayer* 
-     */
-    MyDFPlayer *getDFPlayer()
-    { 
-        return &myDFPlayer; 
-    }
     /**
      * @brief Get the Simple Sun object
      * 
