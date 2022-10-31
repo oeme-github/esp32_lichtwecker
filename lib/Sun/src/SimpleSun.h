@@ -1,37 +1,15 @@
+#pragma once
+
 #include <esp32_digital_led_lib.h>
 #include <esp32_digital_led_funcs.h>
 #include <SimpleTimer.h> 
 #include <genericstate.h>
 #include <MDispatcher.h>
 
+#include "SimpleSunConfig.h"
+
 #ifndef SIMPLE_SUN_H
 #define SIMPLE_SUN_H
-
-#define NUM_LEDS 28                      //number of LEDs in the strip
-#define BRIGHTNESS 255                   //strip brightness 255 max
-#define SUNSIZE 40                       //percentage of the strip that is the "sun"
-
-#ifndef WAKE_DELAY
-#define WAKE_DELAY 1800                  //sunrise span in sec
-#endif
-
-#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
-
-#define DEBUG_SERIAL_SUN_ENABLE
-#define _WITH_TEST_LED_
-#define _DEBUG_SUN_DETAILS_
-
-#ifdef DEBUG_SERIAL_SUN_ENABLE
-    #define dbSunSerialPrint(a)    Serial.print(a)
-	#define dbSunSerialPrintHex(a) Serial.print(a, HEX)
-    #define dbSunSerialPrintln(a)  Serial.println(a)
-    #define dbSunSerialBegin(a)    Serial.begin(a)
-#else
-    #define dbSunSerialPrint(a)    do{}while(0)
-    #define dbSunSerialPrintHex(a) do{}while(0)		
-    #define dbSunSerialPrintln(a)  do{}while(0)
-    #define dbSunSerialBegin(a)    do{}while(0)
-#endif
 
 
 class SimpleSun : public SimpleTimer {
@@ -48,29 +26,18 @@ private:
 
     int iLeds              = NUM_LEDS;
     uint32_t wakeDelay     = WAKE_DELAY;
-
-    int sunFadeStep        = 100;
-    int fadeStep           = 100;
-    int whiteLevel         = 100;
-    int sunPhase           = 100;
-
-    int currentSun         = 100;
-    int oldSun             = 0;
-    
-    int currentAurora      = 100;
-    int oldAurora          = 0;
-
-    int sun                = (SUNSIZE * NUM_LEDS)/100;
-    int aurora             = NUM_LEDS-sun;
-
-    int numTimer           = 0; 
-
+    int sunPhase           = 0;
+    int numTimer           = 0;
     int iBrightness        = 8;
 
     timer_callback ptrTimerCB;
-
     TaskHandle_t hTaskSunLoop;
     TaskFunction_t pvTaskCode;
+
+    u_int16_t iRed   = 0;
+    u_int16_t iGreen = 0;
+    u_int16_t iBlue  = 0;
+    u_int16_t iWhite = 0;
 
 /* methodes */
 public:
@@ -87,13 +54,9 @@ public:
     /**
      * @brief initialize parameter of sun
      * 
-     * @param iWhite 
-     * @param iSunPhase 
-     * @param iFadeStep 
-     * @param iSunFadeStep 
      * @param iWakeDelay 
      */
-    void init(int iWhite, int iSunPhase, int iFadeStep, int iSunFadeStep, int iWakeDelay);
+    void init(int iWakeDelay);
     /**
      * @brief initialize led driver
      * 
@@ -114,6 +77,30 @@ public:
      */
     int  getNumLeds();
     /**
+     * @brief Set the Red object
+     * 
+     * @param iRet_ 
+     */
+    void setRed(u_int16_t iRet_){ this->iRed=iRet_;}
+    /**
+     * @brief Set the Green object
+     * 
+     * @param iGreen_ 
+     */
+    void setGreen(u_int16_t iGreen_){ this->iGreen=iGreen_;}
+    /**
+     * @brief Set the Blue object
+     * 
+     * @param iBlue_ 
+     */
+    void setBlue(u_int16_t iBlue_){ this->iBlue=iBlue_;}
+    /**
+     * @brief Set the White object
+     * 
+     * @param iWhite_ 
+     */
+    void setWhite(u_int16_t iWhite_){ this->iWhite=iWhite_;}
+    /**
      * @brief Get the Rc object
      * 
      * @return int 
@@ -124,7 +111,7 @@ public:
      * 
      * @return int 
      */
-    int getSunPhase();
+    boolean getSunPhase();
     /**
      * @brief Set the Wake Delay object
      * 
@@ -181,10 +168,10 @@ public:
     /**
      * @brief let the sun rise
      * 
-     * @param intPayload_ 
+     * @param intwakeDelay_ 
      * @param bInit_ 
      */
-    void letSunRise( int intPayload_ = 0, bool bInit_ = false );
+    void letSunRise( int intwakeDelay_ = 0, bool bInit_ = false );
     /**
      * @brief start the sun loop task
      * 
@@ -268,6 +255,15 @@ public:
         lightState->lightBlue();
     }
     /**
+     * @brief light blue companion
+     * 
+     */
+    void lightRGB()
+    { 
+        print("lightRGB()");
+        lightState->lightRGB();
+    }
+    /**
      * @brief Get the Light State object
      * 
      * @return const char* 
@@ -299,61 +295,24 @@ private:
      */
     void blaulicht();
     /**
-     * @brief calculate the sun
+     * @brief switch on the lamp with rgbw 
      * 
      */
-    void calSun();
+    void rgbwlicht();
     /**
-     * @brief draw the ambiente during sunrise/sunset
+     * @brief display RGBW light
      * 
+     * @param iRed 
+     * @param iGreen 
+     * @param iBlue 
+     * @param iWhite 
      */
-    void drawAmbient();
-    /**
-     * @brief draw aurora during sunrise/sunset
-     * 
-     */
-    void drawAurora();
+    void rgbwLicht(uint16_t iRed, uint16_t iGreen, uint16_t iBlue, uint16_t iWhite);
     /**
      * @brief draw sun
      * 
      */
     void drawSun();
-    /**
-     * @brief calculate white level
-     * 
-     * @return int 
-     */
-    int calWhiteValue();
-    /**
-     * @brief increase sun fade during sinrise
-     * 
-     */
-    void increaseSunFadeStep();
-    /**
-     * @brief decrease sun fade during sunset
-     * 
-     */
-    void decreaseSunFadeStep();
-    /**
-     * @brief increase fade during sunrise
-     * 
-     */
-    void increaseFadeStep();
-    /**
-     * @brief decrease fade during sunset
-     * 
-     */
-    void decreaseFadeStep();
-    /**
-     * @brief increase white level during sunrise
-     * 
-     */
-    void increaseWhiteLevel();
-    /**
-     * @brief decrease white level during sunset
-     * 
-     */
-    void decreaseWhiteLevel();
     /**
      * @brief increase sunphase during sunrise
      * 
@@ -431,6 +390,20 @@ private:
             dbSunSerialPrint(iNum);
     }
     /**
+     * @brief print function for int
+     * 
+     * @param fNum 
+     * @param bNewLine 
+     */
+    static void print(float_t fNum, bool bNewLine = true) {
+        char msg[10];
+        sprintf(msg,"%f",fNum); 
+        if( bNewLine )
+            dbSunSerialPrintln(msg);
+        else
+            dbSunSerialPrint(msg);
+    }
+    /**
      * @brief default unhandled event function
      * 
      * @param str 
@@ -496,13 +469,11 @@ private:
         void entry() 
         { 
             /* start sunrise */
-            print( "entry SunRise" );
-            print( "-> resume sun loop task..." );
+            print("SunRise:entry()");
             vTaskResume(stm.hTaskSunLoop);
             vTaskDelay(50/portTICK_PERIOD_MS);
-            print( "-> letSunRise..." );
+            /* get wake delay in minutes and start sunrise with seconds */
             stm.letSunRise( stm.getWakeDelay()*60, true );
-            print("entry SunRise done.");
         }
         void sunDown() 
         { 
@@ -523,9 +494,6 @@ private:
         }
         void exit() 
         { 
-            print("exit SunRise (stop sun loop task)."); 
-            // print("-> stop sun loop task");
-            // stm.stopSunLoopTask();
             print( "exit SunRise done.");
         }
     };
@@ -577,6 +545,7 @@ private:
         virtual void lightOn() { unhandledEvent("light on"); }
         virtual void lightOff() { unhandledEvent("light off"); }
         virtual void lightBlue() { unhandledEvent("light blue"); }
+        virtual void lightRGB() { unhandledEvent("light RGB"); }
         virtual const char *getLightState() { unhandledEvent("getLightState"); return "unhandledEvent";}        
     };
     StateRef<LightState> lightState;
@@ -605,6 +574,11 @@ private:
         { 
             print("switch light to blue");
             change<LightBlue>();
+        }
+        void lightRGB() 
+        {
+            print("switch light RGB"); 
+            change<LightRGB>(); 
         }
         const char *getLightState() 
         { 
@@ -642,6 +616,11 @@ private:
             print("switch light to blue");
             change<LightBlue>();
         }
+        void lightRGB() 
+        {
+            print("switch light RGB"); 
+            change<LightRGB>(); 
+        }
         const char *getLightState() 
         { 
             return "LightOff"; 
@@ -676,13 +655,52 @@ private:
         { 
             print("light is already blue"); 
         }
+        void lightRGB() 
+        {
+            print("switch light RGB"); 
+            change<LightRGB>(); 
+        }
         const char *getLightState() 
         { 
             return "LightBlue"; 
         }
         void exit() 
         { 
-            print("leaving LightOff"); 
+            print("leaving LightBlue"); 
+        }
+    };
+    /**
+     * @brief light RGB state
+     * 
+     */
+    struct LightRGB : public LightState {
+        using LightState::LightState;
+        void entry() 
+        { 
+            print("entering LightRGB"); 
+            stm.rgbwlicht();
+        }
+        void lightOff() 
+        { 
+            print("switch light off");
+            change<LightOff>(); 
+        }
+        void lightOn() 
+        {
+            print("switch light on"); 
+            change<LightOn>(); 
+        }
+        void lightBlue() 
+        { 
+            print("light is already blue"); 
+        }
+        const char *getLightState() 
+        { 
+            return "LightBlue"; 
+        }
+        void exit() 
+        { 
+            print("leaving LightRGB"); 
         }
     };
 };

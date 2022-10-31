@@ -87,32 +87,22 @@ void NexTouch::detachCmd(void)
     this->__cbcmd_e_ptr = NULL;
 }
 
-void NexTouch::iterate(NexTouch **list, uint8_t pid, uint8_t cid, int32_t event, String cmd)
+void NexTouch::iterate(NexTouch **list, uint8_t pid, uint8_t cid, int32_t event, String cmd, uint8_t sizeOfList )
 {
+    dbSerialPrintln("NexTouch::iterate()");
+
     NexTouch *e = NULL;
     uint16_t i = 0;
 
-    if (NULL == list)
+    if(list == NULL)
     {
-#ifdef _WITH_NEXLOOP_DEBUG_
-        dbSerialPrint("list is NULL");
-#endif    
         return;
     }
 
-#ifdef _WITH_NEXLOOP_DEBUG_
-    dbSerialPrint("event:");
-    dbSerialPrintln(event);
-    dbSerialPrint("pid:");
-    dbSerialPrintln(pid);
-    dbSerialPrint("cid:");
-    dbSerialPrintln(cid);
-#endif    
-
-// ToDo - vernünftiges Abbruchkriterium für die for-Schleife
-    for(i = 0; (e = list[i]) != NULL; i++)
+    for(i = 0; i < sizeOfList; i++)
     {
-#ifdef _WITH_NEXLOOP_DEBUG_
+        e = list[i];
+#ifdef _WITH_NEXLOOP_DETAIL_DEBUG_
         dbSerialPrint("i: ");
         dbSerialPrintln( i );
         e->printObjInfo();
@@ -122,28 +112,28 @@ void NexTouch::iterate(NexTouch **list, uint8_t pid, uint8_t cid, int32_t event,
             e->printObjInfo();
             if (NEX_EVENT_PUSH == event)
             {
-#ifdef _WITH_NEXLOOP_DEBUG_
+#ifdef _WITH_NEXLOOP_DETAIL_DEBUG_
                 dbSerialPrintln("call push callback...");
 #endif
                 e->push();
             }
             else if (NEX_EVENT_POP == event)
             {
-#ifdef _WITH_NEXLOOP_DEBUG_
+#ifdef _WITH_NEXLOOP_DETAIL_DEBUG_
                 dbSerialPrintln("call pop callback...");
 #endif
                 e->pop();
             }            
             else if (NEX_EVENT_CMD == event)
             {
-#ifdef _WITH_NEXLOOP_DEBUG_
+#ifdef _WITH_NEXLOOP_DETAIL_DEBUG_
                 dbSerialPrint("call cmd callback: ");
                 dbSerialPrintln( cmd );
 #endif
                 /* param */
                 e->__cbcmd_e_ptr=(void *)&cmd;
                 /* function call */
-#ifdef _WITH_NEXLOOP_DEBUG_
+#ifdef _WITH_NEXLOOP_DETAIL_DEBUG_
                 dbSerialPrint("Name: ");
                 dbSerialPrintln( e->getName() );
 #endif
@@ -152,5 +142,5 @@ void NexTouch::iterate(NexTouch **list, uint8_t pid, uint8_t cid, int32_t event,
             break;
         }
     }
+    dbSerialPrintln("<------- done --------->");
 }
-

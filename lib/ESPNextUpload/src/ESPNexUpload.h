@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * @file NexUpload.h
  * The definition of class NexUpload. 

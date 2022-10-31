@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <string>
 
@@ -10,6 +12,7 @@
 #include <ESPNexUpload.h>
 #include <WebServer.h>
 #include "MDispatcher.h"
+#include "ArduinoJson.h"
 
 #ifndef LICHTWECKER_H
 #define LICHTWECKER_H
@@ -20,12 +23,14 @@
 #ifndef SWS_TX
 #define SWS_TX 19
 #endif
+#ifndef GPIO_MP3
+#define GPIO_MP3 34
+#endif
+
 #ifndef WEB_SRV_PORT
 #define WEB_SRV_PORT 80
 #endif
-#ifndef OFFSET_SUN
-#define OFFSET_SUN 10
-#endif
+
 #ifndef HOST_NAME
 #define HOST_NAME "nextion"
 #endif
@@ -34,12 +39,6 @@
 #endif
 #ifndef WIFI_PWD
 #define WIFI_PWD "*P4rar#012345678"
-#endif
-#ifndef GPIO_MP3
-#define GPIO_MP3 34
-#endif
-#ifndef BL_DELAY
-#define BL_DELAY 500
 #endif
 
 class Lichtwecker
@@ -50,9 +49,10 @@ private:
     NexRtc nexRtc;
     SimpleSun simpleSun;
     MDispatcher<String, EventEnum> dispatcher;
-    
     ESPNexUpload espNexUpload;
     WebServer webServer;
+
+    StaticJsonDocument<1024> config;
 
     /* WIFI */
     const char* ssid      = SSID_NAME;
@@ -85,6 +85,20 @@ private:
             dbSerialPrintln(iNum);
         else
             dbSerialPrintln(iNum);
+    }
+    /**
+     * @brief print function for int
+     * 
+     * @param fNum 
+     * @param bNewLine 
+     */
+    static void print(float_t fNum, bool bNewLine = true) {
+        char msg[10];
+        sprintf(msg,"%f",fNum); 
+        if( bNewLine )
+            dbSunSerialPrintln(msg);
+        else
+            dbSunSerialPrint(msg);
     }
 
 public:
@@ -183,6 +197,15 @@ public:
         return &espNexUpload;
     }
     /**
+     * @brief get MDispatcher object
+     * 
+     * @return MDispatcher<String, EventEnum>& 
+     */
+    MDispatcher<String, EventEnum> &getMDispatcher()
+    {
+        return dispatcher;
+    }
+    /**
      * @brief broadcast message
      * 
      * @param msg_ 
@@ -199,7 +222,22 @@ public:
      * @return false 
      */
     bool handleFileRead(String path);
-
+    /**
+     * @brief Get the Config object
+     * 
+     * @return StaticJsonDocument<1024>* 
+     */
+    StaticJsonDocument<1024> getConfig(){return this->config;}
+    /**
+     * @brief save to config file
+     * 
+     */
+    void saveToConfigfile( const char *ptr);
+    /**
+     * @brief print config json object
+     * 
+     */
+    void printConfig();
 };
 
 

@@ -65,7 +65,7 @@ class NexTouch: public NexObject
 {
 public: /* static methods */    
     // static void iterate(NexTouch **list, uint8_t pid, uint8_t cid, int32_t event);
-    static void iterate(NexTouch **list, uint8_t pid, uint8_t cid, int32_t event, String cmd);
+    static void iterate(NexTouch **list, uint8_t pid, uint8_t cid, int32_t event, String cmd, uint8_t sizeOfList);
 
 public: /* methods */
 

@@ -1,7 +1,9 @@
-#ifndef GENERICSTATE_H
-#define GENERICSTATE_H
+#pragma once
 
 #include <memory>
+
+#ifndef GENERICSTATE_H
+#define GENERICSTATE_H
 
 template <class State>
 using StateRef = std::unique_ptr<State>;

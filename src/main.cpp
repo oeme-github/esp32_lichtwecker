@@ -1,14 +1,16 @@
+#include <Math.h>
 #include <Lichtwecker.h>
 #include <CallbackFunctions.h>
 #include <WebServer.h> 
-
-#define _DEBUG_SUNRISE_
-#define WAKE_DELAY 1800
+#include "MyAudioPlayer.h"
+#include "ArduinoJson.h"
+#include <SPIFFS.h>
 
 /**
  * @brief create instance of Lichtwecker
  */
 Lichtwecker lichtwecker;
+MyAudioPlayer myAudioPlayer;
 
 // used only internally
 int fileSize  = 0;
@@ -20,18 +22,65 @@ bool result   = true;
 TaskHandle_t hTaskNexLoop;
 TaskHandle_t hTaskWebServer;
 
+
+/**
+ * @brief Get the Volume From Nextion object
+ * 
+ */
+void getVolumeFromNextion()
+{
+  uint32_t iTemp = -1;
+  float fVol     = 0.5;
+  for(int i=0; i<=5; i++)
+  {
+      lichtwecker.getNextionDisplay()->getNexVariableByName("vaVolume")->getValue(&iTemp);
+      if(iTemp >= 0)
+      {
+          break;
+      }
+      if(iTemp<0)
+      {
+        iTemp = 10;
+      }
+  }
+  fVol = (float)iTemp/(float)30;
+  myAudioPlayer.setVolume(fVol);
+}
+/**
+ * @brief Get the Bt Val From Nextion object
+ * 
+ * @param bt 
+ * @return int 
+ */
+int getBtValFromNextion(const char *btName)
+{
+   uint32_t iTemp = -1;
+  /* ---------------------------------------------- */
+  /* get the offset from nextion dixplay            */
+  for(int i=0; i<=5; i++)
+  {
+      lichtwecker.getNextionDisplay()->getNexButtonByName(btName)->getValue(&iTemp);
+      if(iTemp >= 0)
+      {
+          break;
+      }
+  }
+  return iTemp;
+}
+
 /**
  * @brief taskNexLoopCode()
  * 
  * @param pvParameters 
  */
 void taskNexLoopCode( void * pvParameters ){
-  dbSerialPrintln( "taskNexLoop running on core " + xPortGetCoreID());
+  dbSerialPrint( "taskNexLoop running on core ");
+  dbSerialPrintln( xPortGetCoreID() );
 
   while(true)
   {    
     // watch the touch events  
-    nexLoop(lichtwecker.getNextionDisplay()->getNexListenList().data());
+    nexLoop(lichtwecker.getNextionDisplay()->getNexListenList().data(), lichtwecker.getNextionDisplay()->getNexListenList().size());
     vTaskDelay(100/portTICK_PERIOD_MS);
   }
 }
@@ -53,30 +102,19 @@ void taskSunLoopCode( void * pvParameters ){
     {
       /* ------------------------------------------------ */
       /* run the timer                                    */
-#ifdef _WITH_LOOP_DEBUG_
-      dbSerialPrint( "SunState:" );
-      dbSerialPrintln( lichtwecker.getSimpleSun()->getSunState() );
-      dbSerialPrint( "SunRise? " );
-      dbSerialPrintln( strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunRise") );
-#endif
       if( strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunRise") == 0 
           || strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunSet") == 0 )
       {
-#ifdef _WITH_LOOP_DEBUG_
-          dbSunSerialPrintln("run the timer...");
-#endif
           lichtwecker.getSimpleSun()->run();
       }
       else
       {
-        dbSerialPrint( "TASK - SunState:" );
-        dbSerialPrintln( lichtwecker.getSimpleSun()->getSunState() );
         vTaskSuspend(NULL);        
       }
     }
     /* -------------------------------------------------- */
-    /* need to delay the task because of warchdog         */
-    vTaskDelay(100/portTICK_PERIOD_MS);
+    /* need to delay the task because of wachdog          */
+    vTaskDelay(2/portTICK_PERIOD_MS);
   }
 }
 
@@ -92,16 +130,14 @@ void taskSoundLoopCode( void * pvParameters ){
 
   while(true)
   {
-    /* -------------------------------------------------- */    
-    /* check the sun and run it                           */
-    /* need to delay the task because of warchdog         */
-    //TODO - lichtwecker.getDFPlayer()->play(kodack);
-    while(!digitalRead(GPIO_MP3))
+    if( myAudioPlayer.getActive() == true )
     {
-        dbSerialPrintln("player still busy...");
-        vTaskDelay(100/portTICK_PERIOD_MS);
+      /* -------------------------------------------------- */    
+      /* check the sun and run it                           */
+      /* need to delay the task because of warchdog         */
+      myAudioPlayer.play();
     }
-    vTaskDelay(2000/portTICK_PERIOD_MS);
+    vTaskDelay(100/portTICK_PERIOD_MS);
   }
 }
 /** 
@@ -198,9 +234,8 @@ bool handleSuccess()
  * @param pvParameters 
  */
 void taskWebServerCode( void * pvParameters ){
-    dbSerialPrint("hTaskWebServer running on core ");
+    dbSerialPrint("taskWebServerCode running on core ");
     dbSerialPrintln(xPortGetCoreID());
-
     /* -------------------------------------------------- */
     /* switch webserver on                                */ 
     lichtwecker.getWebServer()->on( "/"
@@ -240,7 +275,7 @@ void taskWebServerCode( void * pvParameters ){
     while(true)
     {
         lichtwecker.getWebServer()->handleClient();
-        vTaskDelay(10/portTICK_PERIOD_MS);
+        vTaskDelay(50/portTICK_PERIOD_MS);
     }
 }
 
@@ -258,11 +293,7 @@ void taskWebServerCode( void * pvParameters ){
  */
 void sunRiseMain()
 {
-#ifdef _DEBUG_SUNRISE_
-  dbSerialPrint("sunRiseMain() - SunPhase: ");
-  dbSerialPrintln( lichtwecker.getSimpleSun()->getSunPhase());
-#endif
-  if( lichtwecker.getSimpleSun()->getSunPhase() < 100 )
+  if(lichtwecker.getSimpleSun()->getSunPhase())
   {
     /* let sun rise (without parameter) */
     lichtwecker.getSimpleSun()->letSunRise();
@@ -281,6 +312,33 @@ void sunRiseMain()
  * === NEXTION CALLBACK SECTION ===
  */
 /**
+ * @brief button callback 
+ * 
+ * @param ptr 
+ */
+void page2_btResetPushCallback(void *ptr)
+{
+  dbSerialPrint("page2_btResetPushCallback(");
+  dbSerialPrint(F((String *)ptr));
+  dbSerialPrintln(")");
+
+  vTaskDelay(100/portTICK_PERIOD_MS);
+  ESP.restart();
+} 
+/**
+ * @brief timer callback for serial communication
+ * 
+ * @param ptr 
+ */
+void page_save_values(void *ptr)
+{
+  dbSerialPrint("page_save_values(");
+  dbSerialPrint(F((String *)ptr));
+  dbSerialPrintln(")");
+
+  lichtwecker.saveToConfigfile((const char *)ptr);
+} 
+/**
  * @brief timer callback for serial communication
  * 
  * @param ptr 
@@ -293,10 +351,8 @@ void page0_tmSerialCmdCallback(void *ptr)
   /* ================================================== */
   /* disable timer, otherwise it would interfere with   */
   /* the communication                                  */
-  dbSerialPrintln("disable timer...");
   for(auto & elem : lichtwecker.getNextionDisplay()->getNexTimer() )
   {
-    dbSerialPrintln(elem->getName());
     elem->disable();
   }
   /* -------------------------------------------------- */
@@ -311,8 +367,6 @@ void page0_tmSerialCmdCallback(void *ptr)
           lichtwecker.getNextionDisplay()->getNexVariableByName("vaOffsetSun")->getValue(&iOffsetSun);
           if(iOffsetSun > 0)
           {
-              dbSerialPrint("got the offset: ");
-              dbSerialPrintln(iOffsetSun);
               break;
           }
       }
@@ -326,7 +380,6 @@ void page0_tmSerialCmdCallback(void *ptr)
   /* sunup -> start sunrise                             */
   if( (strncmp("light_on", (char *)ptr, 8 ) == 0))  
   {
-      dbSerialPrintln("---> in light on...");
       uint32_t iBrightness = 0;
       /* ---------------------------------------------- */
       /* get the offset from nextion dixplay            */
@@ -335,8 +388,6 @@ void page0_tmSerialCmdCallback(void *ptr)
           lichtwecker.getNextionDisplay()->getNexVariableByName("vaBright")->getValue(&iBrightness);
           if(iBrightness > 0)
           {
-              dbSerialPrint("got vaBright: ");
-              dbSerialPrintln(iBrightness);
               break;
           }
       }
@@ -347,14 +398,27 @@ void page0_tmSerialCmdCallback(void *ptr)
       lichtwecker.getSimpleSun()->setBrightness(iBrightness);  
   }
   /* -------------------------------------------------- */
+  /* get volume                                         */
+  if( (strncmp("ala_up", (char *)ptr, 6 ) == 0))  
+  {
+    uint32_t iTemp = 0;
+    for(int i=0; i<=5; i++)
+    {
+        lichtwecker.getNextionDisplay()->getNexVariableByName("vaVolume")->getValue(&iTemp);
+        if(iTemp > 0)
+        {
+            myAudioPlayer.setVolume( iTemp/30 );
+            break;
+        }
+    }
+  }
+  /* -------------------------------------------------- */
   /* broadcast to all                                   */
   lichtwecker.broadcastMessage((const char *)ptr);
   /* ================================================== */
   /* enable the timer                                    */
-  dbSerialPrintln("enable timer...");
   for(auto & elem : lichtwecker.getNextionDisplay()->getNexTimer() )
   {
-        dbSerialPrintln(elem->getName());
         elem->enable();
   }
   /* =====END========================================== */
@@ -367,25 +431,21 @@ void page0_tmSerialCmdCallback(void *ptr)
  */
 void page0_btSoundPushCallback(void *ptr)
 {
-  dbSerialPrintln("btSoundPushCallback()");
-  // var
-//   uint32_t bValue;
-//   if( btSound.getValue(&bValue) )
-//   {
-//     // we have the value
-//     if( bValue == 1 )
-//     {
-//       // sound_on
-//       dbSerialPrintln("sound_on");
-//       g_bSoundOnOff = true;
-//     }
-//     else
-//     {
-//       // sound_off
-//       dbSerialPrintln("sound_off");
-//       g_bSoundOnOff = false;
-//     }
-//   }
+  getVolumeFromNextion();
+
+  int iValButton = getBtValFromNextion("btSound");
+  if( iValButton == 0)
+  {
+    myAudioPlayer.alaramOn();
+  }
+  else if(iValButton == 1)
+  {
+    myAudioPlayer.alaramOff();
+  }
+  else
+  {
+    dbSerialPrintln("ERROR: something went wrong.");
+  }
 }
 
 /**
@@ -394,15 +454,7 @@ void page0_btSoundPushCallback(void *ptr)
  */
 void page2_btTimeSyncPushCallback(void *ptr)
 {
-  dbSerialPrintln("btTimeSyncPushCallback()");
-  if( lichtwecker.getNexRtc()->updateDateTime() )
-  {
-    dbSerialPrintln("update complet.");
-  }
-  else
-  {
-    dbSerialPrintln("somthing went wrong!");
-  }
+  lichtwecker.getNexRtc()->updateDateTime();
 }
 
 /**
@@ -412,14 +464,12 @@ void page2_btTimeSyncPushCallback(void *ptr)
  */
 void page3_btSnoozePushCallback(void *ptr)
 {
-  dbSerialPrintln("btSnoozePushCallback()");
   /* -------------------------------------------------- */
   uint32_t bValue = 0;
   lichtwecker.getNextionDisplay()->getNexButtonByName("btSnooze")->getValue(&bValue);
   if( bValue == 1 )
   {
     // snooze_on
-    dbSerialPrintln("snooze_on");
     /* ----------------------------------------------- */
     /* broadcast to all                                */
     lichtwecker.broadcastMessage("SnoozeOn");
@@ -427,15 +477,54 @@ void page3_btSnoozePushCallback(void *ptr)
   else
   {
     // snooze_off
-    dbSerialPrintln("snooze_off");
     /* ----------------------------------------------- */
     /* broadcast to all                                */
     lichtwecker.broadcastMessage("SnoozeOff");
   }
 }
+/**
+ * @brief push callback btSnooze
+ * 
+ * @param ptr 
+ */
+void page6_btLightTestPushCallback(void *ptr)
+{
+  /* -------------------------------------------------- */
+  uint32_t bValue = 0;
+  uint32_t iWhite = 0;
+  uint32_t iRed   = 0;
+  uint32_t iGreen = 0;
+  uint32_t iBlue  = 0;
+
+  lichtwecker.getNextionDisplay()->getNexButtonByName("btLightTest")->getValue(&bValue);
+
+  if( bValue == 1 )
+  {
+    lichtwecker.getNextionDisplay()->getNexNumberByName("nWhite")->getValue(&iWhite);
+    lichtwecker.getNextionDisplay()->getNexNumberByName("nRed")->getValue(&iRed);
+    lichtwecker.getNextionDisplay()->getNexNumberByName("nGreen")->getValue(&iGreen);
+    lichtwecker.getNextionDisplay()->getNexNumberByName("nBlue")->getValue(&iBlue);
+
+    lichtwecker.getSimpleSun()->setWhite(iWhite);
+    lichtwecker.getSimpleSun()->setRed(iRed);
+    lichtwecker.getSimpleSun()->setGreen(iGreen);
+    lichtwecker.getSimpleSun()->setBlue(iBlue);
+    /* ----------------------------------------------- */
+    /* broadcast to all                                */
+    lichtwecker.broadcastMessage("LightTestOn");
+  }
+  else
+  {
+    /* ----------------------------------------------- */
+    /* broadcast to all                                */
+    lichtwecker.broadcastMessage("LightTestOff");
+  }
+}
+
 /** 
  * === END CALLBACK SECTION ===
  */
+
 /* ================================================== */
 /* setup and main loop                                */
 /* ================================================== */
@@ -452,134 +541,101 @@ void setup(void)
     /* -------------------------------------------------- */
     /* startup lichtwecker                                */
     lichtwecker.start();
-    /* -------------------------------------------------- */
-    /* set function for sun loop task                     */
     lichtwecker.getSimpleSun()->setTaskFunction(taskSunLoopCode);                
     lichtwecker.getSimpleSun()->setTimerCB( sunRiseMain );
+    vTaskDelay(100/portTICK_PERIOD_MS);
     /* -------------------------------------------------- */
-    /* set function for sound loop task                   */
-    // TODO - lichtwecker.getDFPlayer()->setTaskFunction(taskSoundLoopCode);  
+    /* start audio                                        */
+    myAudioPlayer.begin();
+    myAudioPlayer.registerCB(lichtwecker.getMDispatcher());
+    myAudioPlayer.setTaskFunction(taskSoundLoopCode);  
     /* -------------------------------------------------- */
     /* just wait a while                                  */
-    vTaskDelay(500/portTICK_PERIOD_MS);
+    vTaskDelay(100/portTICK_PERIOD_MS);
     lichtwecker.getSimpleSun()->startSunLoopTask();
     /* -------------------------------------------------- */
     /* just wait a while                                  */
-    vTaskDelay(500/portTICK_PERIOD_MS);
-    // TODO - lichtwecker.getDFPlayer()->startSoundLoopTask();
+    vTaskDelay(100/portTICK_PERIOD_MS);
+    myAudioPlayer.startSoundLoopTask();
     /* -------------------------------------------------- */
     /* just wait a while                                  */
-    vTaskDelay(500/portTICK_PERIOD_MS);
+    vTaskDelay(100/portTICK_PERIOD_MS);
     /* -------------------------------------------------- */
     /* create task for touch events                       */
     xTaskCreatePinnedToCore(
                     taskNexLoopCode,        /* Task function.                            */
                     "TaskNexLoop",          /* name of task.                             */
-                    10000,                  /* Stack size of task                        */
+                    4096,                   /* Stack size of task                        */
                     NULL,                   /* parameter of the task                     */
                     1,                      /* priority of the task                      */
                     &hTaskNexLoop,          /* Task handle to keep track of created task */
-                    0                       /* pin task to core 1                        */
+                    0                       /* pin task to core 0                        */
     );      
     /* -------------------------------------------------- */
     /* just wait a while                                  */
-    vTaskDelay(500/portTICK_PERIOD_MS);
+    vTaskDelay(100/portTICK_PERIOD_MS);
     /* -------------------------------------------------- */
     /* start web-server                                   */
     xTaskCreatePinnedToCore(
                   taskWebServerCode,        /* Task function. */
                   "TaskWebServer",          /* name of task. */
-                  10000,                    /* Stack size of task */
+                  4096,                     /* Stack size of task */
                   NULL,                     /* parameter of the task */
                   1,                        /* priority of the task */
                   &hTaskWebServer,          /* Task handle to keep track of created task */
-                  1);                       /* pin task to core 0 */                    
+                  0);                       /* pin task to core 0 */                    
     /* -------------------------------------------------- */
     /* just wait a while                                  */
-    vTaskDelay(500/portTICK_PERIOD_MS);
+    vTaskDelay(100/portTICK_PERIOD_MS);
 }
 /**
  * @brief loop() function
  * 
  */
 void loop(void){
+
+    dbSerialPrint("loop() - Core: ");
+    dbSerialPrintln(xPortGetCoreID());
     /* -------------------------------------------------- */
     /* we need the loop just for start up tests           */
-    dbSerialPrintln("loop: start test licht...");
-#ifdef _WITH_SOUND_TEST_
-    lichtwecker.getDFPlayer()->play(sirene);
-    for(int i=1;i<8;i++)
-    {
-        lichtwecker.getSimpleSun()->lightBlue();
-        vTaskDelay(BL_DELAY/portTICK_PERIOD_MS);
-        lichtwecker.getSimpleSun()->lightOff();
-        vTaskDelay(BL_DELAY/portTICK_PERIOD_MS);
-    }
-#endif
     lichtwecker.getSimpleSun()->lightOn();
-    vTaskDelay(5000/portTICK_PERIOD_MS);
+    vTaskDelay(2000/portTICK_PERIOD_MS);
     lichtwecker.getSimpleSun()->lightOff();
-    //lichtwecker.getDFPlayer()->play(kodack);
-#ifdef _WITH_SOUND_TEST_
-    vTaskDelay(5000/portTICK_PERIOD_MS);
-    lichtwecker.getSimpleSun()->sunUp();
-    vTaskDelay(5000/portTICK_PERIOD_MS);
-    lichtwecker.getSimpleSun()->sunDown();
-    vTaskDelay(5000/portTICK_PERIOD_MS);
+    vTaskDelay(100/portTICK_PERIOD_MS);
 
-    lichtwecker.getSimpleSun()->setWakeDelay(1);
-    lichtwecker.getSimpleSun()->sunRise();
-    while ( strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunRise") == 0 )
+    uint32_t iTemp = 0;
+    /* ---------------------------------------------- */
+    /* get the offset from nextion dixplay            */
+    for(int i=0; i<=5; i++)
     {
-      dbSerialPrintln("===>>> sun still rising... <<<===");
-      vTaskDelay(10000/portTICK_PERIOD_MS);
+        lichtwecker.getNextionDisplay()->getNexVariableByName("vaOffsetSun")->getValue(&iTemp);
+        if(iTemp > 0)
+        {
+            lichtwecker.getSimpleSun()->setWakeDelay(iTemp);
+            break;
+        }
     }
-    lichtwecker.getSimpleSun()->sunDown();
-#endif
-
-
-      uint32_t iTemp = 0;
-      /* ---------------------------------------------- */
-      /* get the offset from nextion dixplay            */
-      for(int i=0; i<=5; i++)
-      {
-          lichtwecker.getNextionDisplay()->getNexVariableByName("vaOffsetSun")->getValue(&iTemp);
-          if(iTemp > 0)
-          {
-              dbSerialPrint("got vaOffsetSun: ");
-              dbSerialPrintln(iTemp);
-              lichtwecker.getSimpleSun()->setWakeDelay(iTemp);
-              break;
-          }
-      }
-      /* ---------------------------------------------- */
-      /* get the offset from nextion dixplay            */
-      for(int i=0; i<=5; i++)
-      {
-          lichtwecker.getNextionDisplay()->getNexVariableByName("vaBright")->getValue(&iTemp);
-          if(iTemp > 0)
-          {
-              dbSerialPrint("got vaBright: ");
-              dbSerialPrintln(iTemp);
-              lichtwecker.getSimpleSun()->setBrightness(iTemp);
-              break;
-          }
-      }
-      /* ---------------------------------------------- */
-      /* get the offset from nextion dixplay            */
-      for(int i=0; i<=5; i++)
-      {
-          lichtwecker.getNextionDisplay()->getNexVariableByName("vaVolume")->getValue(&iTemp);
-          if(iTemp > 0)
-          {
-              dbSerialPrint("got vaVolume: ");
-              dbSerialPrintln(iTemp);
-              //TODO lichtwecker.getDFPlayer()->setVolume(iTemp);
-              break;
-          }
-      }
-
-    /* -------------------------------------------------- */
-    /* delete the task                                    */
+    /* ---------------------------------------------- */
+    /* get the offset from nextion dixplay            */
+    for(int i=0; i<=5; i++)
+    {
+        lichtwecker.getNextionDisplay()->getNexVariableByName("vaBright")->getValue(&iTemp);
+        if(iTemp > 0)
+        {
+            lichtwecker.getSimpleSun()->setBrightness(iTemp);
+            break;
+        }
+    }
+    /* ALARAM TEST */
+    /* ---------------------------------------------- */
+    /* get volume from nextion dixplay                */
+    getVolumeFromNextion();
+    /* ---------------------------------------------- */
+    /* test alarm again                               */
+    myAudioPlayer.alaramOn();
+    vTaskDelay(1000/portTICK_PERIOD_MS);
+    myAudioPlayer.alaramOff();
+    /* ---------------------------------------------- */
+    /* delete the task                                */
     vTaskDelete(NULL);
 }

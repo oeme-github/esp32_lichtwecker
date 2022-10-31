@@ -56,7 +56,6 @@ bool recvRetNumber(uint32_t *number, uint32_t timeout)
 
     if (!number)
     {
-        dbSerialPrintln("!number");
         goto __return;
     }
     
@@ -65,13 +64,8 @@ bool recvRetNumber(uint32_t *number, uint32_t timeout)
     iTempSize = sizeof(temp);
     iBuffRead = nexSerial.readBytes((char *)temp, sizeof(temp));
 
-    dbSerialPrint("iTempSize:"); dbSerialPrintln(iTempSize);
-    dbSerialPrint("iBuffRead:"); dbSerialPrintln(iBuffRead);
-
     if( iTempSize != iBuffRead )
-    //if (sizeof(temp) != nexSerial.readBytes((char *)temp, sizeof(temp)))
     {
-        dbSerialPrintln("not same count");
         goto __return;
     }
 
@@ -201,11 +195,6 @@ bool recvRetCommandFinished(uint32_t timeout)
 
     if (sizeof(temp) != count)
     {
-        dbSerialPrint("sizeof(temp)[");
-        dbSerialPrint(sizeof(temp));
-        dbSerialPrint("] != readBytes[");
-        dbSerialPrint(count);
-        dbSerialPrintln("]");
         ret = false;
     }
     if (temp[0] == NEX_RET_CMD_FINISHED
@@ -244,7 +233,8 @@ bool nexInit(void)
     return ret1 && ret2;
 }
 
-void nexLoop(NexTouch *nex_listen_list[])
+
+void nexLoop(NexTouch *nex_listen_list[], uint8_t sizeOfList)
 {
     static uint8_t __buffer[10];
     String data_from_display="";
@@ -253,7 +243,7 @@ void nexLoop(NexTouch *nex_listen_list[])
     
     uint16_t i=0;
     uint8_t c;  
-    
+
     while (nexSerial.available() > 0)
     {   
         delay(10);
@@ -272,7 +262,7 @@ void nexLoop(NexTouch *nex_listen_list[])
                 
                 if (0xFF == __buffer[4] && 0xFF == __buffer[5] && 0xFF == __buffer[6])
                 {
-                    NexTouch::iterate(nex_listen_list, __buffer[1], __buffer[2], (int32_t)__buffer[3], "");
+                    NexTouch::iterate(nex_listen_list, __buffer[1], __buffer[2], (int32_t)__buffer[3], "", sizeOfList);
                 }                
             }
         }
@@ -292,24 +282,13 @@ void nexLoop(NexTouch *nex_listen_list[])
                 {
                     i++;
                     // found ;
-#ifdef _WITH_NEXLOOP_DEBUG_
-                    dbSerialPrintln("found delimiter...");
-#endif
                     if(i==1)
                     {
-#ifdef _WITH_NEXLOOP_DEBUG_
-                        dbSerialPrint("set pid to:");
-                        dbSerialPrintln(data_from_display);
-#endif
                         __pid=atoi(data_from_display.c_str());
                         data_from_display="";
                     }
                     else if(i==2)
                     {
-#ifdef _WITH_NEXLOOP_DEBUG_
-                        dbSerialPrint("set cid to:");
-                        dbSerialPrintln(data_from_display);
-#endif
                         __cid=atoi(data_from_display.c_str());
                         data_from_display="";
                     }
@@ -325,7 +304,7 @@ void nexLoop(NexTouch *nex_listen_list[])
                     dbSerialPrint(" / cmd:");
                     dbSerialPrintln(data_from_display);
 #endif
-                    NexTouch::iterate(nex_listen_list, __pid, __cid, (int32_t)NEX_REC_EVENT_TOUCH_HEAD, data_from_display); 
+                    NexTouch::iterate(nex_listen_list, __pid, __cid, (int32_t)NEX_REC_EVENT_TOUCH_HEAD, data_from_display, sizeOfList); 
                     data_from_display="";   
                     // leave while        
                     break;
@@ -361,4 +340,3 @@ void nexLoop(NexTouch *nex_listen_list[])
         }
     }
 }
-

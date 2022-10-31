@@ -94,6 +94,48 @@ NexDSButton* NextionDisplay::Create_Btns(int8_t iPage_, int8_t iElemet_, const c
 }
 
 /**
+ * @brief radio factory
+ * 
+ * @param iPage_ 
+ * @param iElemet_ 
+ * @param name_ 
+ * @return NexRadio* 
+ */
+NexRadio* NextionDisplay::Create_Radio(int8_t iPage_, int8_t iElemet_, const char *name_)
+{
+    dbSerialPrintln( (String("Create_Radio(") + iPage_ + ", " + iElemet_ + ", " + String(name_) + String(")")).c_str() );
+    return new NexRadio( iPage_, iElemet_, name_); 
+}
+
+/**
+ * @brief checkbox factory
+ * 
+ * @param iPage_ 
+ * @param iElemet_ 
+ * @param name_ 
+ * @return NexCheckbox* 
+ */
+NexCheckbox* NextionDisplay::Create_Chkbx(int8_t iPage_, int8_t iElemet_, const char *name_)
+{
+    dbSerialPrintln( (String("Create_Chkbx(") + iPage_ + ", " + iElemet_ + ", " + String(name_) + String(")")).c_str() );
+    return new NexCheckbox( iPage_, iElemet_, name_); 
+}
+
+/**
+ * @brief number factory
+ * 
+ * @param iPage_ 
+ * @param iElemet_ 
+ * @param name_ 
+ * @return NexNumber* 
+ */
+NexNumber* NextionDisplay::Create_Nmbr(int8_t iPage_, int8_t iElemet_, const char *name_)
+{
+    dbSerialPrintln( (String("Create_Nmbr(") + iPage_ + ", " + iElemet_ + ", " + String(name_) + String(")")).c_str() );
+    return new NexNumber( iPage_, iElemet_, name_); 
+}
+
+/**
  * @brief variable factory
  * 
  * @param iPage_ 
@@ -140,6 +182,24 @@ void NextionDisplay::initPages(){
         addBtn( Create_Btns(std::get<0>(elem), std::get<1>(elem), std::get<2>(elem)) );
     }
     /* -------------------------------------------------- */
+    /* radio                                              */
+    for(auto & elem : pages.radio_vec )
+    {
+        addRadio( Create_Radio(std::get<0>(elem), std::get<1>(elem), std::get<2>(elem)) );
+    }
+    /* -------------------------------------------------- */
+    /* checkbox                                           */
+    for(auto & elem : pages.chkbx_vec )
+    {
+        addChkbx( Create_Chkbx(std::get<0>(elem), std::get<1>(elem), std::get<2>(elem)) );
+    }
+    /* -------------------------------------------------- */
+    /* numbers                                            */
+    for(auto & elem : pages.nmbr_vec )
+    {
+        addNmbr( Create_Nmbr(std::get<0>(elem), std::get<1>(elem), std::get<2>(elem)) );
+    }
+    /* -------------------------------------------------- */
     /* varaibles                                          */
     for(auto & elem : pages.var_vec )
     {
@@ -153,7 +213,7 @@ void NextionDisplay::initPages(){
     }
     /* -------------------------------------------------- */
     /* add NULL                                           */
-    /* nex_listen_list_vec.push_back(NULL); */
+    nex_listen_list_vec[nex_listen_list_vec.size()] = NULL;
 
     for( int i=0; i < nex_listen_list_vec.size(); i++ )
     {
@@ -181,6 +241,39 @@ void NextionDisplay::addBtn(NexDSButton *nexBtn_)
 {
     buttons_vec.push_back( nexBtn_ );
     addToList( (NexTouch *)nexBtn_ );
+}
+
+/**
+ * @brief add checkbox to Radio_vec and nextion listen list
+ * 
+ * @param nexRadio_ 
+ */
+void NextionDisplay::addRadio(NexRadio *nexRadio_)
+{
+    radio_vec.push_back( nexRadio_ );
+    addToList( (NexTouch *)nexRadio_ );
+}
+
+/**
+ * @brief add checkbox to Radio_vec and nextion listen list
+ * 
+ * @param nexChkbx_ 
+ */
+void NextionDisplay::addChkbx(NexCheckbox *nexChkbx_)
+{
+    chkbx_vec.push_back( nexChkbx_ );
+    addToList( (NexTouch *)nexChkbx_ );
+}
+
+/**
+ * @brief add number to numbers_vec and nextion listen list
+ * 
+ * @param nexNmbr_ 
+ */
+void NextionDisplay::addNmbr(NexNumber *nexNmbr_)
+{
+    numbers_vec.push_back( nexNmbr_ );
+    addToList( (NexTouch *)nexNmbr_ );
 }
 
 /**
@@ -276,17 +369,30 @@ std::vector<NexTouch *> NextionDisplay::getNexListenList()
 {
     return nex_listen_list_vec;
 }
-
+/**
+ * @brief get the timer vector
+ * 
+ * @return std::vector<NexTimer *> 
+ */
 std::vector<NexTimer *> NextionDisplay::getNexTimer()
 {
     return timers_vec;    
 }
-
+/**
+ * @brief get the varaible vector 
+ * 
+ * @return std::vector<NexVariable *> 
+ */
 std::vector<NexVariable *> NextionDisplay::getNexVariable()
 {
     return this->vars_vec;    
 }
-
+/**
+ * @brief get a pointer to a nextion variable by name
+ * 
+ * @param name_ 
+ * @return NexVariable* 
+ */
 NexVariable * NextionDisplay::getNexVariableByName(const char * name_)
 {
     /* find object in  vars_vec*/
@@ -297,11 +403,80 @@ NexVariable * NextionDisplay::getNexVariableByName(const char * name_)
     }
     return NULL;
 }
-
+/**
+ * @brief get a pointer to a nextion ds button by name 
+ * 
+ * @param name_ 
+ * @return NexDSButton* 
+ */
 NexDSButton *NextionDisplay::getNexButtonByName(const char * name_)
 {
     /* find object in  vars_vec*/
     for(auto & elem : this->buttons_vec )
+    {
+        if( elem->getName() == name_ )
+            return elem;
+    }
+    return NULL;
+}
+/**
+ * @brief get a pointer to a nextion radio by name
+ * 
+ * @param name_ 
+ * @return NexRadio* 
+ */
+NexRadio *NextionDisplay::getNexRadioByName(const char * name_)
+{
+    /* find object in  vars_vec*/
+    for(auto & elem : this->radio_vec )
+    {
+        if( elem->getName() == name_ )
+            return elem;
+    }
+    return NULL;
+}
+/**
+ * @brief get a pointer to a nextion checkbox by name
+ * 
+ * @param name_ 
+ * @return NexCheckbox* 
+ */
+NexCheckbox *NextionDisplay::getNexChkbxByName(const char * name_)
+{
+    /* find object in  vars_vec*/
+    for(auto & elem : this->chkbx_vec )
+    {
+        if( elem->getName() == name_ )
+            return elem;
+    }
+    return NULL;
+}
+/**
+ * @brief get a pointer to a nextion number by name
+ * 
+ * @param name_ 
+ * @return NexNumber* 
+ */
+NexNumber *NextionDisplay::getNexNumberByName(const char * name_)
+{
+    /* find object in  vars_vec*/
+    for(auto & numbers : this->numbers_vec )
+    {
+        if( numbers->getName() == name_ )
+            return numbers;
+    }
+    return NULL;
+}
+/**
+ * @brief get a pointer to a nextion page by name
+ * 
+ * @param name_ 
+ * @return NexPage* 
+ */
+NexPage *NextionDisplay::getNexPageByName(const char * name_)
+{
+    /* find object in  vars_vec*/
+    for(auto & elem : this->pages_vec )
     {
         if( elem->getName() == name_ )
             return elem;

@@ -24,7 +24,9 @@
  * Define DEBUG_SERIAL_ENABLE to enable debug serial. 
  * Comment it to disable debug serial. 
  */
-#define DEBUG_SERIAL_ENABLE
+//#define DEBUG_SERIAL_ENABLE
+//#define _WITH_NEXLOOP_DEBUG_
+//#define _WITH_NEXLOOP_DETAIL_DEBUG_
 
 /**
  * Define dbSerial for the output of debug messages. 
@@ -36,8 +38,6 @@
  */
 #define nexSerial Serial2
 #define nexSerialSpeed 115200
-
-#define _WITH_NEXLOOP_DEBUG_
 
 #ifdef DEBUG_SERIAL_ENABLE
 #define dbSerialPrint(a)    dbSerial.print(a)

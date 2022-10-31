@@ -30,6 +30,7 @@
 #include "NexVariable.h"
 #include "NexDualStateButton.h"
 #include "NexNumber.h"
+#include "NexRadio.h"
 
 // #include "NexCrop.h"
 // #include "NexGauge.h"
@@ -38,7 +39,6 @@
 // #include "NexProgressBar.h"
 // #include "NexSlider.h"
 // #include "NexWaveform.h"
-// #include "NexRadio.h"
 // #include "NexScrolltext.h"
 // #include "NexGpio.h"
 

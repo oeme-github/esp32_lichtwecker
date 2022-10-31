@@ -5,19 +5,16 @@
 /**
  * @brief init function, set the start values
  * 
- * @param iWhite 
- * @param iSunPhase 
- * @param iFadeStep 
- * @param iSunFadeStep 
  * @param iWakeDelay 
  */
-void SimpleSun::init(int iWhite, int iSunPhase, int iFadeStep, int iSunFadeStep, int iWakeDelay)
+void SimpleSun::init( int iWakeDelay)
 {
-    this->whiteLevel  = iWhite;
-    this->sunPhase    = iSunPhase;
-    this->fadeStep    = iFadeStep;
-    this->sunFadeStep = iSunFadeStep;
-    this->wakeDelay   = iWakeDelay*10;
+    uint16_t iWake  = iWakeDelay*1000/SUN_PHASE;
+    uint16_t iMap   = map(iWakeDelay, 60, 1800, 3, 15);
+    float_t  fMap   = 1.0/(float_t)iMap;
+    uint16_t iDelta = round((float_t)iWakeDelay*fMap);
+
+    this->wakeDelay = iWake - iDelta;
 }
 /**
  * @brief initialzes the led driver
@@ -45,9 +42,9 @@ bool SimpleSun::init_ledDriver()
     if(digitalLeds_initDriver() == 0) {
 #ifdef _WITH_TEST_LED_
             weislicht();
-            vTaskDelay(5000/portTICK_PERIOD_MS);
+            vTaskDelay(2000/portTICK_PERIOD_MS);
             resetPixels();
-            vTaskDelay(5000/portTICK_PERIOD_MS);
+            vTaskDelay(100/portTICK_PERIOD_MS);
 #endif
         /* ---------------------------------------------- */
         /* init states                                    */
@@ -70,6 +67,7 @@ void SimpleSun::resetPixels()
 {
     digitalLeds_resetPixels(this->STRANDS, this->STRANDCNT);
     this->drawPixels();
+    this->sunPhase=0;
 }
 /**
  * @brief draw all pixels of th sun
@@ -97,180 +95,49 @@ void SimpleSun::drawPixels()
     digitalLeds_drawPixels(this->STRANDS, this->STRANDCNT);
 }
 /**
- * @brief calculates the aurora leds (red, green, white)
- * 
- */
-void SimpleSun::drawAurora()
-{
-    strand_t* strip = this->STRANDS[0];
-    this->currentAurora = map(this->sunPhase, 0, 100, 0, this->aurora);
-    if(this->currentAurora % 2 != 0)
-    {
-        this->currentAurora--;
-    }
-    if (this->currentAurora != this->oldAurora)
-    {
-        this->fadeStep = 0;
-    }
-    int sunStart       = (this->getNumLeds()/2)-(this->currentAurora/2);
-    int newAuroraLeft  = sunStart-1;
-    int newAuroraRight = sunStart+this->currentAurora;
-    if(newAuroraLeft >= 0 && newAuroraRight <= this->getNumLeds())
-    {
-        int redValue   =  map(this->fadeStep, 0, 100, this->whiteLevel, 95);
-        int greenValue =  map(this->fadeStep, 0, 100, this->whiteLevel, 10);
-
-        strip->pixels[newAuroraRight] = pixelFromRGBW( redValue, greenValue, 0, 0);
-        strip->pixels[newAuroraLeft]  = pixelFromRGBW( redValue, greenValue, 0, 0);
-    }
-    for(int i = sunStart; i < sunStart+this->currentAurora; i++)
-    {
-        strip->pixels[i] = pixelFromRGBW( min(strip->pixels[i].r+4, 127)
-                                        , min(strip->pixels[i].g+1, 25)
-                                        , 0
-                                        , 0); 
-    }
-    this->oldAurora   = this->currentAurora;
-}
-/**
- * @brief calculates the white level and returns its value
- * 
- * @return int 
- */
-int SimpleSun::calWhiteValue()
-{
-    int whiteValue = 0;
-    if( this->whiteLevel <= 20 )
-    {
-        whiteValue = map(this->whiteLevel, 0, 20, 0, 5);
-    }
-    else if( this->whiteLevel > 40 && this->whiteLevel <= 40 )
-    {
-        whiteValue = map(this->whiteLevel, 0, 40, 0, 8);
-    }
-    else if( this->whiteLevel > 40 && this->whiteLevel <= 50 )
-    {
-        whiteValue = map(this->whiteLevel, 0, 50, 0, 12);
-    }
-    else if( this->whiteLevel > 50 && this->whiteLevel <= 60 )
-    {
-        whiteValue = map(this->whiteLevel, 0, 60, 0, 16);
-    }
-    else if( this->whiteLevel > 60 && this->whiteLevel <= 70 )
-    {
-        whiteValue = map(this->whiteLevel, 0, 70, 0, 20);
-    }
-    else if( this->whiteLevel > 70 && this->whiteLevel <= 80 )
-    {
-        whiteValue = map(this->whiteLevel, 0, 80, 0, 30);
-    }
-    else if( this->whiteLevel > 80 && this->whiteLevel <= 85 )
-    {
-        whiteValue = map(this->whiteLevel, 0, 90, 0, 50);
-    }
-    else if( this->whiteLevel > 85 && this->whiteLevel <= 90 )
-    {
-        whiteValue = map(this->whiteLevel, 0, 90, 0, 80);
-    }
-    else if( this->whiteLevel > 90 && this->whiteLevel <= 95 )
-    {
-        whiteValue = map(this->whiteLevel, 0, 90, 0, 100);
-    }
-    else
-    {
-        whiteValue = min((int)map(this->whiteLevel, 0, 100, 0, 200), 200);
-    }
-#ifdef _DEBUG_SUN_DETAILS_
-    print("calWhiteValue() : ", false);
-    print(whiteValue);
-#endif
-    return whiteValue;
-}
-/**
- * @brief calculates the ambiente leds (white)
- * 
- */
-void SimpleSun::drawAmbient()
-{
-    /* -------------------------------------------------- */
-    /* ab 25 wird led nicht mehr wirklich heller          */
-    /* insgesamt wird es zu schnell hell                  */
-    /* -> erste einzelne led zuschalten                   */ 
-    /* -> bis Anzahl led erreicht                         */
-    /* dann durch die Reihe heller werden                 */
-    /* this->whiteLevel läuft von 1 - 100                 */
-    /* -> 0 - 28 je eine led dazu                         */
-    /* -> ab 28 je 2 erhöhen                              */
-    strand_t* strip = this->STRANDS[0]; 
-#ifdef _DEBUG_SUN_DETAILS_
-    print("drawAmbient() - whiteLevel: ", false);
-    print( this->whiteLevel );
-#endif
-    if( this->whiteLevel < 28 )
-    {
-        for(int i = 0; i <= this->whiteLevel; i++)
-        {
-            strip->pixels[i] = pixelFromRGBW(  0,   0,  1,  1); 
-        }
-    }
-    else
-    {
-        for(int i = 0; i < this->whiteLevel%29; i++)
-        {
-            strip->pixels[i] = pixelFromRGBW( 0, 0, 2, min(strip->pixels[i].w+2, 255) ); 
-        }
-    }
-}
-/**
  * @brief function to calculate the sun leds (red, white)
  * 
  */
 void SimpleSun::drawSun()
 {
+    /*
+        Start with red  -> iRet bis 255, iGreen bis 70
+        add green       -> iGreen bis 240
+        and finaly blue -> iBlue bis 210 
+        iWhite          -> 0 - 255 */
+    print("SimpleSun::drawSun(): sunPhase:", false); print( this->sunPhase );
     strand_t* strip = this->STRANDS[0];
-    this->currentSun = map(this->sunPhase, 0, 100, 0, this->sun);
-    if(this->currentSun % 2 != 0)
+
+    int iWhite = 0;
+    int iRed   = 0;
+    int iGreen = 0;
+    int iBlue  = 0;
+    int iMod1  = this->sunPhase%this->getNumLeds();
+    if(iMod1==0) iMod1=this->getNumLeds();
+
+    for(int i = 0; i < iMod1; i++)
     {
-       this->currentSun--;
+        if( iMod1 == 1 )
+        {
+//            iRed   = RED_LEVEL*this->sunPhase/SUN_PHASE;
+//            iGreen = GREEN_LEVEL*this->sunPhase/SUN_PHASE;
+//            iBlue  = BLUE_LEVEL*this->sunPhase/SUN_PHASE;
+//            iWhite = WHITE_LEVEL*this->sunPhase/SUN_PHASE;
+            iRed   = map( this->sunPhase, 0, SUN_PHASE, 0, RED_LEVEL);
+            iGreen = map( this->sunPhase, 0, SUN_PHASE, 0, GREEN_LEVEL);
+            iBlue  = map( this->sunPhase, 0, SUN_PHASE, 0, BLUE_LEVEL);
+            iWhite = map( this->sunPhase, 0, SUN_PHASE, 0, WHITE_LEVEL);
+        }
+        else{
+            /* set all led step by step to the new values */
+            iRed   = strip->pixels[0].r;
+            iGreen = strip->pixels[0].g;
+            iBlue  = strip->pixels[0].b;
+            iWhite = strip->pixels[0].w;
+        }
+        strip->pixels[i] = pixelFromRGBW( iRed, iGreen, iBlue, iWhite);
+        vTaskDelay(10/portTICK_PERIOD_MS);
     }
-    if (this->currentSun != this->oldSun)
-    {
-        this->sunFadeStep = 0;
-    }
-    int sunStart    = (this->getNumLeds()/2)-(this->currentSun/2);
-    int newSunLeft  = sunStart-1;
-    int newSunRight = sunStart+this->currentSun;
-    int whiteVale   = this->calWhiteValue();
-    if(newSunLeft >= 0 && newSunRight <= this->getNumLeds() && this->sunPhase > 0)
-    {
-        int redValue   = map(this->sunFadeStep, 0, 100, 0, max(this->whiteLevel,60));
-        int greenValue = map(this->sunFadeStep, 0, 100, 0, min(this->whiteLevel,25));
-        int blueValue  = map(this->sunFadeStep, 0, 100, 0, min(this->whiteLevel,10));
-        
-        strip->pixels[newSunLeft]  = pixelFromRGBW( redValue, greenValue, blueValue, whiteVale);
-        strip->pixels[newSunRight] = pixelFromRGBW( redValue, greenValue, blueValue, whiteVale);
-    }
-    for(int i = sunStart; i < sunStart+this->currentSun; i++)
-    {
-        strip->pixels[i] = pixelFromRGBW( min(strip->pixels[i].r+5, 255)
-                                        , min(strip->pixels[i].g+2, 64)
-                                        , 0
-                                        , whiteVale);
-    }
-    this->oldSun = this->currentSun;
-}
-/**
- * @brief calls function to calculate ambiente, aurora and sun
- * 
- */
-void SimpleSun::calSun()
-{
-#ifdef _DEBUG_SUN_DETAILS_
-    dbSunSerialPrintln("SimpleSun::calSun()");
-#endif
-    this->drawAmbient();
-    this->drawAurora();
-    this->drawSun();
 }
 /**
  * @brief increases sunPhase, ambiente and aurora
@@ -278,11 +145,8 @@ void SimpleSun::calSun()
  */
 void SimpleSun::sunrise()
 {
-#ifdef _DEBUG_SUN_DETAILS_
-    dbSunSerialPrintln("SimpleSun::sunrise()");
-#endif
     this->increaseSunPhase();
-    this->calSun();
+    this->drawSun();
     this->drawPixels();
 }
 /**
@@ -292,7 +156,7 @@ void SimpleSun::sunrise()
 void SimpleSun::sunset()
 {
     this->decreaseSunPhase();
-    this->calSun();
+    this->drawSun();
     this->drawPixels();
 }
 /**
@@ -301,15 +165,9 @@ void SimpleSun::sunset()
  */
 void SimpleSun::increaseSunPhase()
 {
-#ifdef _DEBUG_SUN_DETAILS_
-    dbSunSerialPrintln("SimpleSun::increaseSunPhase()");
-#endif
-    if (this->sunPhase < 100)
+    if (this->sunPhase < SUN_PHASE)
     {
         this->sunPhase++;
-        this->increaseWhiteLevel();
-        this->increaseFadeStep();
-        this->increaseSunFadeStep();      
     }
 }
 /**
@@ -318,81 +176,9 @@ void SimpleSun::increaseSunPhase()
  */
 void SimpleSun::decreaseSunPhase()
 {
-#ifdef _DEBUG_SUN_DETAILS_
-    dbSunSerialPrintln("SimpleSun::decreaseSunPhase()");
-#endif
     if (this->sunPhase > 0)
     {
         this->sunPhase--;
-        this->decreaseWhiteLevel();
-        this->decreaseFadeStep();
-        this->decreaseSunFadeStep();      
-    }
-}
-/**
- * @brief increase the value of whiteLeven (min. 0)
- * 
- */
-void SimpleSun::increaseWhiteLevel()
-{
-    if(this->whiteLevel < 100)
-    {
-        this->whiteLevel++;
-    }
-}
-/**
- * @brief decrease the value of whiteLeven (min. 0)
- * 
- */
-void SimpleSun::decreaseWhiteLevel()
-{
-    if(this->whiteLevel > 0)
-    {
-        this->whiteLevel--;
-    }
-}
-/**
- * @brief increases the fadeStep values on step (max 100)
- * 
- */
-void SimpleSun::increaseFadeStep()
-{
-    if (this->fadeStep < 100)
-    {
-        this->fadeStep++;
-    }
-}
-/**
- * @brief decreases the fadeStep values on step (min 0)
- * 
- */
-void SimpleSun::decreaseFadeStep()
-{
-    if (this->fadeStep > 0)
-    {
-        this->fadeStep--;
-    }
-}
-/**
- * @brief increas the value of sunFadeStep one step (max 100)
- * 
- */
-void SimpleSun::increaseSunFadeStep()
-{
-    if (this->sunFadeStep < 100)
-    {
-        this->sunFadeStep++;
-    }
-}
-/**
- * @brief decreas the value of sunFade one step (min 0)
- * 
- */
-void SimpleSun::decreaseSunFadeStep()
-{
-    if (this->sunFadeStep > 0)
-    {
-        this->sunFadeStep--;
     }
 }
 /**
@@ -431,7 +217,7 @@ unsigned int SimpleSun::getWakeDelay()
 {
     return this->wakeDelay;
 }
-/**
+/**drawSun
  * @brief return the led starnd
  * 
  * @return strand_t 
@@ -454,9 +240,12 @@ int SimpleSun::getRc()
  * 
  * @return int 
  */
-int SimpleSun::getSunPhase()
+boolean SimpleSun::getSunPhase()
 {
-    return this->sunPhase;
+    if( this->sunPhase < SUN_PHASE )
+        return true; 
+    else
+        return false;
 }
 /**
  * @brief set all leds to blue
@@ -464,13 +253,17 @@ int SimpleSun::getSunPhase()
  */
 void SimpleSun::blaulicht()
 {
-    print("SimpleSun::blaulicht()");
-    strand_t* strip = this->STRANDS[0];
-    for(int i = 0; i < this->getNumLeds(); i++)
-    {
-        strip->pixels[i] = pixelFromRGBW( 0, 0, 255, 0 ); 
-    }
-    this->drawPixels();
+    rgbwLicht(0, 0, 255, 0);
+}
+/**
+ * @brief set all leds to blue
+ * 
+ */
+void SimpleSun::rgbwlicht()
+{
+    rgbwLicht(this->iRed, this->iGreen, this->iBlue, this->iWhite);
+    vTaskDelay(5000/portTICK_PERIOD_MS);
+    this->lightOff();
 }
 /**
  * @brief set all leds to blue
@@ -478,20 +271,27 @@ void SimpleSun::blaulicht()
  */
 void SimpleSun::weislicht()
 {
-    print("SimpleSun::weislicht()");
-    print("this->iBrightness:", false); 
-    print(this->iBrightness);
-    
+    rgbwLicht( map(this->iBrightness, 0, 10, 0, BRIGHTNESS)
+             , map(this->iBrightness, 0, 10, 0, BRIGHTNESS)
+             , map(this->iBrightness, 0, 10, 0, BRIGHTNESS)
+             , map(this->iBrightness, 0, 10, 0, BRIGHTNESS));
+}
+/**
+ * @brief set all leds to blue
+ * 
+ */
+void SimpleSun::rgbwLicht(uint16_t iRed, uint16_t iGreen, uint16_t iBlue, uint16_t iWhite)
+{
     strand_t* strip = this->STRANDS[0];
     for(int i = 0; i < this->getNumLeds(); i++)
     {
         /* -------------------------------------------------- */
         /* map(long x, long in_min, long in_max, long out_min, long out_max) */
         /*                                  r,   g,   b, w    */
-        strip->pixels[i] = pixelFromRGBW( map(this->iBrightness, 0, 10, 0, 255 )
-                                        , map(this->iBrightness, 0, 10, 0, 240 )
-                                        , map(this->iBrightness, 0, 10, 0, 200 )
-                                        , map(this->iBrightness, 0, 10, 0, 255 ) ); 
+        strip->pixels[i] = pixelFromRGBW( iRed
+                                        , iGreen
+                                        , iBlue
+                                        , iWhite ); 
     }
     this->drawPixels();
 }
@@ -501,10 +301,6 @@ void SimpleSun::weislicht()
  */
 void SimpleSun::delTimer()
 {
-#ifdef _DEBUG_SUN_DETAILS_
-    dbSunSerialPrint("resetTimer():");
-    dbSunSerialPrintln(this->numTimer);
-#endif
     this->deleteTimer(this->numTimer);
 }
 /**
@@ -514,10 +310,6 @@ void SimpleSun::delTimer()
  */
 void SimpleSun::setNumTimer( int iTimer )
 {
-#ifdef _DEBUG_SUN_DETAILS_     
-    dbSunSerialPrint("setNumTimer():");
-    dbSunSerialPrintln(this->numTimer);
-#endif
     this->numTimer = iTimer;
 }
 /**
@@ -535,37 +327,21 @@ int SimpleSun::getNumTimer()
  * 
  * @param intPayload 
  */
-void SimpleSun::letSunRise( int intPayload_, bool bInit_ )
+void SimpleSun::letSunRise( int intWakeDelay_, bool bInit_ )
 {
-#ifdef _DEBUG_SUN_DETAILS_
-    dbSunSerialPrint("SimpleSun::letSunRise( ");
-    dbSunSerialPrint( intPayload_ );
-    dbSunSerialPrint( ", " );
-    dbSunSerialPrint( bInit_ );
-    dbSunSerialPrintln( " )");
-#endif
     if( bInit_ )
     {
-#ifdef _DEBUG_SUN_DETAILS_
-        dbSunSerialPrintln("init sun parameters....");
-#endif
         /* ----------------------------------------------- */
         /* set start parameters                            */
-        this->init(0,0,0,0,intPayload_);
+        this->init(intWakeDelay_);
     }
     /* -------------------------------------------------- */
     /* rise the sun                                       */
     this->sunrise();
-#ifdef _DEBUG_SUN_DETAILS_
-        dbSunSerialPrintln(getSunState());
-#endif
     /* -------------------------------------------------- */
     /* start timer                                        */
-    if( this->getSunPhase() < 100 )
+    if( this->getSunPhase() )
     {
-#ifdef _DEBUG_SUN_DETAILS_
-        dbSunSerialPrintln( "-> set NumTimer");
-#endif
         /* ----------------------------------------------- */
         /* continue sunrise                                */
         this->setNumTimer(this->setTimeout( this->getWakeDelay(), this->ptrTimerCB ));
@@ -607,11 +383,8 @@ void SimpleSun::startSunLoopTask()
 void SimpleSun::stopSunLoopTask()
 {
     print("SimpleSun::stopSunLoopTask()");
-    print("-> disable timer");
     this->deleteTimer(this->numTimer);
-    print("-> suspend task");
     vTaskSuspend(this->hTaskSunLoop);
-    print("stopSunLoopTask() done.");
 }
 
 /**
@@ -654,5 +427,21 @@ void SimpleSun::listener(String string_, EventEnum event_) {
         /* --------------------------------------------- */
         /* let the sun rise                              */
         this->sunRise();
+    }
+    /* -------------------------------------------------- */
+    /* start light test                                   */
+    if( (strcmp("LightTestOn", string_.c_str() ) == 0))  
+    {
+        /* --------------------------------------------- */
+        /* licht test                                    */
+        this->lightRGB();
+    }
+    /* -------------------------------------------------- */
+    /* stop ligth test                                    */
+    if( (strcmp("LightTestOff", string_.c_str() ) == 0))  
+    {
+        /* --------------------------------------------- */
+        /* switch off the ligh                           */
+        this->lightOff();
     }
 }    
