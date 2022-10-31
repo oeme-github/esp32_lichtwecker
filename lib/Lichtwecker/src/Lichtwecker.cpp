@@ -94,6 +94,7 @@ void Lichtwecker::start()
     /* ---------------------------------------------- */
     /* set parameter                                  */
     getNextionDisplay()->getNexPageByName("page2")->show();
+    vTaskDelay(10/portTICK_PERIOD_MS);
     this->getNextionDisplay()->getNexNumberByName("nOffsetSun")->setValue((uint32_t)this->config.getMember("OffsetSun"));
     this->getNextionDisplay()->getNexNumberByName("nSnooze"   )->setValue((uint32_t)this->config.getMember("Snooze")   );
     this->getNextionDisplay()->getNexNumberByName("nTimeout"  )->setValue((uint32_t)this->config.getMember("Timeout")  );
@@ -103,6 +104,7 @@ void Lichtwecker::start()
     /* ---------------------------------------------- */
     /* set color mode                                 */
     getNextionDisplay()->getNexPageByName("page4")->show();
+    vTaskDelay(10/portTICK_PERIOD_MS);
     this->getNextionDisplay()->getNexRadioByName("r0")->setValue((uint32_t)this->config.getMember("r0"));
     this->getNextionDisplay()->getNexRadioByName("r1")->setValue((uint32_t)this->config.getMember("r1"));
     this->getNextionDisplay()->getNexRadioByName("r2")->setValue((uint32_t)this->config.getMember("r2"));
@@ -110,6 +112,7 @@ void Lichtwecker::start()
     /* ---------------------------------------------- */
     /* set color level                                */
     getNextionDisplay()->getNexPageByName("page5")->show();
+    vTaskDelay(10/portTICK_PERIOD_MS);
     this->getNextionDisplay()->getNexNumberByName("nDisBright" )->setValue((uint32_t)this->config.getMember("DisBright") );
     this->getNextionDisplay()->getNexNumberByName("nBrightness")->setValue((uint32_t)this->config.getMember("Brightness"));
     this->getNextionDisplay()->getNexNumberByName("nMaxDimSR"  )->setValue((uint32_t)this->config.getMember("MaxDimSR")  );
@@ -117,12 +120,14 @@ void Lichtwecker::start()
     /* ---------------------------------------------- */
     /* set color level                                */
     this->getNextionDisplay()->getNexPageByName("page6")->show();
+    vTaskDelay(10/portTICK_PERIOD_MS);
     this->getNextionDisplay()->getNexNumberByName("nWhite")->setValue((uint32_t)this->config.getMember("white"));
     this->getNextionDisplay()->getNexNumberByName("nRed"  )->setValue((uint32_t)this->config.getMember("red")  );
     this->getNextionDisplay()->getNexNumberByName("nGreen")->setValue((uint32_t)this->config.getMember("green"));
     this->getNextionDisplay()->getNexNumberByName("nBlue" )->setValue((uint32_t)this->config.getMember("blue") );
     vTaskDelay(10/portTICK_PERIOD_MS);
     getNextionDisplay()->getNexPageByName("page0")->show();
+    vTaskDelay(10/portTICK_PERIOD_MS);
     /* -------------------------------------------------- */
     /* LED                                                */
     if( !simpleSun.init_ledDriver() )
