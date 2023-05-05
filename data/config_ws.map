@@ -1,0 +1,6 @@
+version: v4.0.1,
+port:80,
+user:admin,
+passwd:*admin!,
+title:Lichtwecker,
+websrv:1

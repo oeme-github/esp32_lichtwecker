@@ -22,10 +22,10 @@ private:
     VolumeStream volume;
     LogarithmicVolumeControl lvc;
 
-    I2SConfig cfg   = i2s.defaultConfig();
-    int sample_rate = 24000;
-    int channels    = 1;
-    float fVolume   = 0.1;
+    I2SConfig cfg     = i2s.defaultConfig();
+    int sample_rate   = 24000;
+    int channels      = 1;
+    float fVolume     = 0.1;
     char filename[20] = "/double_beep.mp3";
     File audioFile;
 
@@ -101,7 +101,7 @@ public:
      */
     void play() 
     {
-        print("MyAudioPlayer::play(): ", false); print(this->filename); 
+        dbSerialPrintf("MyAudioPlayer::play(%s)", this->filename); 
         if(SPIFFS.exists(this->filename))
         {
             this->audioFile = SPIFFS.open(this->filename, FILE_READ);
@@ -113,7 +113,7 @@ public:
         }
         else
         {
-            print("file ", false); print(this->filename, false); print(" did not exists");
+            dbSerialPrintf("file %s did not exists", this->filename);
         }
     }
     /**
@@ -122,7 +122,6 @@ public:
      */ 
     void startSoundLoopTask()
     {
-        print("MyAudioPlayer::startSoundLoopTask()");
         /* -------------------------------------------------- */
         /* start the sound task                               */
         xTaskCreatePinnedToCore(
@@ -144,7 +143,6 @@ public:
      */
     void suspendSoundLoopTask()
     {
-        print("MyAudioPlayer::suspendSoundLoopTask()");
         this->bActive=false;
         vTaskDelay(1500/portTICK_PERIOD_MS);
         vTaskSuspend(this->hTaskSoundLoop);
@@ -155,7 +153,6 @@ public:
      */
     void resumeSoundLoopTask()
     {
-        print("MyAudioPlayer::resumeSoundLoopTask()");
         this->bActive=true;
         vTaskDelay(10/portTICK_PERIOD_MS);
         vTaskResume(this->hTaskSoundLoop);
@@ -271,40 +268,28 @@ public:
      * @param event_ 
      */
     void listener(String string_, EventEnum event_) {
-        print( "listener() for ", false);
-        print( "MyAudioPlayer"  , false);
-        print( ", got: "        , false );
-        print( string_.c_str()  , false );
-        print( ", "             , false );
-        print( event_ ); 
-        print( "AlarmState: "   , false );
-        print( this->getAlarmState() );
         /* -------------------------------------------------- */
         /* alaup -> switch alarm on                           */
         if( (strcmp("alaup", string_.c_str() ) == 0))  
         {
-            print("alaup");
             alaramOn();
         }
         /* -------------------------------------------------- */
         /* a_off -> switch alarm off                          */
         if( (strcmp("a_off", string_.c_str() ) == 0))  
         {
-            print("a_off");
             alaramOff();
         }
         /* -------------------------------------------------- */
         /* SnoozeOn -> switch snooze on                       */
         if( (strcmp("SnoozeOn", string_.c_str() ) == 0) || (strcmp("snoozeon", string_.c_str() ) == 0))  
         {
-            print("SnoozeOn");
             vTaskSuspend(this->hTaskSoundLoop);
         }
         /* -------------------------------------------------- */
         /* SnoozeOff -> switch snooze off                       */
         if( (strcmp("snoozeoff", string_.c_str() ) == 0) || (strcmp("SnoozeOff", string_.c_str() ) == 0))  
         {
-            print("SnoozeOff");
             vTaskResume(this->hTaskSoundLoop);
         }
     }    
@@ -314,55 +299,17 @@ public:
  */
 private:
     /**
-     * @brief print function for string 
-     * 
-     * @param str 
-     * @param bNewLine 
-     */
-    static void print(const std::string &str, bool bNewLine = true) {
-        if( bNewLine )
-            dbSerialPrintln(str.c_str());
-        else
-            dbSerialPrint(str.c_str());
-    }
-    /**
-     * @brief print function for int 
-     * 
-     * @param iNum 
-     * @param bNewLine 
-     */
-    static void print(int iNum, bool bNewLine = false) { 
-        if( bNewLine )
-            dbSerialPrintln(iNum);
-        else
-            dbSerialPrintln(iNum);
-    }
-    /**
-     * @brief print function for int
-     * 
-     * @param fNum 
-     * @param bNewLine 
-     */
-    static void print(float_t fNum, bool bNewLine = true) {
-        char msg[10];
-        sprintf(msg,"%f",fNum); 
-        if( bNewLine )
-            dbSunSerialPrintln(msg);
-        else
-            dbSunSerialPrint(msg);
-    }
-    /**
      * @brief default unhandelt event function
      * 
      * @param str 
      */
-    static void unhandledEvent(const std::string &str) { print("unhandled event " + str); }
+    static void unhandledEvent(const std::string &str) { dbSerialPrintf("unhandled event %s", str); }
     /**
      * @brief print snooze state after chage
      * 
      * @param snooze 
      */
-    void changedSnooze(const std::string &snooze) { print( "changed snooze to " + snooze ); }
+    void changedSnooze(const std::string &snooze) { dbSerialPrintf( "changed snooze to %s", snooze ); }
     /**
      * @brief generic snooze state
      * 
@@ -379,13 +326,12 @@ private:
         using SnoozeState::SnoozeState;
         void entry() 
         { 
-            print("entry in SnoozeOn");
             stm.changedSnooze("ON"); 
         }
         void snooze( Snooze_t snooze ); // implemented in MyDFPlayer.cpp
         void exit() 
         { 
-            print("leaving SnoozeOn");
+            return;
         }
     };
     /**
@@ -396,13 +342,12 @@ private:
         using SnoozeState::SnoozeState;
         void entry() 
         { 
-            print("entry in SnoozeOff");
             stm.changedSnooze("OFF"); 
         }
         void snooze( Snooze_t snooze ); // implemented in MyDFPlayer.cpp
         void exit() 
         { 
-            print("leaving SnoozeOff"); 
+            return; 
         }
     };
 
@@ -421,7 +366,7 @@ private:
         virtual void alarmOff() { unhandledEvent("alarm off"); }
         virtual void initSnooze() { unhandledEvent("initSnooze"); }
         virtual const char *getAlarmState(){ unhandledEvent( "AlaramState"); return "unhandledEvent"; }
-        virtual void snooze(Snooze_t snooze) { print("AlaramState.snooze"); (void)snooze; unhandledEvent("snooze in AlarmSatet"); }
+        virtual void snooze(Snooze_t snooze) { dbSerialPrintln("AlaramState.snooze"); (void)snooze; unhandledEvent("snooze in AlarmSatet"); }
     };
     StateRef<AlarmState> alarmState;
     /**
@@ -432,27 +377,24 @@ private:
         using AlarmState::AlarmState;
         void initSnooze()
         {
-            print("initSnooze");
             SnoozeState::init<SnoozeOff>(stm, snoozeState);
         }
         void entry() 
         { 
-            print("entering AlarmOn");
             /* start sound task */
             stm.resumeSoundLoopTask(); 
         }
         void alarmOn() 
         { 
-            print("Alarm is already on"); 
+            return; 
         }
         void alarmOff() 
         {
-            print("switch Alarm off"); 
             change<AlarmOff>();
         }
         void snooze() 
         {
-            print("snoozeOn in AlarmOn");
+            return;
         }
         const char *getAlarmState()
         {
@@ -460,7 +402,6 @@ private:
         }
         void exit() 
         { 
-            print("leaving AlarmOn"); 
             stm.suspendSoundLoopTask();
         }
     private:
@@ -475,16 +416,14 @@ private:
         using AlarmState::AlarmState;
         void entry() 
         { 
-            print("entry AlarmOff");
             /* stop sound task */
         }
         void alarmOff() 
         { 
-            print("Alarm is already off"); 
+            return; 
         }
         void alarmOn() 
         {
-            print("switch Alarm on"); 
             change<AlarmOn>(); 
         }
         const char *getAlarmState()
@@ -493,7 +432,7 @@ private:
         }
         void exit() 
         { 
-            print("leaving AlarmOff"); 
+            return; 
         }
     };
 };
@@ -508,12 +447,10 @@ void MyAudioPlayer::SnoozeOn::snooze(MyAudioPlayer::Snooze_t snooze_)
      switch (snooze_)
      {
      case SNOOZE_OFF:
-          print("SnoozeOn machine SNOOZE_OFF");
           change<SnoozeOff>();
           break;
      
      default:
-          print("snooze already on");
           break;
      }
 }
@@ -527,13 +464,10 @@ void MyAudioPlayer::SnoozeOff::snooze(MyAudioPlayer::Snooze_t snooze_)
      switch (snooze_)
      {
      case SNOOZE_ON:
-          print("SnoozeOff machine SNOOZE_ON");
           change<SnoozeOn>();
           break;
      
      default:
-          print("snooze already off");
           break;
      }
 }
-

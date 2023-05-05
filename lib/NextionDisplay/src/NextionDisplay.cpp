@@ -8,7 +8,6 @@
  */
 NextionDisplay::NextionDisplay(int iSerialSpeed_)
 {
-    dbSerialPrintln("constructor NextionDisplay");
     ESPNexUpload nextion(iSerialSpeed_);
     nexUplSrv = &nextion;
 }
@@ -32,7 +31,6 @@ NextionDisplay::~NextionDisplay()
 
 void NextionDisplay::InitDisplay()
 {
-    dbSerialPrintln("InitDisplay()...");
     boolean bRet=false;
     for(int i=0; i<=5; i++)
     {
@@ -45,10 +43,7 @@ void NextionDisplay::InitDisplay()
     }
     if(bRet)
     {
-        dbSerialPrintln("display started...");
-        dbSerialPrintln("init pages...");
         initPages();
-        dbSerialPrintln("add callback functions...");
         /** 
          * add Nextion callbacks
          */
@@ -59,8 +54,6 @@ void NextionDisplay::InitDisplay()
     } 
     else
     {
-        dbSerialPrintln("ERROR: could not start display!!!!");
-        dbSerialPrintln("restart.");
         vTaskDelay(2000/portTICK_PERIOD_MS);
         ESP.restart();
     }
@@ -75,7 +68,6 @@ void NextionDisplay::InitDisplay()
  */
 NexPage* NextionDisplay::Create_Pages(int8_t iPage_, const char *name_)
 {
-    dbSerialPrintln( (String("Create_Pages(") + iPage_ + ", " + String(name_) + String(")")).c_str() );
     return new NexPage( iPage_, 0, name_); 
 }
 
@@ -89,7 +81,6 @@ NexPage* NextionDisplay::Create_Pages(int8_t iPage_, const char *name_)
  */
 NexDSButton* NextionDisplay::Create_Btns(int8_t iPage_, int8_t iElemet_, const char *name_)
 {
-    dbSerialPrintln( (String("Create_Btns(") + iPage_ + ", " + iElemet_ + ", " + String(name_) + String(")")).c_str() );
     return new NexDSButton( iPage_, iElemet_, name_); 
 }
 
@@ -103,7 +94,6 @@ NexDSButton* NextionDisplay::Create_Btns(int8_t iPage_, int8_t iElemet_, const c
  */
 NexRadio* NextionDisplay::Create_Radio(int8_t iPage_, int8_t iElemet_, const char *name_)
 {
-    dbSerialPrintln( (String("Create_Radio(") + iPage_ + ", " + iElemet_ + ", " + String(name_) + String(")")).c_str() );
     return new NexRadio( iPage_, iElemet_, name_); 
 }
 
@@ -117,7 +107,6 @@ NexRadio* NextionDisplay::Create_Radio(int8_t iPage_, int8_t iElemet_, const cha
  */
 NexCheckbox* NextionDisplay::Create_Chkbx(int8_t iPage_, int8_t iElemet_, const char *name_)
 {
-    dbSerialPrintln( (String("Create_Chkbx(") + iPage_ + ", " + iElemet_ + ", " + String(name_) + String(")")).c_str() );
     return new NexCheckbox( iPage_, iElemet_, name_); 
 }
 
@@ -131,7 +120,6 @@ NexCheckbox* NextionDisplay::Create_Chkbx(int8_t iPage_, int8_t iElemet_, const 
  */
 NexNumber* NextionDisplay::Create_Nmbr(int8_t iPage_, int8_t iElemet_, const char *name_)
 {
-    dbSerialPrintln( (String("Create_Nmbr(") + iPage_ + ", " + iElemet_ + ", " + String(name_) + String(")")).c_str() );
     return new NexNumber( iPage_, iElemet_, name_); 
 }
 
@@ -145,7 +133,6 @@ NexNumber* NextionDisplay::Create_Nmbr(int8_t iPage_, int8_t iElemet_, const cha
  */
 NexVariable* NextionDisplay::Create_Vars(int8_t iPage_, int8_t iElemet_, const char *name_)
 {
-    dbSerialPrintln( (String("Create_Vars(") + iPage_ + ", " + iElemet_ + ", " + String(name_) + String(")")).c_str() );
     return new NexVariable( iPage_, iElemet_, name_); 
 }
 
@@ -159,7 +146,6 @@ NexVariable* NextionDisplay::Create_Vars(int8_t iPage_, int8_t iElemet_, const c
  */
 NexTimer* NextionDisplay::Create_Timers(int8_t iPage_, int8_t iElemet_, const char *name_)
 {
-    dbSerialPrintln( (String("Create_Timers(") + iPage_ + ", " + iElemet_ + ", " + String(name_) + String(")")).c_str() );
     return new NexTimer( iPage_, iElemet_, name_); 
 }
 
@@ -168,7 +154,6 @@ NexTimer* NextionDisplay::Create_Timers(int8_t iPage_, int8_t iElemet_, const ch
  * 
  */
 void NextionDisplay::initPages(){
-    dbSerialPrintln("initPages()");
     /* -------------------------------------------------- */
     /* create pages                                       */
     for(auto & elem : pages.page_vec)
@@ -317,23 +302,6 @@ void NextionDisplay::addToList(NexTouch *nexTouch_)
  */
 void NextionDisplay::attachFunc(const char * objName_, typeOfFunc_t typeOfFunc_, NexTouchEventCb callBackFunc_)
 {
-    dbSerialPrint( ("attachFunc(" + String(objName_) + ", " ).c_str() ); 
-    switch (typeOfFunc_)
-    {
-    case 0:
-        dbSerialPrint("push, ");
-        break;
-    case 1:
-        dbSerialPrint("pop, ");
-        break;
-    case 2:
-        dbSerialPrint("cmd, ");
-        break;    
-    default:
-        break;
-    }
-    dbSerialPrintln( ")");
-
     /* find object in callback_vec*/
     for(auto & elem : nex_listen_list_vec )
     {

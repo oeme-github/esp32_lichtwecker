@@ -24,7 +24,6 @@ void SimpleSun::init( int iWakeDelay)
  */
 bool SimpleSun::init_ledDriver()
 {
-    dbSunSerialPrintln("init_ledDriver()");
     /* -------------------------------------------------- */
     /* initialize led driver and strands                  */
     digitalLeds_initDriver();
@@ -38,14 +37,8 @@ bool SimpleSun::init_ledDriver()
     gpioSetup(27, OUTPUT, LOW);
     gpioSetup(this->getStrand().gpioNum, OUTPUT, LOW);
     this->rc = digitalLeds_addStrands(this->STRANDS, this->STRANDCNT);
-    dbSunSerialPrint( "LED-RC:"); dbSunSerialPrintln(this->rc);
-    if(digitalLeds_initDriver() == 0) {
-#ifdef _WITH_TEST_LED_
-            weislicht();
-            vTaskDelay(2000/portTICK_PERIOD_MS);
-            resetPixels();
-            vTaskDelay(100/portTICK_PERIOD_MS);
-#endif
+    if(digitalLeds_initDriver() == 0) 
+    {
         /* ---------------------------------------------- */
         /* init states                                    */
         LightState::init<LightOff>(*this, lightState);
@@ -56,7 +49,6 @@ bool SimpleSun::init_ledDriver()
     }
     /* -------------------------------------------------- */
     /* default return                                     */
-    dbSunSerialPrint( "LED-ERROR: something went wrong.");
     return false;
 }
 /**
@@ -75,23 +67,6 @@ void SimpleSun::resetPixels()
  */
 void SimpleSun::drawPixels()
 {
-#ifdef SHOW_PIXELS_VALUES
-    int i = 0;
-    for( i=0; i < STRANDS[0]->numPixels ; i++ )
-    {
-      dbSunSerialPrint("pixels[");
-      dbSunSerialPrint( i );
-      dbSunSerialPrint("] (r/g/b/w):");
-      dbSunSerialPrint( STRANDS[0]->pixels[i].r );
-      dbSunSerialPrint("/");
-      dbSunSerialPrint( STRANDS[0]->pixels[i].g );
-      dbSunSerialPrint("/");
-      dbSunSerialPrint( STRANDS[0]->pixels[i].b );
-      dbSunSerialPrint("/");
-      dbSunSerialPrintln( STRANDS[0]->pixels[i].w );
-    }
-#endif
-
     digitalLeds_drawPixels(this->STRANDS, this->STRANDCNT);
 }
 /**
@@ -105,37 +80,29 @@ void SimpleSun::drawSun()
         add green       -> iGreen bis 240
         and finaly blue -> iBlue bis 210 
         iWhite          -> 0 - 255 */
-    print("SimpleSun::drawSun(): sunPhase:", false); print( this->sunPhase );
     strand_t* strip = this->STRANDS[0];
 
-    int iWhite = 0;
-    int iRed   = 0;
-    int iGreen = 0;
-    int iBlue  = 0;
     int iMod1  = this->sunPhase%this->getNumLeds();
-    if(iMod1==0) iMod1=this->getNumLeds();
+    if(iMod1==0) 
+        iMod1=this->getNumLeds();
 
     for(int i = 0; i < iMod1; i++)
     {
         if( iMod1 == 1 )
         {
-//            iRed   = RED_LEVEL*this->sunPhase/SUN_PHASE;
-//            iGreen = GREEN_LEVEL*this->sunPhase/SUN_PHASE;
-//            iBlue  = BLUE_LEVEL*this->sunPhase/SUN_PHASE;
-//            iWhite = WHITE_LEVEL*this->sunPhase/SUN_PHASE;
-            iRed   = map( this->sunPhase, 0, SUN_PHASE, 0, RED_LEVEL);
-            iGreen = map( this->sunPhase, 0, SUN_PHASE, 0, GREEN_LEVEL);
-            iBlue  = map( this->sunPhase, 0, SUN_PHASE, 0, BLUE_LEVEL);
-            iWhite = map( this->sunPhase, 0, SUN_PHASE, 0, WHITE_LEVEL);
+            this->iRed   = map( this->sunPhase, 0, SUN_PHASE, 0, RED_LEVEL);
+            this->iGreen = map( this->sunPhase, 0, SUN_PHASE, 0, GREEN_LEVEL);
+            this->iBlue  = map( this->sunPhase, 0, SUN_PHASE, 0, BLUE_LEVEL);
+            this->iWhite = map( this->sunPhase, 0, SUN_PHASE, 0, WHITE_LEVEL);
         }
         else{
             /* set all led step by step to the new values */
-            iRed   = strip->pixels[0].r;
-            iGreen = strip->pixels[0].g;
-            iBlue  = strip->pixels[0].b;
-            iWhite = strip->pixels[0].w;
+            this->iRed   = strip->pixels[0].r;
+            this->iGreen = strip->pixels[0].g;
+            this->iBlue  = strip->pixels[0].b;
+            this->iWhite = strip->pixels[0].w;
         }
-        strip->pixels[i] = pixelFromRGBW( iRed, iGreen, iBlue, iWhite);
+        strip->pixels[i] = pixelFromRGBW( this->iRed, this->iGreen, this->iBlue, this->iWhite);
         vTaskDelay(10/portTICK_PERIOD_MS);
     }
 }
@@ -251,14 +218,6 @@ boolean SimpleSun::getSunPhase()
  * @brief set all leds to blue
  * 
  */
-void SimpleSun::blaulicht()
-{
-    rgbwLicht(0, 0, 255, 0);
-}
-/**
- * @brief set all leds to blue
- * 
- */
 void SimpleSun::rgbwlicht()
 {
     rgbwLicht(this->iRed, this->iGreen, this->iBlue, this->iWhite);
@@ -361,7 +320,6 @@ void SimpleSun::letSunRise( int intWakeDelay_, bool bInit_ )
  */
 void SimpleSun::startSunLoopTask()
 {
-    print("SimpleSun::startSunLoopTask()");
     xTaskCreatePinnedToCore(
                     this->pvTaskCode,       /* Task function. */
                     "TaskSunLoop",          /* name of task. */
@@ -371,9 +329,7 @@ void SimpleSun::startSunLoopTask()
                     &this->hTaskSunLoop,    /* Task handle to keep track of created task */
                     1                       /* pin task to core 1 */
     );    
-    print("suspend the task");
     vTaskSuspend(this->hTaskSunLoop);
-    print("startSunLoopTask done.");
 }
 
 /**
@@ -382,7 +338,6 @@ void SimpleSun::startSunLoopTask()
  */
 void SimpleSun::stopSunLoopTask()
 {
-    print("SimpleSun::stopSunLoopTask()");
     this->deleteTimer(this->numTimer);
     vTaskSuspend(this->hTaskSunLoop);
 }
@@ -393,18 +348,8 @@ void SimpleSun::stopSunLoopTask()
  * @param string_ 
  * @param event_ 
  */
-void SimpleSun::listener(String string_, EventEnum event_) {
-    print( "listener() for ", false);
-    print( "simpleSun"      , false);
-    print( ", got: "        , false );
-    print( string_.c_str()  , false );
-    print( ", "             , false );
-    print( event_ ); 
-    print( "SunState: ", false );
-    print( this->getSunState() );
-    print( "LightState: ", false );
-    print( this->getLightState() );
-
+void SimpleSun::listener(String string_, EventEnum event_) 
+{
     /* -------------------------------------------------- */
     /* switch light on                                    */
     if( (strcmp("light_on", string_.c_str() ) == 0))  

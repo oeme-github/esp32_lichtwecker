@@ -1,0 +1,4 @@
+host:esp32lichtwecker,
+ap:AutoConnectAP,
+appw:lichtwecker2wifi,
+port:80

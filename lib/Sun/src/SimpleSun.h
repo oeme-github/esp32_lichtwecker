@@ -6,7 +6,7 @@
 #include <genericstate.h>
 #include <MDispatcher.h>
 
-#include "SimpleSunConfig.h"
+#include <SimpleSunConfig.h>
 
 #ifndef SIMPLE_SUN_H
 #define SIMPLE_SUN_H
@@ -195,7 +195,6 @@ public:
      */
     void sunDown() 
     {  
-        print("sunDown() - sunState->sunDown()");
         sunState->sunDown();  
     }
     /**
@@ -204,7 +203,6 @@ public:
      */
     void sunRise()
     {
-        print("sunRise() - sunState->sunRise()");
         sunState->sunRise(); 
     }
     /**
@@ -213,7 +211,6 @@ public:
      */
     void sunUp()
     { 
-        print("sunUp() - sunState->sunUp()");
         sunState->sunUp();  
     }
     /**
@@ -233,7 +230,6 @@ public:
      */
     void lightOn()
     {
-        print("lightOn() -> lightState->lightOn()");  
         lightState->lightOn();  
     }
     /**
@@ -242,17 +238,7 @@ public:
      */
     void lightOff()
     { 
-        print("lightOff() -> lightState->lightOff()");
         lightState->lightOff();
-    }
-    /**
-     * @brief light blue companion
-     * 
-     */
-    void lightBlue()
-    { 
-        print("lightBlue()");
-        lightState->lightBlue();
     }
     /**
      * @brief light blue companion
@@ -260,7 +246,6 @@ public:
      */
     void lightRGB()
     { 
-        print("lightRGB()");
         lightState->lightRGB();
     }
     /**
@@ -289,11 +274,6 @@ private:
      * 
      */
     void weislicht();
-    /**
-     * @brief switch on the lamp with blue light
-     * 
-     */
-    void blaulicht();
     /**
      * @brief switch on the lamp with rgbw 
      * 
@@ -373,9 +353,9 @@ private:
      */
     static void print(const std::string &str, bool bNewLine = true) {
         if( bNewLine )
-            dbSunSerialPrintln(str.c_str());
+            dbSerialPrintln(str.c_str());
         else
-            dbSunSerialPrint(str.c_str());
+            dbSerialPrint(str.c_str());
     }
     /**
      * @brief print function for int
@@ -385,9 +365,9 @@ private:
      */
     static void print(int iNum, bool bNewLine = true) { 
         if( bNewLine )
-            dbSunSerialPrintln(iNum);
+            dbSerialPrintln(iNum);
         else
-            dbSunSerialPrint(iNum);
+            dbSerialPrint(iNum);
     }
     /**
      * @brief print function for int
@@ -399,9 +379,9 @@ private:
         char msg[10];
         sprintf(msg,"%f",fNum); 
         if( bNewLine )
-            dbSunSerialPrintln(msg);
+            dbSerialPrintln(msg);
         else
-            dbSunSerialPrint(msg);
+            dbSerialPrint(msg);
     }
     /**
      * @brief default unhandled event function
@@ -434,21 +414,19 @@ private:
         using SunState::SunState;
         void entry() 
         { 
-            print("entry SunDown (switch light off)");
             stm.lightOff();
         }
         void sunDown() 
         { 
-            print("sun is already down");
+            //print("sun is already down");
+            return;
         }
         void sunRise() 
         { 
-            print("sun is down and will rise");
             change<SunRise>();
         }
         void sunUp()
         {
-            print("sun is down and will be up");
             change<SunUp>();
         }
         const char *getSunState() 
@@ -457,7 +435,7 @@ private:
         }
         void exit() 
         { 
-            print("exit SunDown"); 
+            return; 
         }
     };
     /**
@@ -469,7 +447,6 @@ private:
         void entry() 
         { 
             /* start sunrise */
-            print("SunRise:entry()");
             vTaskResume(stm.hTaskSunLoop);
             vTaskDelay(50/portTICK_PERIOD_MS);
             /* get wake delay in minutes and start sunrise with seconds */
@@ -477,15 +454,16 @@ private:
         }
         void sunDown() 
         { 
-            print("sun is rising, can not switch to SunDown");
+            //print("sun is rising, can not switch to SunDown");
+            return;
         }
         void sunRise() 
         { 
-            print("sun is already rising");
+            //print("sun is already rising");
+            return;
         }
         void sunUp()
         {
-            print("sun is rising, switch to SunUp");
             change<SunUp>();
         }
         const char *getSunState() 
@@ -494,7 +472,8 @@ private:
         }
         void exit() 
         { 
-            print( "exit SunRise done.");
+            //print( "exit SunRise done.");
+            return;
         }
     };
     /**
@@ -505,23 +484,21 @@ private:
         using SunState::SunState;
         void entry() 
         { 
-            print("entry SunUp");
-            print("-> switch light on");
             stm.lightOn();
-            print("entry SunUp done.");
         }
         void sunDown() 
         { 
-            print("sun is up, switch to SunDown");
             change<SunDown>();
         }
         void sunRise() 
         { 
-            print("sun is up, can not switch to SunRise");
+            //print("sun is up, can not switch to SunRise");
+            return;
         }
         void sunUp()
         {
-            print("sun is already up");
+            //print("sun is already up");
+            return;
         }
         const char *getSunState() 
         { 
@@ -529,7 +506,8 @@ private:
         }
         void exit() 
         { 
-            print("exit SunUp"); 
+            //print("exit SunUp"); 
+            return;
         }
     };
 
@@ -544,7 +522,6 @@ private:
         using GenericState::GenericState;
         virtual void lightOn() { unhandledEvent("light on"); }
         virtual void lightOff() { unhandledEvent("light off"); }
-        virtual void lightBlue() { unhandledEvent("light blue"); }
         virtual void lightRGB() { unhandledEvent("light RGB"); }
         virtual const char *getLightState() { unhandledEvent("getLightState"); return "unhandledEvent";}        
     };
@@ -557,27 +534,19 @@ private:
         using LightState::LightState;
         void entry() 
         { 
-            print("entry LightOn");
             stm.weislicht();
-            print("entry LightOn done.");
         }
         void lightOn() 
         { 
-            print("light is already on"); 
+            //print("light is already on"); 
+            return;
         }
         void lightOff() 
         {
-            print("switch light off"); 
             change<LightOff>(); 
-        }
-        void lightBlue() 
-        { 
-            print("switch light to blue");
-            change<LightBlue>();
         }
         void lightRGB() 
         {
-            print("switch light RGB"); 
             change<LightRGB>(); 
         }
         const char *getLightState() 
@@ -586,7 +555,8 @@ private:
         }
         void exit() 
         { 
-            print("leaving LightOn"); 
+            //print("leaving LightOn"); 
+            return;
         }
     };
     /**
@@ -597,28 +567,19 @@ private:
         using LightState::LightState;
         void entry() 
         { 
-            print("entering LightOff");
-            print("-> reset pixels...");
             stm.resetPixels();
-            print("entry LightOff done.");
         }
         void lightOff() 
         { 
-            print("light is already off"); 
+            //print("light is already off"); 
+            return;
         }
         void lightOn() 
         {
-            print("switch light on"); 
             change<LightOn>(); 
-        }
-        void lightBlue() 
-        { 
-            print("switch light to blue");
-            change<LightBlue>();
         }
         void lightRGB() 
         {
-            print("switch light RGB"); 
             change<LightRGB>(); 
         }
         const char *getLightState() 
@@ -627,46 +588,8 @@ private:
         }
         void exit() 
         { 
-            print("exit LightOff"); 
-        }
-    };
-    /**
-     * @brief light blue state
-     * 
-     */
-    struct LightBlue : public LightState {
-        using LightState::LightState;
-        void entry() 
-        { 
-            print("entering LightBlue"); 
-            stm.blaulicht();
-        }
-        void lightOff() 
-        { 
-            print("switch light off");
-            change<LightOff>(); 
-        }
-        void lightOn() 
-        {
-            print("switch light on"); 
-            change<LightOn>(); 
-        }
-        void lightBlue() 
-        { 
-            print("light is already blue"); 
-        }
-        void lightRGB() 
-        {
-            print("switch light RGB"); 
-            change<LightRGB>(); 
-        }
-        const char *getLightState() 
-        { 
-            return "LightBlue"; 
-        }
-        void exit() 
-        { 
-            print("leaving LightBlue"); 
+            //print("exit LightOff"); 
+            return;
         }
     };
     /**
@@ -677,26 +600,23 @@ private:
         using LightState::LightState;
         void entry() 
         { 
-            print("entering LightRGB"); 
             stm.rgbwlicht();
         }
         void lightOff() 
         { 
-            print("switch light off");
             change<LightOff>(); 
         }
         void lightOn() 
         {
-            print("switch light on"); 
             change<LightOn>(); 
         }
-        void lightBlue() 
-        { 
-            print("light is already blue"); 
+        void lightRGB() 
+        {
+            return; 
         }
         const char *getLightState() 
         { 
-            return "LightBlue"; 
+            return "LightRGB"; 
         }
         void exit() 
         { 

@@ -6,7 +6,6 @@
  */
 Lichtwecker::Lichtwecker()
 {
-    print("Lichtwecker constructor");
 }
 
 /**
@@ -18,126 +17,136 @@ Lichtwecker::~Lichtwecker()
 }
 
 /**
+ * @brief  void Lichtwecker::setNextValue( NextType typ, const char *cNameElemet, const char *configElement)
+ * @note   helper to the values from config to nextion display
+ * @param  typ: 
+ * @param  *cNameElemet: 
+ * @param  *configElement: 
+ * @retval None
+ */
+void Lichtwecker::setNextValue( const char *cNameElemet)
+{
+  if( std::string(cNameElemet).substr(1,1) == "n" )
+  {
+    this->getNextionDisplay()->getNexNumberByName(cNameElemet)->setValue((uint32_t)this->configServer->getElement(cNameElemet).c_str());
+  }
+  else if( std::string(cNameElemet).substr(1,1) == "c" )
+  {
+    this->getNextionDisplay()->getNexChkbxByName(cNameElemet)->setValue((uint32_t)this->configServer->getElement(cNameElemet).c_str());
+  }
+  else if( std::string(cNameElemet).substr(1,1) == "r" )
+  {
+    this->getNextionDisplay()->getNexRadioByName(cNameElemet)->setValue((uint32_t)this->configServer->getElement(cNameElemet).c_str());
+  } 
+}
+
+/**
  * @brief start()
  * 
  */
 void Lichtwecker::start()
 {
-    print("\n --- Startup Lichtwecker --- \n");
-    /* -------------------------------------------------- */
-    /* start filesystem                                   */
-    print("Start FS");
-    startFS();
-    vTaskDelay(200/portTICK_PERIOD_MS);
-    /* ---------------------------------------------- */
-    /* debug the config                               */
-    this->printConfig();   
-    /* -------------------------------------------------- */
-    /* start WIFI                                         */
-    print("Start WIFI");
-    startWifi(ssid, password, host );
-    vTaskDelay(100/portTICK_PERIOD_MS);
+    /*-----------------------------------------------------*/
+    /* load config                                         */
+    if(!this->loadConfig())
+    {
+        dbSerialPrintln("ERROR: Failed to load config -> create on and restart...");
+        this->createConfigJson();
+        ESP.restart();
+    }     
     /* -------------------------------------------------- */
     /* start nextion                                      */
-    print("Init Nextion...");
     nextionDisplay.InitDisplay();
     vTaskDelay(100/portTICK_PERIOD_MS);
     /* -------------------------------------------------- */
     /* RTC                                                */
-    if( nexRtc.updateDateTime() )
+    if(!nexRtc.updateDateTime())
     {
-      print("Date time updated.");
-    }
-    else
-    {
-      print("updateDateTime went wrong!");
+      dbSerialPrintln("ERROR: updateDateTime went wrong -> restart...");
+      ESP.restart();
     }
     /* ---------------------------------------------- */
     /* set parameter                                  */
     getNextionDisplay()->getNexPageByName("page1")->show();
     vTaskDelay(50/portTICK_PERIOD_MS);
-    this->getNextionDisplay()->getNexNumberByName("nHour1" )->setValue((uint32_t)this->config.getMember("Hour1") );
-    this->getNextionDisplay()->getNexNumberByName("nMin1"  )->setValue((uint32_t)this->config.getMember("Min1")  );
-    this->getNextionDisplay()->getNexChkbxByName("cbOnOff1")->setValue((uint32_t)this->config.getMember("OnOff1"));
-    this->getNextionDisplay()->getNexChkbxByName("cbMo1"   )->setValue((uint32_t)this->config.getMember("Mo1")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbDi1"   )->setValue((uint32_t)this->config.getMember("Di1")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbMi1"   )->setValue((uint32_t)this->config.getMember("Mi1")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbDo1"   )->setValue((uint32_t)this->config.getMember("Do1")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbFr1"   )->setValue((uint32_t)this->config.getMember("Fr1")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbSa1"   )->setValue((uint32_t)this->config.getMember("Sa1")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbSo1"   )->setValue((uint32_t)this->config.getMember("So1")   );
+    this->setNextValue( "nHour1"  );
+    this->setNextValue( "nMin1"   );
+    this->setNextValue( "cbOnOff1");
+    this->setNextValue( "cbMo1"   );
+    this->setNextValue( "cbDi1"   );
+    this->setNextValue( "cbMi1"   );
+    this->setNextValue( "cbDo1"   );
+    this->setNextValue( "cbFr1"   );
+    this->setNextValue( "cbSa1"   );
+    this->setNextValue( "cbSo1"   );
 
-    this->getNextionDisplay()->getNexNumberByName("nHour2" )->setValue((uint32_t)this->config.getMember("Hour2") );
-    this->getNextionDisplay()->getNexNumberByName("nMin2"  )->setValue((uint32_t)this->config.getMember("Min2")  );
-    this->getNextionDisplay()->getNexChkbxByName("cbOnOff2")->setValue((uint32_t)this->config.getMember("OnOff2"));
-    this->getNextionDisplay()->getNexChkbxByName("cbMo2"   )->setValue((uint32_t)this->config.getMember("Mo2")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbDi2"   )->setValue((uint32_t)this->config.getMember("Di2")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbMi2"   )->setValue((uint32_t)this->config.getMember("Mi2")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbDo2"   )->setValue((uint32_t)this->config.getMember("Do2")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbFr2"   )->setValue((uint32_t)this->config.getMember("Fr2")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbSa2"   )->setValue((uint32_t)this->config.getMember("Sa2")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbSo2"   )->setValue((uint32_t)this->config.getMember("So2")   );
+    this->setNextValue( "nHour2"  );
+    this->setNextValue( "nMin2"   );
+    this->setNextValue( "cbOnOff2");
+    this->setNextValue( "cbMo2"   );
+    this->setNextValue( "cbDi2"   );
+    this->setNextValue( "cbMi2"   );
+    this->setNextValue( "cbDo2"   );
+    this->setNextValue( "cbFr2"   );
+    this->setNextValue( "cbSa2"   );
+    this->setNextValue( "cbSo2"   );
 
-    this->getNextionDisplay()->getNexNumberByName("nHour3" )->setValue((uint32_t)this->config.getMember("Hour3") );
-    this->getNextionDisplay()->getNexNumberByName("nMin3"  )->setValue((uint32_t)this->config.getMember("Min3")  );
-    this->getNextionDisplay()->getNexChkbxByName("cbOnOff3")->setValue((uint32_t)this->config.getMember("OnOff3"));
-    this->getNextionDisplay()->getNexChkbxByName("cbMo3"   )->setValue((uint32_t)this->config.getMember("Mo3")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbDi3"   )->setValue((uint32_t)this->config.getMember("Di3")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbMi3"   )->setValue((uint32_t)this->config.getMember("Mi3")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbDo3"   )->setValue((uint32_t)this->config.getMember("Do3")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbFr3"   )->setValue((uint32_t)this->config.getMember("Fr3")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbSa3"   )->setValue((uint32_t)this->config.getMember("Sa3")   );
-    this->getNextionDisplay()->getNexChkbxByName("cbSo3"   )->setValue((uint32_t)this->config.getMember("So3")   );
-
-    vTaskDelay(10/portTICK_PERIOD_MS);
-
+    this->setNextValue( "nHour3"  );
+    this->setNextValue( "nMin3"   );
+    this->setNextValue( "cbOnOff3");
+    this->setNextValue( "cbMo3"   );
+    this->setNextValue( "cbDi3"   );
+    this->setNextValue( "cbMi3"   );
+    this->setNextValue( "cbDo3"   );
+    this->setNextValue( "cbFr3"   );
+    this->setNextValue( "cbSa3"   );
+    this->setNextValue( "cbSo3"   );
+    vTaskDelay(50/portTICK_PERIOD_MS);
     /* ---------------------------------------------- */
     /* set parameter                                  */
     getNextionDisplay()->getNexPageByName("page2")->show();
     vTaskDelay(50/portTICK_PERIOD_MS);
-    this->getNextionDisplay()->getNexNumberByName("nOffsetSun")->setValue((uint32_t)this->config.getMember("OffsetSun"));
-    this->getNextionDisplay()->getNexNumberByName("nSnooze"   )->setValue((uint32_t)this->config.getMember("Snooze")   );
-    this->getNextionDisplay()->getNexNumberByName("nTimeout"  )->setValue((uint32_t)this->config.getMember("Timeout")  );
-    this->getNextionDisplay()->getNexNumberByName("nDim"      )->setValue((uint32_t)this->config.getMember("Dim")      );
-    this->getNextionDisplay()->getNexNumberByName("nVolume"   )->setValue((uint32_t)this->config.getMember("Volume")  );
-    vTaskDelay(10/portTICK_PERIOD_MS);
+    
+    this->setNextValue( "nOffsetSun");
+    this->setNextValue( "nSnooze"   );
+    this->setNextValue( "nTimeout"  );
+    this->setNextValue( "nDim"      );
+    this->setNextValue( "nVolume"   );
+
+    vTaskDelay(50/portTICK_PERIOD_MS);
     /* ---------------------------------------------- */
     /* set color mode                                 */
     getNextionDisplay()->getNexPageByName("page4")->show();
     vTaskDelay(50/portTICK_PERIOD_MS);
-    this->getNextionDisplay()->getNexRadioByName("r0")->setValue((uint32_t)this->config.getMember("r0"));
-    this->getNextionDisplay()->getNexRadioByName("r1")->setValue((uint32_t)this->config.getMember("r1"));
-    this->getNextionDisplay()->getNexRadioByName("r2")->setValue((uint32_t)this->config.getMember("r2"));
-    vTaskDelay(10/portTICK_PERIOD_MS);
+    this->setNextValue( "r0");
+    this->setNextValue( "r1");
+    this->setNextValue( "r2");
+    vTaskDelay(50/portTICK_PERIOD_MS);
     /* ---------------------------------------------- */
     /* set color level                                */
     getNextionDisplay()->getNexPageByName("page5")->show();
     vTaskDelay(50/portTICK_PERIOD_MS);
-    this->getNextionDisplay()->getNexNumberByName("nDisBright" )->setValue((uint32_t)this->config.getMember("DisBright") );
-    this->getNextionDisplay()->getNexNumberByName("nBrightness")->setValue((uint32_t)this->config.getMember("Brightness"));
-    this->getNextionDisplay()->getNexNumberByName("nMaxDimSR"  )->setValue((uint32_t)this->config.getMember("MaxDimSR")  );
-    vTaskDelay(10/portTICK_PERIOD_MS);
+    this->setNextValue( "nDisBright" );
+    this->setNextValue( "nBrightness");
+    this->setNextValue( "nMaxDimSR"  );
+    vTaskDelay(50/portTICK_PERIOD_MS);
     /* ---------------------------------------------- */
     /* set color level                                */
     this->getNextionDisplay()->getNexPageByName("page6")->show();
     vTaskDelay(50/portTICK_PERIOD_MS);
-    this->getNextionDisplay()->getNexNumberByName("nWhite")->setValue((uint32_t)this->config.getMember("white"));
-    this->getNextionDisplay()->getNexNumberByName("nRed"  )->setValue((uint32_t)this->config.getMember("red")  );
-    this->getNextionDisplay()->getNexNumberByName("nGreen")->setValue((uint32_t)this->config.getMember("green"));
-    this->getNextionDisplay()->getNexNumberByName("nBlue" )->setValue((uint32_t)this->config.getMember("blue") );
+    this->setNextValue( "nWhite");
+    this->setNextValue( "nRed"  );
+    this->setNextValue( "nGreen");
+    this->setNextValue( "nBlue" );
     vTaskDelay(50/portTICK_PERIOD_MS);
     getNextionDisplay()->getNexPageByName("page0")->show();
-    vTaskDelay(10/portTICK_PERIOD_MS);
+    vTaskDelay(50/portTICK_PERIOD_MS);
     /* -------------------------------------------------- */
     /* LED                                                */
     if( !simpleSun.init_ledDriver() )
     {
-      print("ERROR: could not init ledDriver!! rc := " + simpleSun.getRc() );
-    }
-    else
-    {
-      vTaskDelay(100/portTICK_PERIOD_MS);
-      print("LED initialized. RC:" + simpleSun.getRc());
+      Serial.print("ERROR: could not init ledDriver!! rc := " );
+      Serial.println(simpleSun.getRc());
     }
     /* -------------------------------------------------- */
     /* register dispatcher                                */
@@ -145,237 +154,107 @@ void Lichtwecker::start()
     dispatcher.broadcast("Test", EVENT1);
 }
 
+
 /**
- * @brief start up the filesystem (SPIFFS)
- * 
- * @return true 
- * @return false 
+ * @brief  loadConfig()
+ * @note   creats a MyConfigServer and loads the config file
+ * @retval true|false
  */
-bool Lichtwecker::startFS()
+boolean Lichtwecker::loadConfig()
 {
-    print("startFS()");
-    /* -------------------------------------------------- */
-    /* start filesystem                                   */
-    if(!SPIFFS.begin())
-    {
-        print("An Error has occurred while mounting SPIFFS");
-        print("Did you upload the data directory that came with this example?");
-        return false;
-    }
-    /* ------------------------------------------------- */
-    /* filesystem mounted                                */
-    if (SPIFFS.exists("/config.json")) 
-    {
-      /* ----------------------------------------------- */ 
-      /* file exists, reading and loading                */
-      print("reading config file");
-      File configFile = SPIFFS.open("/config.json", FILE_READ);
-      if (configFile) 
-      {
-        print("config file open");
-        DeserializationError error = deserializeJson(this->config, configFile);
-        if(error) 
-        {
-            print("Failed to read file:", false);
-            print(error.c_str());
-        }
-      }
-      print("close config file.");
-      configFile.close();
-    }
-    return true;
+  /*-----------------------------------------------------*/
+  /* check if configfile exists                          */
+  if(SPIFFS.exists(LW_CONFIG_FILE))
+  {
+    /*---------------------------------------------------*/
+    /* load config                                       */
+    this->configServer = new MyConfigServer();
+    return this->configServer->loadConfig(&SPIFFS, LW_CONFIG_FILE, FileFormat::MAP);
+  }
+  return false;
 }
 
 /**
- * @brief get the content typ of file depending on extention
- * 
- * @param filename 
- * @return String 
+ * @brief  void Lichtwecker::getNextValue( NextType typ, const char *cNameElemet, const char *configElement)
+ * @note   get values from nextion display and save in config
+ * @param  typ: 
+ * @param  *cNameElemet: 
+ * @param  *configElement: 
+ * @retval None
  */
-String Lichtwecker::getContentType(String filename)
+void Lichtwecker::getNextValue( const char *cNameElemet )
 {
-    if(webServer.hasArg(F("download"))) return F("application/octet-stream");
-    else if(filename.endsWith(F(".htm"))) return F("text/html");
-    else if(filename.endsWith(".html")) return F("text/html");
-    else if(filename.endsWith(F(".css"))) return F("text/css");
-    else if(filename.endsWith(F(".js"))) return F("application/javascript");
-    else if(filename.endsWith(F(".png"))) return F("image/png");
-    else if(filename.endsWith(F(".gif"))) return F("image/gif");
-    else if(filename.endsWith(F(".jpg"))) return F("image/jpeg");
-    else if(filename.endsWith(F(".ico"))) return F("image/x-icon");
-    else if(filename.endsWith(F(".xml"))) return F("text/xml");
-    else if(filename.endsWith(F(".pdf"))) return F("application/x-pdf");
-    else if(filename.endsWith(F(".zip"))) return F("application/x-zip");
-    else if(filename.endsWith(F(".gz"))) return F("application/x-gzip");
-    return F("text/plain");
+  uint32_t value;
+
+  if( std::string(cNameElemet).substr(1,1) == "n" )
+  {
+    this->getNextionDisplay()->getNexNumberByName(cNameElemet)->getValue(&value);
+    this->configServer->putElement(cNameElemet, std::to_string(value).c_str());
+  }
+  else if( std::string(cNameElemet).substr(1,1) == "r" )
+  {
+    this->getNextionDisplay()->getNexChkbxByName(cNameElemet)->getValue(&value);
+    this->configServer->putElement(cNameElemet, std::to_string(value).c_str());
+  }
+  else if( std::string(cNameElemet).substr(1,1) == "c" )
+  {
+    this->getNextionDisplay()->getNexRadioByName(cNameElemet)->getValue(&value);
+    this->configServer->putElement(cNameElemet, std::to_string(value).c_str());
+  }
+  
 }
 
 /**
- * @brief handle file read
- * 
- * @param path 
- * @return true 
- * @return false 
+ * @brief  void Lichtwecker::saveToConfigfile( const char *ptr)
+ * @note   get values from page of nextion display and save values in config
+ * @param  *ptr: 
+ * @retval None
  */
-bool Lichtwecker::handleFileRead(String path) 
-{
-    /* -------------------------------------------------- */
-    /* send the right file to the client (if it exists)   */
-    print( "handleFileRead: " );
-    print( path.c_str() );
-    /* -------------------------------------------------- */
-    /* If a folder is requested, send the index file      */
-    if (path.endsWith("/")) path += "index.html";
-    /* -------------------------------------------------- */
-    /* Get the MIME type                                  */
-    String contentType = getContentType(path);
-    String pathWithGz = path + ".gz";
-    /* -------------------------------------------------- */
-    /* If the file exists, either as a compressed archive,*/
-    /* or normal                                          */
-    if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) {
-        /* ---------------------------------------------- */
-        /* If there's a compressed version available, Use */
-        /* the compressed verion                          */
-        if (SPIFFS.exists(pathWithGz))
-          path += ".gz";
-        /* ---------------------------------------------- */
-        /* open the file & Send it to the client          */
-        File file = SPIFFS.open(path, "r");
-        size_t sent = webServer.streamFile(file, contentType);
-        /* ---------------------------------------------- */
-        /* debug info                                     */
-        print( (int)sent );
-        print( "data send." );
-        /* ---------------------------------------------- */
-        /* close the file and return                      */
-        file.close();
-        print( "Sent file: " );
-        print( path.c_str() );
-        return true;
-    }
-    /* -------------------------------------------------- */
-    /* if the is no file return false                     */
-    print( (String("\tFile Not Found: ") + path).c_str() );
-    return false;
-}
-
-
-/**
- * @brief start connection to wifi and register DNS
- * 
- * @param ssid_ 
- * @param password_ 
- * @param host_ 
- * @return true 
- * @return false 
- */
-bool Lichtwecker::startWifi(const char *ssid_, const char *password_, const char *host_)
-{
-    int iCounter = 0;
-    print("Connecting to ");
-    print( ssid_ );
-    /* -------------------------------------------------- */
-    /* connect to WIFI                                    */
-    if (String(WiFi.SSID()) != String(ssid_)) {
-        WiFi.begin(ssid_, password_);
-    }
-    while (WiFi.status() != WL_CONNECTED) 
-    {
-        vTaskDelay(500/portTICK_PERIOD_MS);
-        print(".", false);
-        iCounter++;
-        if(iCounter>100)
-        {
-            print("Error connecting to Wifi"); 
-            return false;
-        }
-    }
-    print( (String("Connected! IP address: ") + WiFi.localIP().toString() ).c_str() );
-    /* -------------------------------------------------- */
-    /* DNS register host by name                          */
-    MDNS.begin(host_);
-    print( ( String("http://") + String(host_) + String(".local") ).c_str() ); 
-    return true;
-}
-
 void Lichtwecker::saveToConfigfile( const char *ptr)
 {
-  print("Lichtwecker::saveToConfigfile(", false);
-  print(ptr, false);
-  print(")");
-
   uint32_t value;
+
+  dbSerialPrintf("Lichtwecker::saveToConfigfile(%s)", ptr);
+
+  getNextionDisplay()->getNexPageByName(ptr)->show();
+  vTaskDelay(100/portTICK_PERIOD_MS);
+
   /* -------------------------------------------------- */
   /* save values from page 1                            */
   if( (strncmp("save_1", (char *)ptr, 6 ) == 0))  
   {
-    /* ---------------------------------------------- */
-    /* save parameter                                  */
-    getNextionDisplay()->getNexPageByName("page1")->show();
-    vTaskDelay(50/portTICK_PERIOD_MS);
-    this->getNextionDisplay()->getNexNumberByName("nHour1" )->getValue(&value);
-    this->config["Hour1"] = value;
-    this->getNextionDisplay()->getNexNumberByName("nMin1"  )->getValue(&value);
-    this->config["Min1"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbOnOff1")->getValue(&value);
-    this->config["OnOff1"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbMo1"   )->getValue(&value);
-    this->config["Mo1"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbDi1"   )->getValue(&value);
-    this->config["Di1"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbMi1"   )->getValue(&value);
-    this->config["Mi1"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbDo1"   )->getValue(&value);
-    this->config["Do1"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbFr1"   )->getValue(&value);
-    this->config["Fr1"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbSa1"   )->getValue(&value);
-    this->config["Sa1"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbSo1"   )->getValue(&value);
-    this->config["So1"] = value;
+    this->getNextValue( "nHour1"  );
+    this->getNextValue( "nMin1"   );
+    this->getNextValue( "cbOnOff1");
+    this->getNextValue( "cbMo1"   );
+    this->getNextValue( "cbDi1"   );
+    this->getNextValue( "cbMi1"   );
+    this->getNextValue( "cbDo1"   );
+    this->getNextValue( "cbFr1"   );
+    this->getNextValue( "cbSa1"   );
+    this->getNextValue( "cbSo1"   );
 
-    this->getNextionDisplay()->getNexNumberByName("nHour2" )->getValue(&value);
-    this->config["Hour2"] = value;
-    this->getNextionDisplay()->getNexNumberByName("nMin2"  )->getValue(&value);
-    this->config["Min2"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbOnOff2")->getValue(&value);
-    this->config["OnOff2"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbMo2"   )->getValue(&value);
-    this->config["Mo2"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbDi2"   )->getValue(&value);
-    this->config["Di2"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbMi2"   )->getValue(&value);
-    this->config["Mi2"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbDo2"   )->getValue(&value);
-    this->config["Do2"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbFr2"   )->getValue(&value);
-    this->config["Fr2"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbSa2"   )->getValue(&value);
-    this->config["Sa2"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbSo2"   )->getValue(&value);
-    this->config["So2"] = value;
+    this->getNextValue( "nHour2"  );
+    this->getNextValue( "nMin2"   );
+    this->getNextValue( "cbOnOff2");
+    this->getNextValue( "cbMo2"   );
+    this->getNextValue( "cbDi2"   );
+    this->getNextValue( "cbMi2"   );
+    this->getNextValue( "cbDo2"   );
+    this->getNextValue( "cbFr2"   );
+    this->getNextValue( "cbSa2"   );
+    this->getNextValue( "cbSo2"   );
 
-    this->getNextionDisplay()->getNexNumberByName("nHour3" )->getValue(&value);
-    this->config["Hour3"] = value;
-    this->getNextionDisplay()->getNexNumberByName("nMin3"  )->getValue(&value);
-    this->config["Min3"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbOnOff3")->getValue(&value);
-    this->config["OnOff3"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbMo3"   )->getValue(&value);
-    this->config["Mo3"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbDi3"   )->getValue(&value);
-    this->config["Di3"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbMi3"   )->getValue(&value);
-    this->config["Mi3"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbDo3"   )->getValue(&value);
-    this->config["Do3"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbFr3"   )->getValue(&value);
-    this->config["Fr3"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbSa3"   )->getValue(&value);
-    this->config["Sa3"] = value;
-    this->getNextionDisplay()->getNexChkbxByName("cbSo3"   )->getValue(&value);
-    this->config["So3"] = value;
+    this->getNextValue( "nHour3"  );
+    this->getNextValue( "nMin3"   );
+    this->getNextValue( "cbOnOff3");
+    this->getNextValue( "cbMo3"   );
+    this->getNextValue( "cbDi3"   );
+    this->getNextValue( "cbMi3"   );
+    this->getNextValue( "cbDo3"   );
+    this->getNextValue( "cbFr3"   );
+    this->getNextValue( "cbSa3"   );
+    this->getNextValue( "cbSo3"   );
 
   }
   /* -------------------------------------------------- */
@@ -384,18 +263,11 @@ void Lichtwecker::saveToConfigfile( const char *ptr)
   {
     /* ---------------------------------------------- */
     /* set parameter                                  */
-    getNextionDisplay()->getNexPageByName("page2")->show();
-    vTaskDelay(50/portTICK_PERIOD_MS);
-    this->getNextionDisplay()->getNexNumberByName("nOffsetSun")->getValue(&value);
-    this->config["OffsetSun"] = value;
-    this->getNextionDisplay()->getNexNumberByName("nSnooze"   )->getValue(&value);
-    this->config["Snooze"] = value;
-    this->getNextionDisplay()->getNexNumberByName("nTimeout"  )->getValue(&value);
-    this->config["Timeout"] = value;
-    this->getNextionDisplay()->getNexNumberByName("nDim"      )->getValue(&value);
-    this->config["Dim"] = value;
-    this->getNextionDisplay()->getNexNumberByName("nVolume"   )->getValue(&value);
-    this->config["Volume"] = value;
+    this->getNextValue( "nOffsetSun" );
+    this->getNextValue( "nSnooze"    );
+    this->getNextValue( "nTimeout"   );
+    this->getNextValue( "nDim"       );
+    this->getNextValue( "nVolume"    );
   }
   /* -------------------------------------------------- */
   /* save values from page 4                            */
@@ -403,27 +275,17 @@ void Lichtwecker::saveToConfigfile( const char *ptr)
   {
     /* ---------------------------------------------- */
     /* set color mode                                 */
-    getNextionDisplay()->getNexPageByName("page4")->show();
-    vTaskDelay(50/portTICK_PERIOD_MS);
-    this->getNextionDisplay()->getNexRadioByName("r0")->getValue(&value);
-    this->config["r0"] = value;
-    this->getNextionDisplay()->getNexRadioByName("r1")->getValue(&value);
-    this->config["r1"] = value;
-    this->getNextionDisplay()->getNexRadioByName("r2")->getValue(&value);
-    this->config["r2"] = value;
+    this->getNextValue( "r0");
+    this->getNextValue( "r1");
+    this->getNextValue( "r2");
   }
   /* -------------------------------------------------- */
   /* save values from page 5                            */
   if( (strncmp("save_5", (char *)ptr, 6 ) == 0))  
   {
-    this->getNextionDisplay()->getNexPageByName("page5")->show();
-    vTaskDelay(50/portTICK_PERIOD_MS);
-    this->getNextionDisplay()->getNexNumberByName("nDisBright")->getValue(&value);
-    this->config["DisBright"] = value;
-    this->getNextionDisplay()->getNexNumberByName("nBrightness")->getValue(&value);
-    this->config["Brightness"] = value;
-    this->getNextionDisplay()->getNexNumberByName("nMaxDimSR")->getValue(&value);
-    this->config["MaxDimSR"]   = value;
+    this->getNextValue( "nDisBright" );
+    this->getNextValue( "nBrightness");
+    this->getNextValue( "nMaxDimSR"  );
   }
   /* -------------------------------------------------- */
   /* save values from page 6                            */
@@ -431,39 +293,70 @@ void Lichtwecker::saveToConfigfile( const char *ptr)
   {
     /* ---------------------------------------------- */
     /* set color level                                */
-    this->getNextionDisplay()->getNexPageByName("page6")->show();
-    vTaskDelay(50/portTICK_PERIOD_MS);
-    this->getNextionDisplay()->getNexNumberByName("nWhite")->getValue(&value);
-    this->config["white"] = value;
-    this->getNextionDisplay()->getNexNumberByName("nRed")->getValue(&value);
-    this->config["red"]   = value;
-    this->getNextionDisplay()->getNexNumberByName("nGreen")->getValue(&value);
-    this->config["green"] = value;
-    this->getNextionDisplay()->getNexNumberByName("nBlue")->getValue(&value);
-    this->config["blue"]  = value;
+    this->getNextValue( "nWhite");
+    this->getNextValue( "nRed"  );
+    this->getNextValue( "nGreen");
+    this->getNextValue( "nBlue" );
   }
-  vTaskDelay(10/portTICK_PERIOD_MS);
   this->getNextionDisplay()->getNexPageByName("page0")->show();
-
-  this->printConfig();
-  /* ----------------------------------------------- */ 
-  /* file exists, reading and loading                */
-  File configFile = SPIFFS.open("/config.json", FILE_WRITE);
-  if (configFile) 
-  {
-    print("config file open");
-    int ret = serializeJson(this->config, configFile);
-    print(ret, false ); print(" written");
-  }
-  print("close config file.");
-  configFile.close();
+  vTaskDelay(100/portTICK_PERIOD_MS);
+  /*-------------------------------------------------------*/
+  /* save to config file                                   */
+  this->configServer->saveToConfigfile();
 }
 
-void Lichtwecker::printConfig()
+/**
+ * @brief  createConfigJson()
+ * @note   creates the json config and saves it to file (config.json)
+ * @retval None
+ */
+void Lichtwecker::createConfigJson()
 {
-#ifdef DEBUG_SERIAL_ENABLE
-  char buffer[1030]; 
-  serializeJsonPretty(this->config, buffer);
-  dbSerialPrintln(buffer);
-#endif
+    this->configServer->putElement("nWhite"     , "40"  ); 
+    this->configServer->putElement("nRed"       , "255" ); 
+    this->configServer->putElement("nGreen"     , "100" );
+    this->configServer->putElement("nBlue"      , "10"  );
+    this->configServer->putElement("nDisBright" , "10"  );
+    this->configServer->putElement("nBrightness", "10"  );
+    this->configServer->putElement("nMaxDimSR"  , "5"   );
+    this->configServer->putElement("r0"         , "0"   );
+    this->configServer->putElement("r1"         , "1"   );
+    this->configServer->putElement("r2"         , "0"   );
+    this->configServer->putElement("nOffsetSun" , "20"  );
+    this->configServer->putElement("nSnooze"    , "5"   );
+    this->configServer->putElement("nTimeout"   , "15"  );
+    this->configServer->putElement("nDim"       , "20"  );
+    this->configServer->putElement("nVolume"    , "15"  );
+    this->configServer->putElement("nHour1"     , "6"   );
+    this->configServer->putElement("nMin1"      , "30"  );
+    this->configServer->putElement("cbOnOff1"   , "0"   );
+    this->configServer->putElement("cbMo1"      , "0"   );
+    this->configServer->putElement("cbDi1"      , "0"   );
+    this->configServer->putElement("cbMi1"      , "0"   );
+    this->configServer->putElement("cbDo1"      , "0"   );
+    this->configServer->putElement("cbFr1"      , "0"   );
+    this->configServer->putElement("cbSa1"      , "0"   );
+    this->configServer->putElement("cbSo1"      , "0"   );
+    this->configServer->putElement("nHour2"     , "6"   );
+    this->configServer->putElement("nMin2"      , "30"  );
+    this->configServer->putElement("cbOnOff2"   , "0"   );
+    this->configServer->putElement("cbMo2"      , "0"   );
+    this->configServer->putElement("cbDi2"      , "0"   );
+    this->configServer->putElement("cbMi2"      , "0"   );
+    this->configServer->putElement("cbDo2"      , "0"   );
+    this->configServer->putElement("cbFr2"      , "0"   );
+    this->configServer->putElement("cbSa2"      , "0"   );
+    this->configServer->putElement("cbSo2"      , "0"   );
+    this->configServer->putElement("nHour3"     , "7"   );
+    this->configServer->putElement("nMin3"      , "30"  );
+    this->configServer->putElement("cbOnOff3"   , "0"   );
+    this->configServer->putElement("cbMo3"      , "0"   );
+    this->configServer->putElement("cbDi3"      , "0"   );
+    this->configServer->putElement("cbMi3"      , "0"   );
+    this->configServer->putElement("cbDo3"      , "0"   );
+    this->configServer->putElement("cbFr3"      , "0"   );
+    this->configServer->putElement("cbSa3"      , "0"   );
+    this->configServer->putElement("cbSo3"      , "0"   );
+
+    this->configServer->saveToConfigfile();
 }
