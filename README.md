@@ -2,13 +2,13 @@
 
 Lichtwecker mit WebServer
 
-##Hardware
+## Hardware
 - ESP 32 AZ Delivery DevKit v4
 - Nextion Display NX4832K035_011
 - LED SK6812 RGBW (neutral)
 - MAX98357 I2S Amp
 
-##Wireing
+## Wireing
 Modul|GPIO|Modul|Port
 ESP32|12|MAX|BCLK
 ESP32|22|MAX|DIN
@@ -21,7 +21,7 @@ MAX:
 SD_MODE left auf +5V
 SD_MODE right über R 39k auf +5V
 
-##Software
+## Software
 - Software
 - SimpleTimer
 - ESP 32 Digital RGB LED Drivers
@@ -29,5 +29,5 @@ SD_MODE right über R 39k auf +5V
 - LibHelix
 - WifiManager
 
-##Bild
+## Bild
 ![plot](./doc/IMG20230518091455.jpg)
