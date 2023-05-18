@@ -9,13 +9,14 @@ Lichtwecker mit WebServer
 - MAX98357 I2S Amp
 
 ## Wireing
-Modul|GPIO|Modul|Port
-ESP32|12|MAX|BCLK
-ESP32|22|MAX|DIN
-ESP32|23|MAX|LRCLK
-ESP32|27|LED|DAT
-ESP32|16|NEXTION|TX
-ESP32|17|NEXTION|RX
+|Modul|GPIO|Modul|Port
+| ------------- | ------------- | ------------- | ------------- |
+|ESP32|12|MAX|BCLK
+|ESP32|22|MAX|DIN
+|ESP32|23|MAX|LRCLK
+|ESP32|27|LED|DAT
+|ESP32|16|NEXTION|TX
+|ESP32|17|NEXTION|RX
 
 MAX:
 SD_MODE left auf +5V
