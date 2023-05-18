@@ -1,12 +1,13 @@
 #pragma once
 
-#include "SPIFFS.h"
-#include "genericstate.h"
-#include "MDispatcher.h"
+#include <SPIFFS.h>
+#include <genericstate.h>
+#include <MDispatcher.h>
 #include <Nextion.h>
 
-#include "AudioTools.h"
-#include "AudioCodecs/CodecMP3Helix.h"
+#include <AudioTools.h>
+#include <AudioCodecs/CodecMP3Helix.h>
+
 
 /**
  * @brief audio 
@@ -17,7 +18,7 @@ class MyAudioPlayer
 private:
     I2SStream i2s; 
     MP3DecoderHelix helix;
-    EncodedAudioStream out;
+    EncodedAudioStream out;   
     StreamCopy copier;
     VolumeStream volume;
     LogarithmicVolumeControl lvc;
@@ -50,7 +51,8 @@ public:
      * @brief Construct a new Audio Player object
      * 
      */
-    MyAudioPlayer(){
+    MyAudioPlayer()
+    {
         /* -------------------------------------------------- */
         /* init states                                        */
         AlarmState::init<AlarmOff>(*this, alarmState);
@@ -74,16 +76,18 @@ public:
     void begin()
     {
         // begin processing
-        cfg.sample_rate = this->sample_rate;
-        cfg.channels    = this->channels;
-        i2s.begin(cfg);
+        this->cfg.sample_rate = this->sample_rate;
+        this->cfg.channels    = this->channels;
+        this->i2s.begin(this->cfg);
         // set init volume
-        volume.setTarget(i2s);
-        volume.setVolumeControl(lvc);
-        volume.setVolume(this->fVolume);
+        this->volume.setTarget(this->i2s);
+        this->volume.setVolumeControl(this->lvc);
+        this->volume.setVolume(this->fVolume);
         // begin
-        out.begin(&volume, &helix);
-        copier.begin(out, audioFile);
+        this->out.setInput(&volume);
+        this->out.setDecoder(&helix);
+        this->out.begin();
+        this->copier.begin(this->out, this->audioFile);
     }
     /**
      * @brief register receiving function to MDispatcher
@@ -101,15 +105,14 @@ public:
      */
     void play() 
     {
-        dbSerialPrintf("MyAudioPlayer::play(%s)", this->filename); 
         if(SPIFFS.exists(this->filename))
         {
             this->audioFile = SPIFFS.open(this->filename, FILE_READ);
-            helix.begin();
-            volume.setVolume(this->fVolume);
-            copier.copyAll();
-            helix.end();
-            audioFile.close();
+            this->helix.begin();
+            this->volume.setVolume(this->fVolume);
+            this->copier.copyAll();
+            this->helix.end();
+            this->audioFile.close();
         }
         else
         {
@@ -168,99 +171,141 @@ public:
      * 
      * @param pvTaskCode_ 
      */
-    void setTaskFunction( TaskFunction_t pvTaskCode_ ){ pvTaskCode = pvTaskCode_; }
-    /**
-     * @brief Get the Task Function object
-     * 
-     * @return TaskFunction_t 
-     */
-    TaskFunction_t getTaskFunction( ){ return pvTaskCode; }
+    void setTaskFunction( TaskFunction_t pvTaskCode_ )
+    { 
+        this->pvTaskCode = pvTaskCode_; 
+    }
     /**
      * @brief Set the Task Sound Loop object
      * 
      * @param hTaskSoundLoop_ 
      */
-    void setTaskSoundLoop( TaskHandle_t hTaskSoundLoop_ ){  hTaskSoundLoop = hTaskSoundLoop_; }
+    void setTaskSoundLoop( TaskHandle_t hTaskSoundLoop_ )
+    {  
+        this->hTaskSoundLoop = hTaskSoundLoop_; 
+    }
     /**
      * @brief Get the Task Sound Loop object
      * 
      * @return TaskHandle_t 
      */
-    TaskHandle_t getTaskSoundLoop( ){ return hTaskSoundLoop; }
+    TaskHandle_t getTaskSoundLoop( )
+    { 
+        return this->hTaskSoundLoop; 
+    }
     /**
      * @brief Set the Sample Rate object
      * 
      * @param sample_rate_ 
      */
-    void setSampleRate(int sample_rate_){ this->sample_rate=sample_rate_; }
+    void setSampleRate(int sample_rate_)
+    { 
+        this->sample_rate=sample_rate_; 
+    }
     /**
      * @brief Get the Sample Rate object
      * 
      * @return int 
      */
-    int getSampleRate(){ return this->sample_rate; }
+    int getSampleRate()
+    { 
+        return this->sample_rate; 
+    }
     /**
      * @brief Set the Channels object
      * 
      * @param sample_rate_ 
      */
-    void setChannels(int channels_){ this->channels=channels_; }
+    void setChannels(int channels_)
+    { 
+        this->channels=channels_; 
+    }
     /**
      * @brief Get the Channels object
      * 
      * @return int 
      */
-    int getChannels(){ return this->channels; }
+    int getChannels()
+    { 
+        return this->channels; 
+    }
     /**
      * @brief Set the Audio File object
      * 
      * @param filename_ 
      */
-    void setFilename(char filename_[20]){ sprintf(this->filename, filename_); }
+    void setFilename(char filename_[20])
+    { 
+        sprintf(this->filename, filename_); 
+    }
     /**
      * @brief Get the Audio File object
      * 
      * @return File
      */
-    char *getFilename(){ return this->filename; }
+    char *getFilename()
+    { 
+        return this->filename; 
+    }
     /**
      * @brief Set the Volume object
      * 
      * @param fVolume_ 
      */
-    void setVolume( float_t fVolume_ ){ this->fVolume = fVolume_;}
+    void setVolume( float_t fVolume_ )
+    { 
+        this->fVolume = fVolume_;
+    }
     /**
      * @brief Get the Volume object
      * 
      * @return uint32_t 
      */
-    uint32_t getVolume(){ return this->fVolume; }
+    uint32_t getVolume()
+    { 
+        return this->fVolume; 
+    }
     /**
      * @brief switch off alarm
      * 
      */
-    void alaramOff(){ alarmState->alarmOff(); }
+    void alaramOff()
+    { 
+        this->alarmState->alarmOff(); 
+    }
     /**
      * @brief switch on alarm
      * 
      */
-    void alaramOn(){ alarmState->alarmOn(); }
+    void alaramOn()
+    {
+        this->alarmState->alarmOn(); 
+    }
     /**
      * @brief initialize snoozeState 
      * 
      */
-    void snoozeInit(){ alarmState->initSnooze(); }
+    void snoozeInit()
+    { 
+        this->alarmState->initSnooze(); 
+    }
     /**
      * @brief switch snooze
      * 
      */
-    void snooze_on_off(Snooze_t snooze_) { alarmState->snooze(snooze_); }
+    void snooze_on_off(Snooze_t snooze_) 
+    { 
+        this->alarmState->snooze(snooze_); 
+    }
     /**
      * @brief Get the Alarm State object
      * 
      * @return const char* 
      */
-    const char *getAlarmState(){ return alarmState->getAlarmState(); }
+    const char *getAlarmState()
+    { 
+        return this->alarmState->getAlarmState(); 
+    }
     /**
      * @brief listerner function for MDispatcher
      * 

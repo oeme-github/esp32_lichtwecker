@@ -1,0 +1,197 @@
+Page page3
+    Attributes
+        ID               : 0
+        Scope            : global
+        Send Component ID: disabled
+        Locked           : no
+    
+    Events
+        Preinitialize Event
+            //------------------------------------------------------------------
+            // Farbschema:
+            //------------------------------------------------------------------
+            if(page4.r0.val==1)
+            {
+                j0.bco=page4.t2.bco
+                j0.pco=page4.t2.pco
+            }
+            if(page4.r1.val==1)
+            {
+                j0.bco=page4.t7.bco
+                j0.pco=page4.t7.pco
+            }
+            if(page4.r2.val==1)
+            {
+                j0.bco=page4.t12.bco
+                j0.pco=page4.t12.pco
+            }
+            //------------------------------------------------------------------
+            // init
+            //------------------------------------------------------------------
+            page2.vaSnooze.val=page2.nSnooze.val*60
+            page2.vaTimeout.val=page2.nTimeout.val
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Variable (int32) vaTimerNum
+    Attributes
+        ID   : 5
+        Scope: local
+        Value: 10
+    
+Variable (int32) vaMaxTimer
+    Attributes
+        ID   : 6
+        Scope: local
+        Value: 0
+    
+Text t0
+    Attributes
+        ID                 : 1
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Snozze / Off
+        Max. Text Size     : 20
+    
+Progress Bar j0
+    Attributes
+        ID               : 3
+        Scope            : local
+        Send Component ID: disabled
+        Value            : 100
+    
+Button b0
+    Attributes
+        ID               : 7
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : 
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            page 0
+        
+Dual-state Button btSnooze
+    Attributes
+        ID               : 2
+        Scope            : global
+        Send Component ID: on press
+        State            : unpressed
+        Text             : 
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // snooze button pressed
+            //------------------------------------------------------------------
+            if(btSnooze.val==1)
+            {
+                vaTimerNum.val=page2.vaSnooze.val
+                vaMaxTimer.val=page2.vaSnooze.val
+                //------------------------------------------------------------------
+                // Farbschema:
+                //------------------------------------------------------------------
+                if(page4.r0.val==1)
+                {
+                    j0.bco=page4.t3.bco
+                    j0.pco=page4.t3.pco
+                }
+                if(page4.r1.val==1)
+                {
+                    j0.bco=page4.t8.bco
+                    j0.pco=page4.t8.pco
+                }
+                if(page4.r2.val==1)
+                {
+                    j0.bco=page4.t13.bco
+                    j0.pco=page4.t13.pco
+                }
+            }
+        
+        Touch Release Event
+            //------------------------------------------------------------------
+            // snooze button pressed
+            //------------------------------------------------------------------
+            if(btSnooze.val==0)
+            {
+                //------------------------------------------------------------------
+                // Farbschema:
+                //------------------------------------------------------------------
+                if(page4.r0.val==1)
+                {
+                    j0.bco=page4.t2.bco
+                    j0.pco=page4.t2.pco
+                }
+                if(page4.r1.val==1)
+                {
+                    j0.bco=page4.t7.bco
+                    j0.pco=page4.t7.pco
+                }
+                if(page4.r2.val==1)
+                {
+                    j0.bco=page4.t12.bco
+                    j0.pco=page4.t12.pco
+                }
+                //------------------------------------------------------------------
+                // init
+                //------------------------------------------------------------------
+                page2.vaSnooze.val=page2.nSnooze.val*60
+                page2.vaTimeout.val=page2.nTimeout.val
+                //------------------------------------------------------------------
+                // timer
+                //------------------------------------------------------------------
+                vaTimerNum.val=page2.vaTimeout.val
+                vaMaxTimer.val=page2.vaTimeout.val
+            }
+        
+Timer tm0
+    Attributes
+        ID         : 4
+        Scope      : local
+        Period (ms): 1000
+        Enabled    : yes
+    
+    Events
+        Timer Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=vaTimerNum.val-1
+            j0.val=vaTimerNum.val*100/vaMaxTimer.val
+            if(vaTimerNum.val<=0)
+            {
+                //------------------------------------------------------------------
+                // reset
+                //------------------------------------------------------------------
+                vaTimerNum.val=page2.vaTimeout.val
+                //------------------------------------------------------------------
+                // Farbschema:
+                //------------------------------------------------------------------
+                if(page4.r0.val==1)
+                {
+                    j0.bco=page4.t2.bco
+                    j0.pco=page4.t2.pco
+                }
+                if(page4.r1.val==1)
+                {
+                    j0.bco=page4.t7.bco
+                    j0.pco=page4.t7.pco
+                }
+                if(page4.r2.val==1)
+                {
+                    j0.bco=page4.t12.bco
+                    j0.pco=page4.t12.pco
+                }
+                //------------------------------------------------------------------
+                // switch back
+                //------------------------------------------------------------------
+                page 0
+            }
+        

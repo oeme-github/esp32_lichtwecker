@@ -1,0 +1,365 @@
+Page page6
+    Attributes
+        ID               : 0
+        Scope            : local
+        Send Component ID: disabled
+        Locked           : no
+    
+    Events
+        Preinitialize Event
+            //------------------------------------------------------------------
+            // Farbschema:
+            //------------------------------------------------------------------
+            if(page4.r0.val==1)
+            {
+                j0.bco=page4.t2.bco
+                j0.pco=page4.t2.pco
+            }
+            if(page4.r1.val==1)
+            {
+                j0.bco=page4.t7.bco
+                j0.pco=page4.t7.pco
+            }
+            if(page4.r2.val==1)
+            {
+                j0.bco=page4.t12.bco
+                j0.pco=page4.t12.pco
+            }
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            dim=100
+            // init values
+            nWhite.val=h0.val
+            nRed.val=h1.val
+            nGreen.val=h2.val
+            nBlue.val=h3.val
+        
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Variable (int32) vaWhite
+    Attributes
+        ID   : 17
+        Scope: local
+        Value: 0
+    
+Variable (int32) vaTimerNum
+    Attributes
+        ID   : 19
+        Scope: local
+        Value: 0
+    
+Variable (int32) vaMaxTimer
+    Attributes
+        ID   : 20
+        Scope: local
+        Value: 0
+    
+Number nWhite
+    Attributes
+        ID                 : 13
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 0
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Number nRed
+    Attributes
+        ID                 : 14
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 0
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Number nGreen
+    Attributes
+        ID                 : 15
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 0
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Number nBlue
+    Attributes
+        ID                 : 16
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 0
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Text t0
+    Attributes
+        ID                 : 7
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Weiß (0-255)
+        Max. Text Size     : 12
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Text t1
+    Attributes
+        ID                 : 8
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Rot (0-255)
+        Max. Text Size     : 11
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Text t2
+    Attributes
+        ID                 : 9
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Grün (0-255)
+        Max. Text Size     : 12
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Text t3
+    Attributes
+        ID                 : 10
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Blau (0-255)
+        Max. Text Size     : 12
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Text t4
+    Attributes
+        ID                 : 11
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Lichteinstellung
+        Max. Text Size     : 20
+    
+Picture p0
+    Attributes
+        ID               : 21
+        Scope            : local
+        Send Component ID: disabled
+    
+    Events
+        Touch Press Event
+            page 2
+        
+Progress Bar j0
+    Attributes
+        ID               : 18
+        Scope            : local
+        Send Component ID: disabled
+        Value            : 100
+    
+Slider h0
+    Attributes
+        ID               : 2
+        Scope            : local
+        Send Component ID: disabled
+        Position         : 40
+        Upper range limit: 255
+        Lower range limit: 0
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Slider h1
+    Attributes
+        ID               : 3
+        Scope            : local
+        Send Component ID: disabled
+        Position         : 255
+        Upper range limit: 255
+        Lower range limit: 0
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Slider h2
+    Attributes
+        ID               : 4
+        Scope            : local
+        Send Component ID: disabled
+        Position         : 100
+        Upper range limit: 255
+        Lower range limit: 0
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Slider h3
+    Attributes
+        ID               : 6
+        Scope            : local
+        Send Component ID: disabled
+        Position         : 10
+        Upper range limit: 255
+        Lower range limit: 0
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Button b0
+    Attributes
+        ID               : 12
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : <--
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            page0.vaNumTimer.val=10
+            page 0
+        
+Button b7
+    Attributes
+        ID               : 22
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : 
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            page 4
+        
+Dual-state Button btLightTest
+    Attributes
+        ID               : 1
+        Scope            : local
+        Send Component ID: on press
+        State            : unpressed
+        Text             : Test\r\n .
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Timer tm0
+    Attributes
+        ID         : 5
+        Scope      : local
+        Period (ms): 1000
+        Enabled    : yes
+    
+    Events
+        Timer Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=vaTimerNum.val-1
+            j0.val=vaTimerNum.val*100/vaMaxTimer.val
+            if(vaTimerNum.val<=0)
+            {
+                //------------------------------------------------------------------
+                // reset
+                //------------------------------------------------------------------
+                vaTimerNum.val=page2.vaTimeout.val
+                //------------------------------------------------------------------
+                // switch back
+                //------------------------------------------------------------------
+                page 0
+            }
+        

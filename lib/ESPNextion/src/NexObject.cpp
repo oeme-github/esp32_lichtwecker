@@ -38,7 +38,7 @@ const char* NexObject::getObjName(void)
 
 void NexObject::printObjInfo(void)
 {
-    dbSerialPrint("[");
+    dbSerialPrint("ObjInfo: [");
     dbSerialPrint((uint32_t)this);
     dbSerialPrint(":");
     dbSerialPrint(__pid);

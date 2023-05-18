@@ -1,129 +1,49 @@
-body{
+#page {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-areas: "logo "
-                       "head "
-                       "nav "
-                       "main "
-                       "news "
-                       "aside" 
-                       "foot ";
+  width: 100%;
+  height: 500px;
+  grid-template-areas:
+  "logo"
+  "head"
+  "nav"
+  "main"
+  "stor"
+  "foot";
+grid-template-rows: repeat(6, 1fr);
+grid-template-columns: 1fr;
 }
-
 
 @media (min-width: 30em) { 
-  body{
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-areas:  "logo head "
-                          "nav  nav"
-                          "main main"
-                          "news aside" 
-                          "foot foot";
-}
-}
-
-
-@media (min-width: 40em) { 
-  body{
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-areas: "logo head head "
-                         "nav  news aside"
-                         "main main main" 
-                         "foot foot foot";
- }
+  #page {
+    grid-template-areas:
+      "logo"
+      "head"
+      "nav"
+      "main"
+      "stor"
+      "foot";
+    grid-template-rows: repeat(6, 1fr);
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (min-width: 50em) { 
-  body{
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-areas: "logo head head head"
-                         "nav  main main news"
-                         "nav  main main aside" 
-                         "foot foot foot foot";
- }
+  #page {
+    height: 250px;
+    grid-template-areas:
+      "logo head"
+      "nav  main"
+      "stor  foot";
+    grid-template-rows: repeat(3, 1fr);
+    grid-template-columns: 0.3fr 1fr;
+  }
 }
 
-logo {
-  grid-area: logo;
-  background-color: beige;	
-  border: 1em;
-  border-radius: 1em;
-  vertical-align: middle;
-  text-align: center;
-  padding: 2vh;
-}
-
-
-header {
-  grid-area: head;
-  background-color: beige;	
-  border: 1em;
-  border-radius: 1em;
-  text-indent: 0.5em;
-  padding-left: 1em;
-}
-
-nav {
-  grid-area: nav;			
-  background-color: aquamarine;
-  border-radius: 1em;
-  text-indent: 0.5em;
-  padding: 0.5em;
-}
-
-article {
-  grid-area: main;				
-  background-color: bisque;
-  border-radius: 1em;
-  text-indent: 1em;
-  padding: 1em;
-}
-
-aside {
-  grid-area: aside;
-  background-color: brown;
-  color: aliceblue;
-  border-radius: 1em;
-  text-indent: 0.5em;
-  padding-left: 0.5em;
-}
-		
-news {
-  grid-area: news;			
-  background-color: darkred;
-  color: aliceblue;
-  border-radius: 1em;
-  text-indent: 0.5em;
-  padding-left: 0.5em;
-}
-
-footer {
-  grid-area: foot;				
-  background-color: coral;
-  border-radius: 1em;
-  text-indent: 0.5em;
-  padding-left: 0.5em;
-  font-size: 1rem;
-}
-
-h1{
-  color: #0F3376;
-  padding: 2vh;
-}
-p{
-  font-size: 1rem;
-}
-.button {
-  display: inline-block;
-  background-color: #008CBA;
-  border: none;
-  border-radius: 4px;
-  color: white;
-  padding: 16px 40px;
-  text-decoration: none;
-  font-size: 30px;
-  margin: 2px;
-  cursor: pointer;
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 80%;
 }
 
 .contextMenu {
@@ -157,6 +77,7 @@ p{
 }
 .contextMenu li:hover { background: #444; }
 .contextMenu li:hover span { color: #EEE; }
+
 
 .css-treeview ul, .css-treeview li {
   padding: 0;
@@ -233,86 +154,91 @@ p{
   background-position: 0 -16px;
 }
 
-/* webkit adjacent element selector bugfix */
-@media screen and (-webkit-min-device-pixel-ratio:0)
-{
-  .css-treeview{
-    -animation: webkit-adjacent-element-selector-bugfix infinite 1s;
-  }
 
-  @keyframes webkit-adjacent-element-selector-bugfix 
-  {
-    from  { 
-      padding: 0;
-    } 
-    to  { 
-      padding: 0;
-    }
-  }
+img {
+  max-width: 150px;
+  height: auto;
+}
+
+
+table, th, td, caption {
+  border: thin solid #a0a0a0;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  border-width: thin 0 0 thin;
+  margin: 0 0 1em;
+  table-layout: auto;
+  width: 100%;
+}
+th, td {
+  font-weight: normal;
+  text-align: left;
+}
+th, caption {
+  background-color: #f1f3f4;
+  font-weight: 700;
+}
+
+#page > header {
+  grid-area: head;
+  background-color: beige;	
+  border: 1em;
+  border-radius: 1em;
+  text-indent: 1em;
+}
+#page > nav {
+  grid-area: nav;
+  background-color: aquamarine;
+  border-radius: 1em;
+  text-indent: 1em;
+}
+#page > main {
+  grid-area: main;
+  background-color: bisque;
+  border-radius: 1em;
+}
+#page > footer {
+  grid-area: foot;
+  background-color: #8cffa0;
+  border-radius: 1em;
+  text-indent: 1em;
+}
+#page > stor {
+  grid-area: stor;
+  background-color: #8cffa0;
+  border-radius: 1em;
+  text-indent: 1em;
 }
 
 #uploader { 
-  background-color: #444;
-  color:#EEE;
-  border-radius: 1em;
+  position: relative;
+  min-width: 20em;
+  min-height: 2.5em;
+  background-color: beige;
+  color:darkblue;
 }
 #tree { 
-  background-color:azure;
-  color: #444;
-  border-radius: 1em;
+  position: relative;
+  height: 90%;
+  min-height: 10em;
+  padding: 5px;
 }
-#editor { 
-  background-color: #444;
-  border-radius: 1em;
-  color:#EEE;
-  display: none;
+#editor, #preview { 
+  position: relative;
+  min-width: 20em;
+  min-height: 30em;
+  font-family: 'Courier New', Courier, monospace;
+  margin-left: auto;
+  margin-right: auto;
+  width: 96%;
 }
 #preview {
+  position: relative;
+  min-width: 20em;
+  min-height: 30em;
   background-color: #EEE;
-  border-radius: 1em;
-  display: none;
-}
-
-#download-frame{
-  border-radius: 1em;
-  display: none;
-}
-
-.toggle-buttons input[type="radio"] {
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  height: 1px;
-  overflow: hidden;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
-}
-.toggle-buttons label {
-  border: 1px solid #333;
-  border-radius: 0.5em;
-  padding: 0.5em;
-}
- 
-.toggle-buttons input:checked + label {
-  background: #ebf5d7;
-  color: #5a9900;
-  box-shadow: none;
-}
-
-input:hover + label,
-input:focus + label {
-  background: #ffebe6; 
-}
-
-#radio-buttons{
-  border-spacing: 2em 2em;
-}
-
-#storageinfo{
-  border-spacing: 1em 1em;
-}
-
-img {
-  max-width: 100%;
-  height: auto;
+  padding:5px;
 }

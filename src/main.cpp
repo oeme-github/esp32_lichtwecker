@@ -1,11 +1,12 @@
 #include <SPIFFS.h>
-#include <debuglib.h>
+#include <libConfig.h>
+#include <libDebug.h>
+#include <libFile.h>
 #include <Lichtwecker.h>
 #include <CallbackFunctions.h>
 #include <MyAudioPlayer.h>
 #include <MyWifiServer.h>
 #include <MyWebServer.h>
-
 
 uint32_t iTemp = 0;
 
@@ -14,7 +15,7 @@ uint32_t iTemp = 0;
 MyWifiServer wifiServer;
 MyWebServer webServer;
 Lichtwecker lichtwecker;
-MyAudioPlayer myAudioPlayer;
+MyAudioPlayer audioPlayer;
 
 /** 
  * === TASKS ===
@@ -77,14 +78,19 @@ void taskSunLoopCode( void * pvParameters )
  */
 void taskSoundLoopCode( void * pvParameters )
 {
+  dbSerialPrintln("*** void taskSoundLoopCode( void * pvParameters ) ***");
   while(true)
   {
-    if( myAudioPlayer.getActive() == true )
+    if( audioPlayer.getActive() == true )
     {
       /* -------------------------------------------------- */    
       /* check the sun and run it                           */
       /* need to delay the task because of warchdog         */
-      myAudioPlayer.play();
+      audioPlayer.play();
+    }
+    else
+    {
+      vTaskSuspend(NULL);        
     }
     vTaskDelay(100/portTICK_PERIOD_MS);
   }
@@ -99,13 +105,11 @@ void taskSoundLoopCode( void * pvParameters )
 void taskWebServerCode( void * pvParameters )
 {
   /* -------------------------------------------------- */ 
-  /* start HTTP server                                  */
-  webServer.startWebServer();
-  /* -------------------------------------------------- */ 
   /* catch upload server events                         */
   while(true)
   {
-    vTaskDelay(100/portTICK_PERIOD_MS);
+    webServer.handleClient();
+    vTaskDelay(20/portTICK_PERIOD_MS);
   }
 }
 /** 
@@ -149,13 +153,15 @@ void getVolumeFromNextion()
 {
   iTemp      = -1;
   float fVol = 0.5;
-  lichtwecker.getNextionDisplay()->getNexVariableByName("vaVolume")->getValue(&iTemp);
-  if(iTemp<0)
+  if(lichtwecker.configContainsKey("nVolume"))
+    iTemp = std::stoi(lichtwecker.configGetElement("nVolume"));
+  if(iTemp<0 || iTemp>30)
   {
     iTemp = 10;
   }
   fVol = (float)iTemp/(float)30;
-  myAudioPlayer.setVolume(fVol);
+  dbSerialPrintf("Volume: %6.1lf", fVol);
+  audioPlayer.setVolume(fVol);
 }
 /**
  * @brief Get the Bt Val From Nextion object
@@ -192,17 +198,9 @@ void page2_btResetPushCallback(void *ptr)
  */
 void page_save_values(void *ptr)
 {
-  // input
-  //"save_1"
-  // 012345
- 
   std::string param = (const char *)ptr;
-  std::string dialog = "page" + param.substr(5);
-
-  // result:
-  // page1
-
-  lichtwecker.saveToConfigfile( dialog.c_str() );
+  param.replace(param.find("save_"), sizeof("save_") - 1, "page ");
+  lichtwecker.saveToConfigfile( param.c_str() );
 } 
 /**
  * @brief timer callback for serial communication
@@ -225,7 +223,7 @@ void page0_tmSerialCmdCallback(void *ptr)
   {
     /* ---------------------------------------------- */
     /* get the offset from nextion dixplay            */
-    lichtwecker.getSimpleSun()->setWakeDelay(std::stoi(lichtwecker.configGetElement("nOffsetSun")));
+    lichtwecker.getSimpleSun()->setWakeDelay(std::stoi(lichtwecker.configGetElement("nOffsetSun").c_str()));
   }
   /* -------------------------------------------------- */
   /* sunup -> start sunrise                             */
@@ -233,13 +231,13 @@ void page0_tmSerialCmdCallback(void *ptr)
   {
     /* ---------------------------------------------- */
     /* get the offset from nextion dixplay            */
-    lichtwecker.getSimpleSun()->setBrightness(std::stoi(lichtwecker.configGetElement("nBrightness")));  
+    lichtwecker.getSimpleSun()->setBrightness(std::stoi(lichtwecker.configGetElement("nBrightness").c_str()));  
   }
   /* -------------------------------------------------- */
   /* get volume                                         */
   if( (strncmp("ala_up", (char *)ptr, 6 ) == 0))  
   {
-    myAudioPlayer.setVolume( std::stoi(lichtwecker.configGetElement("nVolume"))/30 );
+    audioPlayer.setVolume( std::stoi(lichtwecker.configGetElement("nVolume").c_str())/30 );
   }
   /* -------------------------------------------------- */
   /* broadcast to all                                   */
@@ -266,11 +264,11 @@ void page0_btSoundPushCallback(void *ptr)
   iTemp = getBtValFromNextion("btSound");
   if( iTemp == 0)
   {
-    myAudioPlayer.alaramOn();
+    audioPlayer.alaramOn();
   }
   else
   {
-    myAudioPlayer.alaramOff();
+    audioPlayer.alaramOff();
   }
 }
 
@@ -322,11 +320,10 @@ void page6_btLightTestPushCallback(void *ptr)
 
   if( iTemp == 1 )
   {
-    lichtwecker.getSimpleSun()->setWhite(std::stoi(lichtwecker.configGetElement("nWhite")));
-    lichtwecker.getSimpleSun()->setRed(  std::stoi(lichtwecker.configGetElement("nRet"  )));
-    lichtwecker.getSimpleSun()->setGreen(std::stoi(lichtwecker.configGetElement("nGreen")));
-    lichtwecker.getSimpleSun()->setBlue( std::stoi(lichtwecker.configGetElement("nBlue" ))); 
-
+    lichtwecker.getSimpleSun()->setWhite(std::stoi(lichtwecker.configGetElement("nWhite").c_str()));
+    lichtwecker.getSimpleSun()->setRed(  std::stoi(lichtwecker.configGetElement("nRet"  ).c_str()));
+    lichtwecker.getSimpleSun()->setGreen(std::stoi(lichtwecker.configGetElement("nGreen").c_str()));
+    lichtwecker.getSimpleSun()->setBlue( std::stoi(lichtwecker.configGetElement("nBlue" ).c_str())); 
     /* ----------------------------------------------- */
     /* broadcast to all                                */
     lichtwecker.broadcastMessage("LightTestOn");
@@ -354,7 +351,7 @@ void setup(void)
   /*-------------------------------------------------------*/
   /* init serial db                                        */
   dbSerial.begin(dbSerialSpeed);
-  dbSerialPrintln("\nStart LICHTWECKER 4.0\n");
+  dbSerialPrintf("Start LICHTWECKER 4.0");
   /*-------------------------------------------------------*/
   /* start filesystem                                      */
   if(!SPIFFS.begin())
@@ -375,6 +372,9 @@ void setup(void)
   /* just wait a while                                     */
   vTaskDelay(100/portTICK_PERIOD_MS);
   /*-------------------------------------------------------*/
+  /* start HTTP server                                     */
+  webServer.loadWebServer(&SPIFFS);
+  /*-------------------------------------------------------*/
   /* startup lichtwecker                                   */
   lichtwecker.start();
   lichtwecker.getSimpleSun()->setTaskFunction(taskSunLoopCode);                
@@ -382,15 +382,15 @@ void setup(void)
   vTaskDelay(100/portTICK_PERIOD_MS);
   /*-------------------------------------------------------*/
   /* start audio                                           */
-  myAudioPlayer.begin();
-  myAudioPlayer.registerCB(lichtwecker.getMDispatcher());
-  myAudioPlayer.setTaskFunction(taskSoundLoopCode);  
+  audioPlayer.begin();
+  audioPlayer.registerCB(lichtwecker.getMDispatcher());
+  audioPlayer.setTaskFunction(taskSoundLoopCode);  
   vTaskDelay(100/portTICK_PERIOD_MS);
   /*-------------------------------------------------------*/
   /* start up tasks Sun & Sound                            */
   lichtwecker.getSimpleSun()->startSunLoopTask();
   vTaskDelay(100/portTICK_PERIOD_MS);
-  myAudioPlayer.startSoundLoopTask();
+  audioPlayer.startSoundLoopTask();
   vTaskDelay(100/portTICK_PERIOD_MS);
   /*-------------------------------------------------------*/
   /* create task for touch events                          */
@@ -428,18 +428,13 @@ void loop(void){
   lichtwecker.getSimpleSun()->lightOff();
   vTaskDelay(100/portTICK_PERIOD_MS);
   /* ---------------------------------------------- */
-  /* init values                                    */
-  lichtwecker.getSimpleSun()->setWakeDelay(std::stoi(lichtwecker.configGetElement("nOffset")));
-  lichtwecker.getSimpleSun()->setBrightness(std::stoi(lichtwecker.configGetElement("nBrightness")));
-  /* ALARAM TEST */
-  /* ---------------------------------------------- */
   /* get volume from nextion dixplay                */
   getVolumeFromNextion();
   /* ---------------------------------------------- */
   /* test alarm again                               */
-  myAudioPlayer.alaramOn();
+  audioPlayer.alaramOn();
   vTaskDelay(1000/portTICK_PERIOD_MS);
-  myAudioPlayer.alaramOff();
+  audioPlayer.alaramOff();
   /* ---------------------------------------------- */
   /* delete the task                                */
   vTaskDelete(NULL);

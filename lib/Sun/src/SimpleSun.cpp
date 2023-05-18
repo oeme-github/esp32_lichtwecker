@@ -1,7 +1,6 @@
 #include <SimpleTimer.h>
 #include <SimpleSun.h>
 
-
 /**
  * @brief init function, set the start values
  * 
@@ -69,6 +68,12 @@ void SimpleSun::drawPixels()
 {
     digitalLeds_drawPixels(this->STRANDS, this->STRANDCNT);
 }
+
+int SimpleSun::getMapValue( int _level)
+{
+    return map(this->sunPhase, 0, SUN_PHASE, 0, _level);
+}
+
 /**
  * @brief function to calculate the sun leds (red, white)
  * 
@@ -90,10 +95,10 @@ void SimpleSun::drawSun()
     {
         if( iMod1 == 1 )
         {
-            this->iRed   = map( this->sunPhase, 0, SUN_PHASE, 0, RED_LEVEL);
-            this->iGreen = map( this->sunPhase, 0, SUN_PHASE, 0, GREEN_LEVEL);
-            this->iBlue  = map( this->sunPhase, 0, SUN_PHASE, 0, BLUE_LEVEL);
-            this->iWhite = map( this->sunPhase, 0, SUN_PHASE, 0, WHITE_LEVEL);
+            this->iRed   = getMapValue(RED_LEVEL);
+            this->iGreen = getMapValue(GREEN_LEVEL);
+            this->iBlue  = getMapValue(BLUE_LEVEL);
+            this->iWhite = getMapValue(WHITE_LEVEL);
         }
         else{
             /* set all led step by step to the new values */
@@ -215,7 +220,7 @@ boolean SimpleSun::getSunPhase()
         return false;
 }
 /**
- * @brief set all leds to blue
+ * @brief set all leds
  * 
  */
 void SimpleSun::rgbwlicht()
@@ -309,7 +314,6 @@ void SimpleSun::letSunRise( int intWakeDelay_, bool bInit_ )
     {
         /* ----------------------------------------------- */
         /* sun is risen                                    */
-        print("-> Sun is up!");
         this->sunUp();
     }    
 }
@@ -323,7 +327,7 @@ void SimpleSun::startSunLoopTask()
     xTaskCreatePinnedToCore(
                     this->pvTaskCode,       /* Task function. */
                     "TaskSunLoop",          /* name of task. */
-                    10000,                  /* Stack size of task */
+                    1024,                   /* Stack size of task */
                     NULL,                   /* parameter of the task */
                     1,                      /* priority of the task */
                     &this->hTaskSunLoop,    /* Task handle to keep track of created task */
@@ -354,14 +358,12 @@ void SimpleSun::listener(String string_, EventEnum event_)
     /* switch light on                                    */
     if( (strcmp("light_on", string_.c_str() ) == 0))  
     {
-        print("light_on");
         this->lightOn();
     }
     /* -------------------------------------------------- */
     /* switch light off                                   */
     if( (strcmp("light_off", string_.c_str() ) == 0))  
     {
-        print("light_off");
         this->lightOff();
         this->sunDown();
     }

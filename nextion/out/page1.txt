@@ -1,0 +1,1670 @@
+Page page1
+    Attributes
+        ID               : 0
+        Scope            : global
+        Send Component ID: on press
+        Locked           : no
+    
+    Events
+        Preinitialize Event
+            //------------------------------------------------------------------
+            // Farbschema:
+            //------------------------------------------------------------------
+            if(page4.r0.val==1)
+            {
+                bPlusHour1.bco=page4.t0.bco
+                bPlusHour1.bco2=page4.t1.bco
+                bPlusHour1.pco=page4.t0.pco
+                bPlusHour1.pco2=page4.t1.pco
+                bMinusHour1.bco=page4.t0.bco
+                bMinusHour1.bco2=page4.t1.bco
+                bMinusHour1.pco=page4.t0.pco
+                bMinusHour1.pco2=page4.t1.pco
+                bPlusMin1.bco=page4.t0.bco
+                bPlusMin1.bco2=page4.t1.bco
+                bPlusMin1.pco=page4.t0.pco
+                bPlusMin1.pco2=page4.t1.pco
+                bMinusMin1.bco=page4.t0.bco
+                bMinusMin1.bco2=page4.t1.bco
+                bMinusMin1.pco=page4.t0.pco
+                bMinusMin1.pco2=page4.t1.pco
+                bPlusHour2.bco=page4.t0.bco
+                bPlusHour2.bco2=page4.t1.bco
+                bPlusHour2.pco=page4.t0.pco
+                bPlusHour2.pco2=page4.t1.pco
+                bMinusHour2.bco=page4.t0.bco
+                bMinusHour2.bco2=page4.t1.bco
+                bMinusHour2.pco=page4.t0.pco
+                bMinusHour2.pco2=page4.t1.pco
+                bPlusMin2.bco=page4.t0.bco
+                bPlusMin2.bco2=page4.t1.bco
+                bPlusMin2.pco=page4.t0.pco
+                bPlusMin2.pco2=page4.t1.pco
+                bMinusMin2.bco=page4.t0.bco
+                bMinusMin2.bco2=page4.t1.bco
+                bMinusMin2.pco=page4.t0.pco
+                bMinusMin2.pco2=page4.t1.pco
+                bPlusHour3.bco=page4.t0.bco
+                bPlusHour3.bco2=page4.t1.bco
+                bPlusHour3.pco=page4.t0.pco
+                bPlusHour3.pco2=page4.t1.pco
+                bMinusHour3.bco=page4.t0.bco
+                bMinusHour3.bco2=page4.t1.bco
+                bMinusHour3.pco=page4.t0.pco
+                bMinusHour3.pco2=page4.t1.pco
+                bPlusMin3.bco=page4.t0.bco
+                bPlusMin3.bco2=page4.t1.bco
+                bPlusMin3.pco=page4.t0.pco
+                bPlusMin3.pco2=page4.t1.pco
+                bMinusMin3.bco=page4.t0.bco
+                bMinusMin3.bco2=page4.t1.bco
+                bMinusMin3.pco=page4.t0.pco
+                bMinusMin3.pco2=page4.t1.pco
+                tSep1.bco=page4.t2.bco
+                tSep2.bco=page4.t2.bco
+                j0.bco=page4.t2.bco
+                j0.pco=page4.t2.pco
+                cbOnOff1.pco=page4.t3.bco
+                cbMo1.pco=page4.t3.bco
+                cbDi1.pco=page4.t3.bco
+                cbMi1.pco=page4.t3.bco
+                cbDo1.pco=page4.t3.bco
+                cbFr1.pco=page4.t3.bco
+                cbSa1.pco=page4.t3.bco
+                cbSo1.pco=page4.t3.bco
+                cbOnOff2.pco=page4.t3.bco
+                cbMo2.pco=page4.t3.bco
+                cbDi2.pco=page4.t3.bco
+                cbMi2.pco=page4.t3.bco
+                cbDo2.pco=page4.t3.bco
+                cbFr2.pco=page4.t3.bco
+                cbSa2.pco=page4.t3.bco
+                cbSo2.pco=page4.t3.bco
+                cbOnOff1.pco=page4.t3.bco
+                cbMo3.pco=page4.t3.bco
+                cbDi3.pco=page4.t3.bco
+                cbMi3.pco=page4.t3.bco
+                cbDo3.pco=page4.t3.bco
+                cbFr3.pco=page4.t3.bco
+                cbSa3.pco=page4.t3.bco
+                cbSo3.pco=page4.t3.bco
+            }
+            if(page4.r1.val==1)
+            {
+                bPlusHour1.bco=page4.t5.bco
+                bPlusHour1.bco2=page4.t6.bco
+                bPlusHour1.pco=page4.t5.pco
+                bPlusHour1.pco2=page4.t6.pco
+                bMinusHour1.bco=page4.t5.bco
+                bMinusHour1.bco2=page4.t6.bco
+                bMinusHour1.pco=page4.t5.pco
+                bMinusHour1.pco2=page4.t6.pco
+                bPlusMin1.bco=page4.t5.bco
+                bPlusMin1.bco2=page4.t6.bco
+                bPlusMin1.pco=page4.t5.pco
+                bPlusMin1.pco2=page4.t6.pco
+                bMinusMin1.bco=page4.t5.bco
+                bMinusMin1.bco2=page4.t6.bco
+                bMinusMin1.pco=page4.t5.pco
+                bMinusMin1.pco2=page4.t6.pco
+                bPlusHour2.bco=page4.t5.bco
+                bPlusHour2.bco2=page4.t6.bco
+                bPlusHour2.pco=page4.t5.pco
+                bPlusHour2.pco2=page4.t6.pco
+                bMinusHour2.bco=page4.t5.bco
+                bMinusHour2.bco2=page4.t6.bco
+                bMinusHour2.pco=page4.t5.pco
+                bMinusHour2.pco2=page4.t6.pco
+                bPlusMin2.bco=page4.t5.bco
+                bPlusMin2.bco2=page4.t6.bco
+                bPlusMin2.pco=page4.t5.pco
+                bPlusMin2.pco2=page4.t6.pco
+                bMinusMin2.bco=page4.t5.bco
+                bMinusMin2.bco2=page4.t6.bco
+                bMinusMin2.pco=page4.t5.pco
+                bMinusMin2.pco2=page4.t6.pco
+                bPlusHour3.bco=page4.t5.bco
+                bPlusHour3.bco2=page4.t6.bco
+                bPlusHour3.pco=page4.t5.pco
+                bPlusHour3.pco2=page4.t6.pco
+                bMinusHour3.bco=page4.t5.bco
+                bMinusHour3.bco2=page4.t6.bco
+                bMinusHour3.pco=page4.t5.pco
+                bMinusHour3.pco2=page4.t6.pco
+                bPlusMin3.bco=page4.t5.bco
+                bPlusMin3.bco2=page4.t6.bco
+                bPlusMin3.pco=page4.t5.pco
+                bPlusMin3.pco2=page4.t6.pco
+                bMinusMin3.bco=page4.t5.bco
+                bMinusMin3.bco2=page4.t6.bco
+                bMinusMin3.pco=page4.t5.pco
+                bMinusMin3.pco2=page4.t6.pco
+                tSep1.bco=page4.t7.bco
+                tSep2.bco=page4.t7.bco
+                j0.bco=page4.t7.bco
+                j0.pco=page4.t7.pco
+                cbOnOff1.pco=page4.t8.bco
+                cbMo1.pco=page4.t8.bco
+                cbDi1.pco=page4.t8.bco
+                cbMi1.pco=page4.t8.bco
+                cbDo1.pco=page4.t8.bco
+                cbFr1.pco=page4.t8.bco
+                cbSa1.pco=page4.t8.bco
+                cbSo1.pco=page4.t8.bco
+                cbOnOff2.pco=page4.t8.bco
+                cbMo2.pco=page4.t8.bco
+                cbDi2.pco=page4.t8.bco
+                cbMi2.pco=page4.t8.bco
+                cbDo2.pco=page4.t8.bco
+                cbFr2.pco=page4.t8.bco
+                cbSa2.pco=page4.t8.bco
+                cbSo2.pco=page4.t8.bco
+                cbOnOff3.pco=page4.t8.bco
+                cbMo3.pco=page4.t8.bco
+                cbDi3.pco=page4.t8.bco
+                cbMi3.pco=page4.t8.bco
+                cbDo3.pco=page4.t8.bco
+                cbFr3.pco=page4.t8.bco
+                cbSa3.pco=page4.t8.bco
+                cbSo3.pco=page4.t8.bco
+            }
+            if(page4.r2.val==1)
+            {
+                bPlusHour1.bco=page4.t11.bco
+                bPlusHour1.bco2=page4.t10.bco
+                bPlusHour1.pco=page4.t11.pco
+                bPlusHour1.pco2=page4.t10.pco
+                bMinusHour1.bco=page4.t11.bco
+                bMinusHour1.bco2=page4.t10.bco
+                bMinusHour1.pco=page4.t11.pco
+                bMinusHour1.pco2=page4.t10.pco
+                bPlusMin1.bco=page4.t11.bco
+                bPlusMin1.bco2=page4.t10.bco
+                bPlusMin1.pco=page4.t11.pco
+                bPlusMin1.pco2=page4.t10.pco
+                bMinusMin1.bco=page4.t11.bco
+                bMinusMin1.bco2=page4.t10.bco
+                bMinusMin1.pco=page4.t11.pco
+                bMinusMin1.pco2=page4.t10.pco
+                bPlusHour2.bco=page4.t11.bco
+                bPlusHour2.bco2=page4.t10.bco
+                bPlusHour2.pco=page4.t11.pco
+                bPlusHour2.pco2=page4.t10.pco
+                bMinusHour2.bco=page4.t11.bco
+                bMinusHour2.bco2=page4.t10.bco
+                bMinusHour2.pco=page4.t11.pco
+                bMinusHour2.pco2=page4.t10.pco
+                bPlusMin2.bco=page4.t11.bco
+                bPlusMin2.bco2=page4.t10.bco
+                bPlusMin2.pco=page4.t11.pco
+                bPlusMin2.pco2=page4.t10.pco
+                bMinusMin2.bco=page4.t11.bco
+                bMinusMin2.bco2=page4.t10.bco
+                bMinusMin2.pco=page4.t11.pco
+                bMinusMin2.pco2=page4.t10.pco
+                bPlusHour3.bco=page4.t11.bco
+                bPlusHour3.bco2=page4.t10.bco
+                bPlusHour3.pco=page4.t11.pco
+                bPlusHour3.pco2=page4.t10.pco
+                bMinusHour3.bco=page4.t11.bco
+                bMinusHour3.bco2=page4.t10.bco
+                bMinusHour3.pco=page4.t11.pco
+                bMinusHour3.pco2=page4.t10.pco
+                bPlusMin3.bco=page4.t11.bco
+                bPlusMin3.bco2=page4.t10.bco
+                bPlusMin3.pco=page4.t11.pco
+                bPlusMin3.pco2=page4.t10.pco
+                bMinusMin3.bco=page4.t11.bco
+                bMinusMin3.bco2=page4.t10.bco
+                bMinusMin3.pco=page4.t11.pco
+                bMinusMin3.pco2=page4.t10.pco
+                tSep1.bco=page4.t13.bco
+                tSep2.bco=page4.t13.bco
+                j0.bco=page4.t12.bco
+                j0.pco=page4.t12.pco
+                cbOnOff1.pco=page4.t13.bco
+                cbMo1.pco=page4.t13.bco
+                cbDi1.pco=page4.t13.bco
+                cbMi1.pco=page4.t13.bco
+                cbDo1.pco=page4.t13.bco
+                cbFr1.pco=page4.t13.bco
+                cbSa1.pco=page4.t13.bco
+                cbSo1.pco=page4.t13.bco
+                cbOnOff2.pco=page4.t13.bco
+                cbMo2.pco=page4.t13.bco
+                cbDi2.pco=page4.t13.bco
+                cbMi2.pco=page4.t13.bco
+                cbDo2.pco=page4.t13.bco
+                cbFr2.pco=page4.t13.bco
+                cbSa2.pco=page4.t13.bco
+                cbSo2.pco=page4.t13.bco
+                cbOnOff3.pco=page4.t13.bco
+                cbMo3.pco=page4.t13.bco
+                cbDi3.pco=page4.t13.bco
+                cbMi3.pco=page4.t13.bco
+                cbDo3.pco=page4.t13.bco
+                cbFr3.pco=page4.t13.bco
+                cbSa3.pco=page4.t13.bco
+                cbSo3.pco=page4.t13.bco
+            }
+            //------------------------------------------------------------------
+            // init from EEPROM
+            //------------------------------------------------------------------
+            repo vaAlarm1State.txt,0
+            repo vaAlarm2State.txt,14
+            repo vaAlarm3State.txt,28
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            dim=100
+            //------------------------------------------------------------------
+            // strlen <txt>,<len>
+            //------------------------------------------------------------------
+            strlen vaAlarm1State.txt,vaTempNum.val
+            if(vaTempNum.val<14)
+            {
+                vaAlarm1State.txt="00000000h00m00"
+                wepo vaAlarm1State.txt,0
+            }
+            strlen vaAlarm2State.txt,vaTempNum.val
+            if(vaTempNum.val<14)
+            {
+                vaAlarm2State.txt="00000000h00m00"
+                wepo vaAlarm2State.txt,14
+            }
+            strlen vaAlarm2State.txt,vaTempNum.val
+            if(vaTempNum.val<14)
+            {
+                vaAlarm3State.txt="00000000h00m00"
+                wepo vaAlarm3State.txt,0
+            }
+        
+        Touch Press Event
+            // reset timer value
+            page0.vaNumTimer.val=10
+        
+        Page Exit Event
+            //==================================
+            // ALRAM 1
+            //==================================
+            if(cbOnOff1.val==0)
+            {
+                page0.tAlarm1.txt="off"
+                page1.vaAlarm1State.txt="0"
+            }else
+            {
+                page0.tAlarm1.txt="on"
+                page1.vaAlarm1State.txt="1"
+            }
+            // Montag
+            if(cbMo1.val==1)
+            {
+                page0.tAlarm1.txt+=" Mo"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Dienstag
+            if(cbDi1.val==1)
+            {
+                page0.tAlarm1.txt+=" Di"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Mittwoch
+            if(cbMi1.val==1)
+            {
+                page0.tAlarm1.txt+=" Mi"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Donnerstag
+            if(cbDo1.val==1)
+            {
+                page0.tAlarm1.txt+=" Do"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Freitag
+            if(cbFr1.val==1)
+            {
+                page0.tAlarm1.txt+=" Fr"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Samstag
+            if(cbSa1.val==1)
+            {
+                page0.tAlarm1.txt+=" Sa"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Sontag
+            if(cbSo1.val==1)
+            {
+                page0.tAlarm1.txt+=" So"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Trenner
+            page0.tAlarm1.txt+=" - "
+            // Stunden
+            //covx <src>,<dest>,<length>,<format>
+            covx nHour1.val,vaTempTxt.txt,2,0
+            page0.tAlarm1.txt+=vaTempTxt.txt
+            page1.vaAlarm1State.txt+="h"
+            page1.vaAlarm1State.txt+=vaTempTxt.txt
+            // Trenner
+            page0.tAlarm1.txt+=":"
+            // Minuten
+            covx nMin1.val,vaTempTxt.txt,2,0
+            page0.tAlarm1.txt+=" Uhr"
+            page1.vaAlarm1State.txt+="m"
+            page0.tAlarm1.txt+=vaTempTxt.txt
+            page1.vaAlarm1State.txt+=vaTempTxt.txt
+            // save state to EEPROM
+            wepo page1.vaAlarm1State.txt,0
+            //==================================
+            // ALRAM 2
+            //==================================
+            if(cbOnOff2.val==0)
+            {
+                page0.tAlarm2.txt="off"
+                page1.vaAlarm2State.txt="0"
+            }else
+            {
+                page0.tAlarm2.txt="on"
+                page1.vaAlarm2State.txt="1"
+            }
+            // Montag
+            if(cbMo2.val==1)
+            {
+                page0.tAlarm2.txt+=" Mo"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Dienstag
+            if(cbDi2.val==1)
+            {
+                page0.tAlarm2.txt+=" Di"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Mittwoch
+            if(cbMi2.val==1)
+            {
+                page0.tAlarm2.txt+=" Mi"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Donnerstag
+            if(cbDo2.val==1)
+            {
+                page0.tAlarm2.txt+=" Do"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Freitag
+            if(cbFr2.val==1)
+            {
+                page0.tAlarm2.txt+=" Fr"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Samstag
+            if(cbSa2.val==1)
+            {
+                page0.tAlarm2.txt+=" Sa"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Sontag
+            if(cbSo2.val==1)
+            {
+                page0.tAlarm2.txt+=" So"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Trenner
+            page0.tAlarm2.txt+=" - "
+            // Stunden
+            //covx <src>,<dest>,<length>,<format>
+            page0.tAlarm2.txt+=" - "
+            covx nHour2.val,vaTempTxt.txt,2,0
+            page0.tAlarm2.txt+=vaTempTxt.txt
+            page1.vaAlarm2State.txt+="h"
+            page1.vaAlarm2State.txt+=vaTempTxt.txt
+            // Trenner zwischen Stunde und Minute
+            page0.tAlarm2.txt+=":"
+            // Minuten
+            covx nMin2.val,vaTempTxt.txt,2,0
+            page0.tAlarm2.txt+=vaTempTxt.txt
+            page0.tAlarm2.txt+=" Uhr"
+            page1.vaAlarm2State.txt+="m"
+            page1.vaAlarm2State.txt+=vaTempTxt.txt
+            // save state to EEPROM
+            wepo page1.vaAlarm2State.txt,14
+            //==================================
+            // ALRAM 3
+            //==================================
+            if(cbOnOff3.val==0)
+            {
+                page0.tAlarm3.txt="off"
+                page1.vaAlarm3State.txt="0"
+            }else
+            {
+                page0.tAlarm3.txt="on"
+                page1.vaAlarm3State.txt="1"
+            }
+            // Montag
+            if(cbMo3.val==1)
+            {
+                page0.tAlarm3.txt+=" Mo"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Dienstag
+            if(cbDi3.val==1)
+            {
+                page0.tAlarm3.txt+=" Di"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Mittwoch
+            if(cbMi3.val==1)
+            {
+                page0.tAlarm3.txt+=" Mi"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Donnerstag
+            if(cbDo3.val==1)
+            {
+                page0.tAlarm3.txt+=" Do"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Freitag
+            if(cbFr3.val==1)
+            {
+                page0.tAlarm3.txt+=" Fr"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Samstag
+            if(cbSa3.val==1)
+            {
+                page0.tAlarm3.txt+=" Sa"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Sontag
+            if(cbSo3.val==1)
+            {
+                page0.tAlarm3.txt+=" So"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Trenner
+            page0.tAlarm3.txt+=" - "
+            // Stunden
+            //covx <src>,<dest>,<length>,<format>
+            page0.tAlarm3.txt+=" - "
+            covx nHour3.val,vaTempTxt.txt,2,0
+            page0.tAlarm3.txt+=vaTempTxt.txt
+            page1.vaAlarm3State.txt+="h"
+            page1.vaAlarm3State.txt+=vaTempTxt.txt
+            // Trenner
+            page0.tAlarm3.txt+=":"
+            // Minuten
+            covx nMin3.val,vaTempTxt.txt,2,0
+            page0.tAlarm3.txt+=vaTempTxt.txt
+            page0.tAlarm3.txt+=" Uhr"
+            page1.vaAlarm3State.txt+="m"
+            page1.vaAlarm3State.txt+=vaTempTxt.txt
+            // save state to EEPROM
+            wepo page1.vaAlarm3State.txt,28
+            wepo page2.nOffsetSun.val,42
+            wepo page2.nSnooze.val,50
+            wepo page2.nTimeout.val,54
+            //======================================
+            // send event to ESP32 over serial
+            //======================================
+            // [65] [page] [00] [00 - pop] [FF] [FF] [FF]
+            printh 65 01 00 00 FF FF FF
+        
+Variable (string) vaTempTxt
+    Attributes
+        ID            : 70
+        Scope         : local
+        Text          : 
+        Max. Text Size: 10
+    
+Variable (string) vaAlarm1State
+    Attributes
+        ID            : 71
+        Scope         : global
+        Text          : 00000000h00m00
+        Max. Text Size: 14
+    
+Variable (string) vaAlarm2State
+    Attributes
+        ID            : 72
+        Scope         : global
+        Text          : 00000000h00m00
+        Max. Text Size: 14
+    
+Variable (string) vaAlarm3State
+    Attributes
+        ID            : 73
+        Scope         : global
+        Text          : 00000000h00m00
+        Max. Text Size: 14
+    
+Variable (int32) vaTempNum
+    Attributes
+        ID   : 74
+        Scope: local
+        Value: 0
+    
+Variable (string) vaSunState1
+    Attributes
+        ID            : 76
+        Scope         : global
+        Text          : 00000000h00m00
+        Max. Text Size: 14
+    
+Variable (string) vaSunState2
+    Attributes
+        ID            : 77
+        Scope         : global
+        Text          : 00000000h00m00
+        Max. Text Size: 14
+    
+Variable (string) vaSunState3
+    Attributes
+        ID            : 78
+        Scope         : global
+        Text          : 00000000h00m00
+        Max. Text Size: 14
+    
+Variable (int32) vaMaxTimer
+    Attributes
+        ID   : 79
+        Scope: local
+        Value: 0
+    
+Variable (int32) vaTimerNum
+    Attributes
+        ID   : 80
+        Scope: local
+        Value: 0
+    
+Number nHour1
+    Attributes
+        ID                 : 17
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 1
+    
+Number nMin1
+    Attributes
+        ID                 : 18
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 1
+    
+Number nHour2
+    Attributes
+        ID                 : 39
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 1
+    
+Number nMin2
+    Attributes
+        ID                 : 40
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 1
+    
+Number nHour3
+    Attributes
+        ID                 : 61
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 1
+    
+Number nMin3
+    Attributes
+        ID                 : 62
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 1
+    
+Text tOnOff1
+    Attributes
+        ID                 : 1
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : 1 - An/Aus
+        Max. Text Size     : 10
+    
+Text tMo1
+    Attributes
+        ID                 : 3
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Mo.
+        Max. Text Size     : 10
+    
+Text tDi1
+    Attributes
+        ID                 : 5
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Di.
+        Max. Text Size     : 10
+    
+Text tMi1
+    Attributes
+        ID                 : 7
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Mi.
+        Max. Text Size     : 10
+    
+Text tDo1
+    Attributes
+        ID                 : 10
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Do.
+        Max. Text Size     : 10
+    
+Text tFr1
+    Attributes
+        ID                 : 11
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Fr.
+        Max. Text Size     : 10
+    
+Text tSa1
+    Attributes
+        ID                 : 13
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Sa.
+        Max. Text Size     : 10
+    
+Text tSo1
+    Attributes
+        ID                 : 15
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : So.
+        Max. Text Size     : 10
+    
+Text tOnOff2
+    Attributes
+        ID                 : 23
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : 2 - An/Aus
+        Max. Text Size     : 10
+    
+Text tMo2
+    Attributes
+        ID                 : 25
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Mo.
+        Max. Text Size     : 10
+    
+Text tDi2
+    Attributes
+        ID                 : 27
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Di.
+        Max. Text Size     : 10
+    
+Text tMi2
+    Attributes
+        ID                 : 29
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Mi.
+        Max. Text Size     : 10
+    
+Text tDo2
+    Attributes
+        ID                 : 32
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Do.
+        Max. Text Size     : 10
+    
+Text tFr2
+    Attributes
+        ID                 : 33
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Fr.
+        Max. Text Size     : 10
+    
+Text tSa2
+    Attributes
+        ID                 : 35
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Sa.
+        Max. Text Size     : 10
+    
+Text tSo2
+    Attributes
+        ID                 : 37
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : So.
+        Max. Text Size     : 10
+    
+Text tOnOff3
+    Attributes
+        ID                 : 45
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : 3 - An/Aus
+        Max. Text Size     : 10
+    
+Text tMo3
+    Attributes
+        ID                 : 47
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Mo.
+        Max. Text Size     : 10
+    
+Text tDi3
+    Attributes
+        ID                 : 49
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Di.
+        Max. Text Size     : 10
+    
+Text tMi3
+    Attributes
+        ID                 : 51
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Mi.
+        Max. Text Size     : 10
+    
+Text tDo3
+    Attributes
+        ID                 : 54
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Do.
+        Max. Text Size     : 10
+    
+Text tFr3
+    Attributes
+        ID                 : 55
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Fr.
+        Max. Text Size     : 10
+    
+Text tSa3
+    Attributes
+        ID                 : 57
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Sa.
+        Max. Text Size     : 10
+    
+Text tSo3
+    Attributes
+        ID                 : 59
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : So.
+        Max. Text Size     : 10
+    
+Text tSep1
+    Attributes
+        ID                 : 67
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : newtxt
+        Max. Text Size     : 10
+    
+Text tSep2
+    Attributes
+        ID                 : 68
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : newtxt
+        Max. Text Size     : 10
+    
+Progress Bar j0
+    Attributes
+        ID               : 75
+        Scope            : local
+        Send Component ID: disabled
+        Value            : 100
+    
+Button bPlusHour1
+    Attributes
+        ID               : 19
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : +
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            if(nHour1.val>=0&&nHour1.val<=23)
+            {
+                nHour1.val=nHour1.val+1
+            }
+            if(nHour1.val<0)
+            {
+                nHour1.val=23
+            }
+            if(nHour1.val>23)
+            {
+                nHour1.val=0
+            }
+        
+Button bPlusMin1
+    Attributes
+        ID               : 20
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : +
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            if(nMin1.val>=0&&nMin1.val<60)
+            {
+                nMin1.val=nMin1.val+1
+            }
+            if(nMin1.val<0)
+            {
+                nMin1.val=59
+            }
+            if(nMin1.val>59)
+            {
+                nMin1.val=0
+            }
+        
+Button bMinusHour1
+    Attributes
+        ID               : 21
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : -
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            if(nHour1.val>=0&&nHour1.val<=23)
+            {
+                nHour1.val=nHour1.val-1
+            }
+            if(nHour1.val<0)
+            {
+                nHour1.val=23
+            }
+            if(nHour1.val>23)
+            {
+                nHour1.val=0
+            }
+        
+Button bMinusMin1
+    Attributes
+        ID               : 22
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : -
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            if(nMin1.val>=0&&nMin1.val<60)
+            {
+                nMin1.val=nMin1.val-1
+            }
+            if(nMin1.val<0)
+            {
+                nMin1.val=59
+            }
+            if(nMin1.val>59)
+            {
+                nMin1.val=0
+            }
+        
+Button bPlusHour2
+    Attributes
+        ID               : 41
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : +
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            if(nHour2.val>=0&&nHour2.val<=23)
+            {
+                nHour2.val=nHour2.val+1
+            }
+            if(nHour2.val<0)
+            {
+                nHour2.val=23
+            }
+            if(nHour2.val>23)
+            {
+                nHour2.val=0
+            }
+        
+Button bPlusMin2
+    Attributes
+        ID               : 42
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : +
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            if(nMin2.val>=0&&nMin2.val<60)
+            {
+                nMin2.val=nMin2.val+1
+            }
+            if(nMin2.val<0)
+            {
+                nMin2.val=59
+            }
+            if(nMin2.val>59)
+            {
+                nMin2.val=0
+            }
+        
+Button bMinusHour2
+    Attributes
+        ID               : 43
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : -
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            if(nHour2.val>=0&&nHour2.val<=23)
+            {
+                nHour2.val=nHour2.val-1
+            }
+            if(nHour2.val<0)
+            {
+                nHour2.val=23
+            }
+            if(nHour2.val>23)
+            {
+                nHour2.val=0
+            }
+        
+Button bMinusMin2
+    Attributes
+        ID               : 44
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : -
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            // handle minutes
+            if(nMin2.val>=0&&nMin2.val<60)
+            {
+                nMin2.val=nMin2.val-1
+            }
+            if(nMin2.val<0)
+            {
+                nMin2.val=59
+            }
+            if(nMin2.val>59)
+            {
+                nMin2.val=0
+            }
+        
+Button bPlusHour3
+    Attributes
+        ID               : 63
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : +
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            if(nHour3.val>=0&&nHour3.val<=23)
+            {
+                nHour3.val=nHour3.val+1
+            }
+            if(nHour3.val<0)
+            {
+                nHour3.val=23
+            }
+            if(nHour3.val>23)
+            {
+                nHour3.val=0
+            }
+        
+Button bPlusMin3
+    Attributes
+        ID               : 64
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : +
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            if(nMin3.val>=0&&nMin3.val<60)
+            {
+                nMin3.val=nMin3.val+1
+            }
+            if(nMin3.val<0)
+            {
+                nMin3.val=59
+            }
+            if(nMin3.val>59)
+            {
+                nMin3.val=0
+            }
+        
+Button bMinusHour3
+    Attributes
+        ID               : 65
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : -
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            if(nHour3.val>=0&&nHour3.val<=23)
+            {
+                nHour3.val=nHour3.val-1
+            }
+            if(nHour3.val<0)
+            {
+                nHour3.val=23
+            }
+            if(nHour3.val>23)
+            {
+                nHour3.val=0
+            }
+        
+Button bMinusMin3
+    Attributes
+        ID               : 66
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : -
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            // handle minutes
+            if(nMin3.val>=0&&nMin3.val<60)
+            {
+                nMin3.val=nMin3.val-1
+            }
+            if(nMin3.val<0)
+            {
+                nMin3.val=59
+            }
+            if(nMin3.val>59)
+            {
+                nMin3.val=0
+            }
+        
+Checkbox cbOnOff1
+    Attributes
+        ID               : 2
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbMo1
+    Attributes
+        ID               : 4
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbDi1
+    Attributes
+        ID               : 6
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbMi1
+    Attributes
+        ID               : 8
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbDo1
+    Attributes
+        ID               : 9
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbFr1
+    Attributes
+        ID               : 12
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbSa1
+    Attributes
+        ID               : 14
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbSo1
+    Attributes
+        ID               : 16
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbOnOff2
+    Attributes
+        ID               : 24
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbMo2
+    Attributes
+        ID               : 26
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbDi2
+    Attributes
+        ID               : 28
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbMi2
+    Attributes
+        ID               : 30
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbDo2
+    Attributes
+        ID               : 31
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbFr2
+    Attributes
+        ID               : 34
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbSa2
+    Attributes
+        ID               : 36
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbSo2
+    Attributes
+        ID               : 38
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbOnOff3
+    Attributes
+        ID               : 46
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbMo3
+    Attributes
+        ID               : 48
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbDi3
+    Attributes
+        ID               : 50
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbMi3
+    Attributes
+        ID               : 52
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbDo3
+    Attributes
+        ID               : 53
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbFr3
+    Attributes
+        ID               : 56
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbSa3
+    Attributes
+        ID               : 58
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Checkbox cbSo3
+    Attributes
+        ID               : 60
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Timer tm0
+    Attributes
+        ID         : 69
+        Scope      : local
+        Period (ms): 1000
+        Enabled    : yes
+    
+    Events
+        Timer Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=vaTimerNum.val-1
+            j0.val=vaTimerNum.val*100/vaMaxTimer.val
+            if(vaTimerNum.val<=0)
+            {
+                //------------------------------------------------------------------
+                // reset
+                //------------------------------------------------------------------
+                vaTimerNum.val=page2.vaTimeout.val
+                //------------------------------------------------------------------
+                // switch back
+                //------------------------------------------------------------------
+                page 0
+            }
+        

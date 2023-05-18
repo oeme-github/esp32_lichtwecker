@@ -339,7 +339,8 @@ boolean NexRtc::getNTPTime() {
     configTime(0, 0, "pool.ntp.org", "de.pool.ntp.org", "europe.pool.ntp.org");
     setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);
 
-    if(getLocalTime(&timeinfo)){
+    if(getLocalTime(&timeinfo))
+    {
         return true;
     }
     return false;  

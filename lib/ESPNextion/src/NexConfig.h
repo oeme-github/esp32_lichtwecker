@@ -13,7 +13,7 @@
  * the License, or (at your option) any later version.
  */
 
-#include <debuglib.h>
+#include <libDebug.h>
 
 #ifndef __NEXCONFIG_H__
 #define __NEXCONFIG_H__

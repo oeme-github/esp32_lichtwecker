@@ -7,14 +7,16 @@
  */
 boolean MyWifiServer::loadConfig()
 {
-    dbSerialPrintln("*** MyWifiServer::loadConfig() ***");
-    this->configServer = new MyConfigServer();
-    this->configServer->loadConfig(&SPIFFS, WIFI_CONFIG_FILE, FileFormat::MAP);
-    if( !this->configServer->isConfigLoaded() )
+    /*-----------------------------------------------------*/
+    /* check if configfile exists                          */
+    if(SPIFFS.exists(WIFI_CONFIG_FILE))
     {
-        return false;
+        /*---------------------------------------------------*/
+        /* load config                                       */
+        this->configServer = new MyConfigServer();
+        return this->configServer->loadConfig(&SPIFFS, WIFI_CONFIG_FILE);
     }
-    return true;
+    return false;
 }
 
 /**
@@ -24,29 +26,30 @@ boolean MyWifiServer::loadConfig()
  */
 boolean MyWifiServer::regToMDNS()
 {
-    dbSerialPrintln("*** MyWifiServer::regToMDNS() ***");
-    String host = "lichtwecker";
+    std::string host = "lichtwecker";
     if( this->configServer->containsKey("host") )
-        host = this->configServer->getElement("host").c_str();
+        host = this->configServer->getElement("host");
     int port = 80;
     if( this->configServer->containsKey("port") )
         port = std::stoi(this->configServer->getElement("port"));
-    
+    std::string domain = "local";
+    if( this->configServer->containsKey("domain") )
+        domain = this->configServer->getElement("domain");
+
+    host.append(".");
+    host.append(domain);
+
     if(MDNS.begin(host.c_str())) 
     {
         MDNS.addService("http", "tcp", port);
-        dbSerialPrint("connect to http://");
-        dbSerialPrint(host);
-        dbSerialPrintln(".localdomain");
-
-        this->isRegToMDNS = true;
+        dbSerialPrintf("\nconnect to http://%s\n", host.c_str());
     }
     else
     {
         dbSerialPrintln("Could not register to MDNS!!");
-        this->isRegToMDNS = false;
+        return false;
     }
-    return this->isRegToMDNS;
+    return true;
 }
 
 /**
@@ -56,23 +59,18 @@ boolean MyWifiServer::regToMDNS()
  */
 boolean MyWifiServer::connectWifi()
 {
-    dbSerialPrintln("*** MyWifiServer::connectWifi() ***");
     if(!this->loadConfig())
     {
-        dbSerialPrintln("WIFI-ERROR: Can not load config.");
         return false;
     }
     if(!wm.autoConnect( this->configServer->getElement("ap").c_str(), this->configServer->getElement("appw").c_str()) )
     {
-        dbSerialPrintln("WIFI-ERROR: Can not connect to wifi.");
         return false;
     }
     if(!this->regToMDNS())
     {
-        dbSerialPrintln("WIFI-ERROR: Can not register to DNS.");
         return false;
     }
-
     return true; 
 }
 

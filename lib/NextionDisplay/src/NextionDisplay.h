@@ -24,13 +24,13 @@ typedef enum typeOfFunc
 /* pages */
 typedef struct Pages_t {
     std::vector <std::pair<int,const char*>> page_vec={
-            { 0,"page0" },
-            { 1,"page1" },
-            { 2,"page2" },
-            { 3,"page3" },
-            { 4,"page4" },
-            { 5,"page5" },
-            { 6,"page6" },
+            { 0,"page 0" },
+            { 1,"page 1" },
+            { 2,"page 2" },
+            { 3,"page 3" },
+            { 4,"page 4" },
+            { 5,"page 5" },
+            { 6,"page 6" },
     };    
     std::vector <std::pair<int,const char*>>::iterator it_page_vec;
 
@@ -112,11 +112,11 @@ typedef struct Pages_t {
         std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "btSound"    , push, page0_btSoundPushCallback    },
         std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "tmSerial"   , cmd , page0_tmSerialCmdCallback    }, 
         std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "tmPage3"    , cmd , page0_tmSerialCmdCallback    }, 
-        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "page1"      , cmd , page_save_values             }, 
-        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "page2"      , cmd , page_save_values             }, 
-        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "page4"      , cmd , page_save_values             }, 
-        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "page5"      , cmd , page_save_values             }, 
-        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "page6"      , cmd , page_save_values             }, 
+        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "page 1"     , cmd , page_save_values             }, 
+        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "page 2"     , cmd , page_save_values             }, 
+        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "page 4"     , cmd , page_save_values             }, 
+        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "page 5"     , cmd , page_save_values             }, 
+        std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "page 6"     , cmd , page_save_values             }, 
         std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "btTimeSync" , push, page2_btTimeSyncPushCallback },
         std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "btSnooze"   , push, page3_btSnoozePushCallback   },
         std::tuple<const char *, typeOfFunc_t, NexTouchEventCb>{ "btLightTest", push, page6_btLightTestPushCallback},

@@ -168,7 +168,6 @@ void sendCommand(const char* cmd)
     {
         nexSerial.read();
     }
-    
     nexSerial.print(cmd);
     nexSerial.write(0xFF);
     nexSerial.write(0xFF);

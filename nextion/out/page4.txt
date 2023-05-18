@@ -1,0 +1,313 @@
+Page page4
+    Attributes
+        ID               : 0
+        Scope            : global
+        Send Component ID: disabled
+        Locked           : no
+    
+    Events
+        Preinitialize Event
+            //------------------------------------------------------------------
+            // Farbschema:
+            //------------------------------------------------------------------
+            if(page4.r0.val==1)
+            {
+                j0.bco=page4.t2.bco
+                j0.pco=page4.t2.pco
+            }
+            if(page4.r1.val==1)
+            {
+                j0.bco=page4.t7.bco
+                j0.pco=page4.t7.pco
+            }
+            if(page4.r2.val==1)
+            {
+                j0.bco=page4.t12.bco
+                j0.pco=page4.t12.pco
+            }
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            dim=100
+        
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+        Page Exit Event
+            wepo page0.vaFarbschema.val,62
+        
+Variable (int32) vaTimerNum
+    Attributes
+        ID   : 21
+        Scope: local
+        Value: 0
+    
+Variable (int32) vaMaxTimer
+    Attributes
+        ID   : 22
+        Scope: local
+        Value: 0
+    
+Text t0
+    Attributes
+        ID                 : 4
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t1
+    Attributes
+        ID                 : 5
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t2
+    Attributes
+        ID                 : 6
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t3
+    Attributes
+        ID                 : 7
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t4
+    Attributes
+        ID                 : 8
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t5
+    Attributes
+        ID                 : 9
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t6
+    Attributes
+        ID                 : 10
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t7
+    Attributes
+        ID                 : 11
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t8
+    Attributes
+        ID                 : 12
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t9
+    Attributes
+        ID                 : 13
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t10
+    Attributes
+        ID                 : 14
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t11
+    Attributes
+        ID                 : 15
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t12
+    Attributes
+        ID                 : 16
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t13
+    Attributes
+        ID                 : 17
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t14
+    Attributes
+        ID                 : 18
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : ####
+        Max. Text Size     : 10
+    
+Text t15
+    Attributes
+        ID                 : 25
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Fabschema
+        Max. Text Size     : 20
+    
+Picture p0
+    Attributes
+        ID               : 24
+        Scope            : local
+        Send Component ID: disabled
+    
+    Events
+        Touch Press Event
+            page 2
+        
+Progress Bar j0
+    Attributes
+        ID               : 20
+        Scope            : local
+        Send Component ID: disabled
+        Value            : 100
+    
+Button b0
+    Attributes
+        ID               : 19
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : 
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            page 0
+        
+Radio r0
+    Attributes
+        ID               : 1
+        Scope            : global
+        Send Component ID: disabled
+        State            : pressed
+    
+    Events
+        Touch Press Event
+            page4.r0.val=1
+            page4.r1.val=0
+            page4.r2.val=0
+            page0.vaFarbschema.val=0
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Radio r1
+    Attributes
+        ID               : 2
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            page4.r0.val=0
+            page4.r1.val=1
+            page4.r2.val=0
+            page0.vaFarbschema.val=1
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Radio r2
+    Attributes
+        ID               : 3
+        Scope            : global
+        Send Component ID: disabled
+        State            : unpressed
+    
+    Events
+        Touch Press Event
+            page4.r0.val=0
+            page4.r1.val=0
+            page4.r2.val=1
+            page0.vaFarbschema.val=2
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Timer tm0
+    Attributes
+        ID         : 23
+        Scope      : local
+        Period (ms): 1000
+        Enabled    : yes
+    
+    Events
+        Timer Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=vaTimerNum.val-1
+            j0.val=vaTimerNum.val*100/vaMaxTimer.val
+            if(vaTimerNum.val<=0)
+            {
+                //------------------------------------------------------------------
+                // reset
+                //------------------------------------------------------------------
+                vaTimerNum.val=page2.vaTimeout.val
+                //------------------------------------------------------------------
+                // switch back
+                //------------------------------------------------------------------
+                page 0
+            }
+        

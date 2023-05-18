@@ -1,0 +1,431 @@
+Page page5
+    Attributes
+        ID               : 0
+        Scope            : global
+        Send Component ID: disabled
+        Locked           : no
+    
+    Events
+        Preinitialize Event
+            //------------------------------------------------------------------
+            // EEPROM
+            //------------------------------------------------------------------
+            repo page2.nOffsetSun.val,42
+            repo page2.nSnooze.val,50
+            repo page2.nTimeout.val,54
+            repo page2.nDim.val,58
+            page2.vaSnooze.val=page2.nSnooze.val*60
+            page2.vaTimeout.val=page2.nTimeout.val
+            page0.vaDim.val=page2.nDim.val*60
+            page0.vaDim_.val=page0.vaDim.val
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            dim=100
+            //------------------------------------------------------------------
+            // Farbschema:
+            //------------------------------------------------------------------
+            if(page4.r0.val==1)
+            {
+                b1.bco=page4.t0.bco
+                b1.bco2=page4.t1.bco
+                b1.pco=page4.t0.pco
+                b1.pco2=page4.t1.pco
+                b2.bco=page4.t0.bco
+                b2.bco2=page4.t1.bco
+                b2.pco=page4.t0.pco
+                b2.pco2=page4.t1.pco
+                b3.bco=page4.t0.bco
+                b3.bco2=page4.t1.bco
+                b3.pco=page4.t0.pco
+                b3.pco2=page4.t1.pco
+                b4.bco=page4.t0.bco
+                b4.bco2=page4.t1.bco
+                b4.pco=page4.t0.pco
+                b4.pco2=page4.t1.pco
+                b5.bco=page4.t0.bco
+                b5.bco2=page4.t1.bco
+                b5.pco=page4.t0.pco
+                b5.pco2=page4.t1.pco
+                b6.bco=page4.t0.bco
+                b6.bco2=page4.t1.bco
+                b6.pco=page4.t0.pco
+                b6.pco2=page4.t1.pco
+                j0.bco=page4.t2.bco
+                j0.pco=page4.t2.pco
+            }
+            if(page4.r1.val==1)
+            {
+                b1.bco=page4.t5.bco
+                b1.bco2=page4.t6.bco
+                b1.pco=page4.t5.pco
+                b1.pco2=page4.t6.pco
+                b2.bco=page4.t5.bco
+                b2.bco2=page4.t6.bco
+                b2.pco=page4.t5.pco
+                b2.pco2=page4.t6.pco
+                b3.bco=page4.t5.bco
+                b3.bco2=page4.t6.bco
+                b3.pco=page4.t5.pco
+                b3.pco2=page4.t6.pco
+                b4.bco=page4.t5.bco
+                b4.bco2=page4.t6.bco
+                b4.pco=page4.t5.pco
+                b4.pco2=page4.t6.pco
+                b5.bco=page4.t5.bco
+                b5.bco2=page4.t6.bco
+                b5.pco=page4.t5.pco
+                b5.pco2=page4.t6.pco
+                b6.bco=page4.t5.bco
+                b6.bco2=page4.t6.bco
+                b6.pco=page4.t5.pco
+                b6.pco2=page4.t6.pco
+                j0.bco=page4.t7.bco
+                j0.pco=page4.t7.pco
+            }
+            if(page4.r2.val==1)
+            {
+                b1.bco=page4.t10.bco
+                b1.bco2=page4.t11.bco
+                b1.pco=page4.t10.pco
+                b1.pco2=page4.t11.pco
+                b2.bco=page4.t10.bco
+                b2.bco2=page4.t11.bco
+                b2.pco=page4.t10.pco
+                b2.pco2=page4.t11.pco
+                b3.bco=page4.t10.bco
+                b3.bco2=page4.t11.bco
+                b3.pco=page4.t10.pco
+                b3.pco2=page4.t11.pco
+                b4.bco=page4.t10.bco
+                b4.bco2=page4.t11.bco
+                b4.pco=page4.t10.pco
+                b4.pco2=page4.t11.pco
+                b5.bco=page4.t10.bco
+                b5.bco2=page4.t11.bco
+                b5.pco=page4.t10.pco
+                b5.pco2=page4.t11.pco
+                b6.bco=page4.t10.bco
+                b6.bco2=page4.t11.bco
+                b6.pco=page4.t10.pco
+                b6.pco2=page4.t11.pco
+                j0.bco=page4.t12.bco
+                j0.pco=page4.t12.pco
+            }
+        
+        Page Exit Event
+            // EEPROM
+            wepo page2.nOffsetSun.val,42
+            wepo page2.nSnooze.val,50
+            wepo page2.nTimeout.val,54
+            wepo page2.nDim.val,58
+            page2.vaSnooze.val=page2.nSnooze.val*60
+            page2.vaTimeout.val=page2.nTimeout.val
+            page0.vaDim.val=page2.nDim.val*60
+            page0.vaDim_.val=page0.vaDim.val
+        
+Variable (int32) vaSnooze
+    Attributes
+        ID   : 13
+        Scope: global
+        Value: 0
+    
+Variable (int32) vaTimeout
+    Attributes
+        ID   : 18
+        Scope: global
+        Value: 60
+    
+Variable (int32) vaTimerNum
+    Attributes
+        ID   : 19
+        Scope: local
+        Value: 0
+    
+Variable (int32) vaMaxTimer
+    Attributes
+        ID   : 20
+        Scope: local
+        Value: 0
+    
+Number nDisBright
+    Attributes
+        ID                 : 4
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 10
+    
+Number nBrightness
+    Attributes
+        ID                 : 10
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 5
+    
+Number nMaxDimSR
+    Attributes
+        ID                 : 16
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Value              : 10
+    
+Text t0
+    Attributes
+        ID                 : 1
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Parameter II
+        Max. Text Size     : 13
+    
+Text t1
+    Attributes
+        ID                 : 3
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Display Helligkeit (5-10)
+        Max. Text Size     : 50
+    
+Text t2
+    Attributes
+        ID                 : 9
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Helligkeit Lampe
+        Max. Text Size     : 20
+    
+Text t3
+    Attributes
+        ID                 : 14
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : Displ.Helligkeit bei Sonnenaufgang
+        Max. Text Size     : 35
+    
+Picture p0
+    Attributes
+        ID               : 21
+        Scope            : local
+        Send Component ID: disabled
+    
+    Events
+        Touch Press Event
+            page 6
+        
+Progress Bar j0
+    Attributes
+        ID               : 8
+        Scope            : local
+        Send Component ID: disabled
+        Value            : 100
+    
+Button b0
+    Attributes
+        ID               : 2
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : <--
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            page0.vaNumTimer.val=10
+            page 0
+        
+Button b1
+    Attributes
+        ID               : 5
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : +
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            if(nDisBright.val<10)
+            {
+                nDisBright.val=nDisBright.val+1
+            }else
+            {
+                nDisBright.val=5
+            }
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Button b2
+    Attributes
+        ID               : 6
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : -
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            if(nDisBright.val>5)
+            {
+                nDisBright.val=nDisBright.val-1
+            }else
+            {
+                nDisBright.val=10
+            }
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Button b3
+    Attributes
+        ID               : 11
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : +
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            if(nBrightness.val<10)
+            {
+                nBrightness.val=nBrightness.val+1
+            }else
+            {
+                nBrightness.val=5
+            }
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Button b4
+    Attributes
+        ID               : 12
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : -
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            if(nBrightness.val>5)
+            {
+                nBrightness.val=nBrightness.val-1
+            }else
+            {
+                nBrightness.val=10
+            }
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Button b5
+    Attributes
+        ID               : 15
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : +
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            if(nMaxDimSR.val<10)
+            {
+                nMaxDimSR.val=nMaxDimSR.val+1
+            }else
+            {
+                nMaxDimSR.val=3
+            }
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Button b6
+    Attributes
+        ID               : 17
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : -
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            if(nMaxDimSR.val>3)
+            {
+                nMaxDimSR.val=nMaxDimSR.val-1
+            }else
+            {
+                nMaxDimSR.val=10
+            }
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+        
+Button b7
+    Attributes
+        ID               : 22
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : 
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=page2.vaTimeout.val
+            vaMaxTimer.val=page2.vaTimeout.val
+            page 4
+        
+Timer tm0
+    Attributes
+        ID         : 7
+        Scope      : local
+        Period (ms): 1000
+        Enabled    : yes
+    
+    Events
+        Timer Event
+            //------------------------------------------------------------------
+            // timer
+            //------------------------------------------------------------------
+            vaTimerNum.val=vaTimerNum.val-1
+            j0.val=vaTimerNum.val*100/vaMaxTimer.val
+            if(vaTimerNum.val<=0)
+            {
+                //------------------------------------------------------------------
+                // reset
+                //------------------------------------------------------------------
+                vaTimerNum.val=page2.vaTimeout.val
+                //------------------------------------------------------------------
+                // switch back
+                //------------------------------------------------------------------
+                page 0
+            }
+        

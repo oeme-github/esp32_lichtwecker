@@ -4,13 +4,11 @@
 #include <string>
 #include <SPIFFS.h>
 
-#include <SoftwareSerial.h>
 #include <MDispatcher.h>
-//#include <ArduinoJson.h>
 #include <SimpleSun.h>
 #include <NextionDisplay.h>
 #include <MyConfigServer.h>
-#include <lw_config.h>
+#include <libConfig.h>
 
 #ifndef LICHTWECKER_H
 #define LICHTWECKER_H

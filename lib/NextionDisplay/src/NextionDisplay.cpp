@@ -157,7 +157,7 @@ void NextionDisplay::initPages(){
     /* -------------------------------------------------- */
     /* create pages                                       */
     for(auto & elem : pages.page_vec)
-    {        
+    { 
         addPage( Create_Pages(elem.first, elem.second) );
     }
     /* -------------------------------------------------- */
@@ -307,7 +307,6 @@ void NextionDisplay::attachFunc(const char * objName_, typeOfFunc_t typeOfFunc_,
     {
         if( elem->getName() == objName_ )
         {
-            dbSerialPrintln("");
             switch (typeOfFunc_)
             {
             case push:
@@ -363,11 +362,15 @@ std::vector<NexVariable *> NextionDisplay::getNexVariable()
  */
 NexVariable * NextionDisplay::getNexVariableByName(const char * name_)
 {
+    uint32_t index=0;
     /* find object in  vars_vec*/
     for(auto & elem : this->vars_vec )
     {
-        if( elem->getName() == name_ )
-            return elem;
+        if( std::string(elem->getName()) == std::string(name_) )
+        {
+            return this->vars_vec[index];
+        }
+        index++;
     }
     return NULL;
 }
@@ -379,11 +382,15 @@ NexVariable * NextionDisplay::getNexVariableByName(const char * name_)
  */
 NexDSButton *NextionDisplay::getNexButtonByName(const char * name_)
 {
+    uint32_t index=0;
     /* find object in  vars_vec*/
     for(auto & elem : this->buttons_vec )
     {
-        if( elem->getName() == name_ )
-            return elem;
+        if( std::string(elem->getName()) == std::string(name_) )
+        {
+            return this->buttons_vec[index];
+        }
+        index++;
     }
     return NULL;
 }
@@ -395,11 +402,15 @@ NexDSButton *NextionDisplay::getNexButtonByName(const char * name_)
  */
 NexRadio *NextionDisplay::getNexRadioByName(const char * name_)
 {
+    uint32_t index=0;
     /* find object in  vars_vec*/
     for(auto & elem : this->radio_vec )
     {
-        if( elem->getName() == name_ )
-            return elem;
+        if( std::string(elem->getName()) == std::string(name_) )
+        {
+            return this->radio_vec[index];
+        }
+        index++;
     }
     return NULL;
 }
@@ -411,11 +422,15 @@ NexRadio *NextionDisplay::getNexRadioByName(const char * name_)
  */
 NexCheckbox *NextionDisplay::getNexChkbxByName(const char * name_)
 {
+    uint32_t index=0;
     /* find object in  vars_vec*/
     for(auto & elem : this->chkbx_vec )
     {
-        if( elem->getName() == name_ )
-            return elem;
+        if( std::string(elem->getName()) == std::string(name_) )
+        {
+            return this->chkbx_vec[index];
+        }
+        index++;
     }
     return NULL;
 }
@@ -427,11 +442,15 @@ NexCheckbox *NextionDisplay::getNexChkbxByName(const char * name_)
  */
 NexNumber *NextionDisplay::getNexNumberByName(const char * name_)
 {
+    uint32_t index=0;
     /* find object in  vars_vec*/
-    for(auto & numbers : this->numbers_vec )
+    for(auto & elem : this->numbers_vec )
     {
-        if( numbers->getName() == name_ )
-            return numbers;
+        if( std::string(elem->getName()) == std::string(name_) )
+        {
+            return this->numbers_vec[index];
+        }
+        index++;
     }
     return NULL;
 }
@@ -443,11 +462,15 @@ NexNumber *NextionDisplay::getNexNumberByName(const char * name_)
  */
 NexPage *NextionDisplay::getNexPageByName(const char * name_)
 {
+    uint32_t index=0;
     /* find object in  vars_vec*/
     for(auto & elem : this->pages_vec )
     {
-        if( elem->getName() == name_ )
-            return elem;
+        if( std::string(elem->getName()) == std::string(name_) )
+        {
+            return this->pages_vec[index];
+        }
+        index++;
     }
     return NULL;
 }

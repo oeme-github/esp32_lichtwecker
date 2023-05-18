@@ -24,62 +24,26 @@
  */
 
 // #define DEBUG_SERIAL_ENABLE
-#include "ESPNexUpload.h"
+#include <ESPNexUpload.h>
+#include <libDebug.h>
 
 
-#if defined ESP8266
-
-	#include <SoftwareSerial.h>
-
-	#ifndef NEXT_RX
-		#define NEXT_RX 14	// Nextion RX pin | Default 14 / D5
-		#define NEXT_TX 12	// Nextion TX pin | Default 12 / D6
-	#endif
-	#ifndef nexSerial
-		SoftwareSerial softSerial(NEXT_RX, NEXT_TX);
-		#define nexSerial softSerial
-		#define nexSerialBegin(a) nexSerial.begin(a)
-	#endif
-
-#elif defined ESP32
-
-	#ifndef NEXT_RX
-		#define NEXT_RX 16 // Nextion RX pin | Default 16
-		#define NEXT_TX 17 // Nextion TX pin | Default 17
-	#endif
-	#ifndef nexSerial
-		#define nexSerial Serial2
-		#define nexSerialBegin(a) nexSerial.begin(a, SERIAL_8N1, NEXT_RX, NEXT_TX)
-	#endif
-
+#ifndef NEXT_RX
+	#define NEXT_RX 16 // Nextion RX pin | Default 16
+	#define NEXT_TX 17 // Nextion TX pin | Default 17
+#endif
+#ifndef nexSerial
+	#define nexSerial Serial2
+	#define nexSerialBegin(a) nexSerial.begin(a, SERIAL_8N1, NEXT_RX, NEXT_TX)
 #endif
 
-//#define DEBUG_SERIAL_ENABLE
-
-#ifdef DEBUG_SERIAL_ENABLE
-    #define dbSerialPrint(a)    Serial.print(a)
-	#define dbSerialPrintHex(a) Serial.print(a, HEX)
-    #define dbSerialPrintln(a)  Serial.println(a)
-    #define dbSerialBegin(a)    Serial.begin(a)
-#else
-    #define dbSerialPrint(a)    do{}while(0)
-    #define dbSerialPrintHex(a) do{}while(0)		
-    #define dbSerialPrintln(a)  do{}while(0)
-    #define dbSerialBegin(a)    do{}while(0)
-#endif
-
-
-
-ESPNexUpload::ESPNexUpload(uint32_t upload_baudrate){
+ESPNexUpload::ESPNexUpload(uint32_t upload_baudrate)
+{
     _upload_baudrate = upload_baudrate;
 }
 
-
-bool ESPNexUpload::connect(){
-    #if defined ESP8266
-        yield();
-    #endif
-
+bool ESPNexUpload::connect()
+{
     dbSerialBegin(115200);
 	_printInfoLine(F("serial tests & connect"));
 
@@ -112,17 +76,14 @@ bool ESPNexUpload::connect(){
 	return true;
 }
 
-
-
-bool ESPNexUpload::prepareUpload(uint32_t file_size){
+bool ESPNexUpload::prepareUpload(uint32_t file_size)
+{
     _undownloadByte = file_size;
 	return this->connect();
 }
 
-
-
-uint16_t ESPNexUpload::_getBaudrate(void){
-
+uint16_t ESPNexUpload::_getBaudrate(void)
+{
     _baudrate = 0;
     uint32_t baudrate_array[7] = {115200,19200,9600,57600,38400,4800,2400};
     for(uint8_t i = 0; i < 7; i++)
@@ -138,19 +99,10 @@ uint16_t ESPNexUpload::_getBaudrate(void){
     return _baudrate;
 }
 
-
-
-bool ESPNexUpload::_searchBaudrate(uint32_t baudrate){
-
-    #if defined ESP8266
-        yield();
-    #endif
-
+bool ESPNexUpload::_searchBaudrate(uint32_t baudrate)
+{
     String response = String("");
 	_printInfoLine();
-	dbSerialPrint(F("init nextion serial interface on baudrate: "));
-	dbSerialPrintln(baudrate);
-
     nexSerialBegin(baudrate);
 	_printInfoLine(F("ESP baudrate established, try to connect to display"));
 	const char _nextion_FF_FF[3] = {0xFF, 0xFF, 0x00};
@@ -159,18 +111,24 @@ bool ESPNexUpload::_searchBaudrate(uint32_t baudrate){
 	this->sendCommand("",true,true); // 0x00 0xFF 0xFF 0xFF
 
 	this->recvRetString(response);
-	if(response[0] != 0x1A){
+	if(response[0] != 0x1A)
+	{
 		_printInfoLine(F("first indication that baudrate is wrong"));
-	}else {
+	}
+	else 
+	{
 		_printInfoLine(F("first respone from display, first indication that baudrate is correct"));
 	}
 	
 	this->sendCommand("connect"); // first connect attempt
 	
     this->recvRetString(response);
-    if(response.indexOf(F("comok")) == -1){
+    if(response.indexOf(F("comok")) == -1)
+	{
 		_printInfoLine(F("display doesn't accept the first connect request"));
-    } else {
+    }
+	else
+	{
 		_printInfoLine(F("display accept the first connect request"));
 	}
 
@@ -180,38 +138,35 @@ bool ESPNexUpload::_searchBaudrate(uint32_t baudrate){
 
 	this->sendCommand("connect"); // second attempt
 	this->recvRetString(response);
-	if(response.indexOf(F("comok")) == -1 && response[0] != 0x1A){
+	if(response.indexOf(F("comok")) == -1 && response[0] != 0x1A)
+	{
 		_printInfoLine(F("display doesn't accept the second connect request"));
 		_printInfoLine(F("conclusion, wrong baudrate"));
 		return 0;
-	}else {
+	}
+	else
+	{
 		_printInfoLine(F("display accept the second connect request"));
 		_printInfoLine(F("conclusion, correct baudrate"));
 	}
-
 	return 1;
 }
 
-
-
-void ESPNexUpload::sendCommand(const char* cmd, bool tail, bool null_head){
-
-    #if defined ESP8266
-        yield();
-    #endif
-
-	dbSerialPrint( "test" );
-    
-	if(null_head) {
+void ESPNexUpload::sendCommand(const char* cmd, bool tail, bool null_head)
+{
+	if(null_head)
+	{
 		nexSerial.write(0x00);
 	}
 	
-    while(nexSerial.available()){
+    while(nexSerial.available())
+	{
         nexSerial.read();
     }
 
     nexSerial.print(cmd);
-    if(tail) {
+    if(tail) 
+	{
 		nexSerial.write(0xFF);
 		nexSerial.write(0xFF);
 		nexSerial.write(0xFF);
@@ -219,12 +174,8 @@ void ESPNexUpload::sendCommand(const char* cmd, bool tail, bool null_head){
 	_printSerialData(true,cmd);
 }
 
-uint16_t ESPNexUpload::recvRetString(String &response, uint32_t timeout,bool recv_flag){
-
-    #if defined ESP8266
-        yield();
-    #endif
-
+uint16_t ESPNexUpload::recvRetString(String &response, uint32_t timeout,bool recv_flag)
+{
     uint16_t ret = 0;
     uint8_t c = 0;
 	uint8_t nr_of_FF_bytes = 0;
@@ -236,18 +187,20 @@ uint16_t ESPNexUpload::recvRetString(String &response, uint32_t timeout,bool rec
 
     start = millis();
 
-    while (millis() - start <= timeout){
-
-        while (nexSerial.available()){
-
+    while (millis() - start <= timeout)
+	{
+        while (nexSerial.available())
+		{
             c = nexSerial.read(); 
-            if(c == 0){
+            if(c == 0)
+			{
                 continue;
             }
 
 			if (c == 0xFF)
 				nr_of_FF_bytes++;
-			else {
+			else 
+			{
 				nr_of_FF_bytes=0;
 				ff_flag = false;
 			}
@@ -257,13 +210,16 @@ uint16_t ESPNexUpload::recvRetString(String &response, uint32_t timeout,bool rec
 			
 			response += (char)c;
             
-            if(recv_flag){
-                if(response.indexOf(0x05) != -1){ 
+            if(recv_flag)
+			{
+                if(response.indexOf(0x05) != -1)
+				{ 
                     exit_flag = true;
                 } 
             }
         }
-        if(exit_flag || ff_flag){
+        if(exit_flag || ff_flag)
+		{
             break;
         }
     }
@@ -280,14 +236,8 @@ uint16_t ESPNexUpload::recvRetString(String &response, uint32_t timeout,bool rec
     return ret;
 }
 
-
-
-bool ESPNexUpload::_setPrepareForFirmwareUpdate(uint32_t upload_baudrate){
-
-    #if defined ESP8266
-        yield();
-    #endif
-
+bool ESPNexUpload::_setPrepareForFirmwareUpdate(uint32_t upload_baudrate)
+{
     String response = String(""); 
     String cmd = String("");
 
@@ -326,136 +276,113 @@ bool ESPNexUpload::_setPrepareForFirmwareUpdate(uint32_t upload_baudrate){
 	}
 }
 
-
-
-void ESPNexUpload::setUpdateProgressCallback(THandlerFunction value){
+void ESPNexUpload::setUpdateProgressCallback(THandlerFunction value)
+{
 	_updateProgressCallback = value;
 }
 
-
-
-bool ESPNexUpload::upload(const uint8_t *file_buf, size_t buf_size){
-
-    #if defined ESP8266
-        yield();
-    #endif
-
+bool ESPNexUpload::upload(const uint8_t *file_buf, size_t buf_size)
+{
     uint8_t c;
     uint8_t timeout = 0;
     String string = String("");
 
-    for(uint16_t i = 0; i < buf_size; i++){
-
+    for(uint16_t i = 0; i < buf_size; i++)
+	{
 		// Users must split the .tft file contents into 4096 byte sized packets with the final partial packet size equal to the last remaining bytes (<4096 bytes).
-		if(_sent_packets == 4096){
-
+		if(_sent_packets == 4096)
+		{
 			// wait for the Nextion to return its 0x05 byte confirming reception and readiness to receive the next packets
 			this->recvRetString(string,500,true);  
-			if(string.indexOf(0x05) != -1){ 
-
+			if(string.indexOf(0x05) != -1)
+			{ 
 				// reset sent packets counter
 				_sent_packets = 0;
-
 				// reset receive String
 				string = "";
-			}else{
-				if(timeout >= 8){
+			}
+			else
+			{
+				if(timeout >= 8)
+				{
 					statusMessage = F("serial connection lost");
 					_printInfoLine(statusMessage);
 					return false;
 				}
-
 				timeout++;
 			}
-
 			// delay current byte
 			i--;
-
-		}else{
-
+		}
+		else
+		{
 			// read buffer
 			c = file_buf[i];
-
 			// write byte to nextion over serial
 			nexSerial.write(c);
-
 			// update sent packets counter
 			_sent_packets++;
 		}
     }
-
     return true;  
 }
 
 
-
-bool ESPNexUpload::upload(Stream &myFile){
-    #if defined ESP8266
-        yield();
-    #endif
-
+bool ESPNexUpload::upload(Stream &myFile)
+{
 	// create buffer for read
 	uint8_t buff[2048] = { 0 };
-
 	// read all data from server
 	while(_undownloadByte > 0 || _undownloadByte == -1){
-
 		// get available data size
 		size_t size = myFile.available();
-
 		if(size){
 			// read up to 2048 byte into the buffer
 			int c = myFile.readBytes(buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
-
 			// Write the buffered bytes to the nextion. If this fails, return false.
-			if(!this->upload(buff, c)){
+			if(!this->upload(buff, c))
+			{
 				return false;
-			}else{
-				if(_updateProgressCallback){
+			}
+			else
+			{
+				if(_updateProgressCallback)
+				{
 					_updateProgressCallback();
 				}
 			}
-
-			if(_undownloadByte > 0) {
+			if(_undownloadByte > 0) 
+			{
 				_undownloadByte -= c;
 			}
 		}
 		delay(1);
 	}
-
     return true;  
 }
 
-
-
-void ESPNexUpload::softReset(void){
+void ESPNexUpload::softReset(void)
+{
     // soft reset nextion device
 	this->sendCommand("rest");
 }
 
-
-
-void ESPNexUpload::end(){
-
+void ESPNexUpload::end()
+{
     // wait for the nextion to finish internal processes
     delay(1600);
-
 	// soft reset the nextion
 	this->softReset();
-
     // end Serial connection
     nexSerial.end();
-
 	// reset sent packets counter
 	_sent_packets = 0;
-
     statusMessage = F("upload ok");
     _printInfoLine(statusMessage + F("\r\n"));
 }
 
-
-
-void ESPNexUpload::_setRunningMode(void) {
+void ESPNexUpload::_setRunningMode(void) 
+{
 	String cmd = String("");
 	delay (100);
 	cmd = F("runmod=2");
@@ -463,9 +390,8 @@ void ESPNexUpload::_setRunningMode(void) {
 	delay(60);
 }
 
-
-
-bool ESPNexUpload::_echoTest(String input) {
+bool ESPNexUpload::_echoTest(String input) 
+{
 	String cmd = String("");
 	String response = String("");
 
@@ -478,9 +404,8 @@ bool ESPNexUpload::_echoTest(String input) {
 	return (response.indexOf(input) != -1);
 }
 
-
-
-bool ESPNexUpload::_handlingSleepAndDim(void) {
+bool ESPNexUpload::_handlingSleepAndDim(void) 
+{
 	String cmd = String("");
 	String response = String("");
 	bool set_sleep = false;
@@ -491,16 +416,20 @@ bool ESPNexUpload::_handlingSleepAndDim(void) {
 
 	this->recvRetString(response);
 
-	if(response[0] != 0x71) {
+	if(response[0] != 0x71) 
+	{
 		statusMessage = F("unknown response from 'get sleep' request");
 		_printInfoLine(statusMessage);
 		return false;
 	}
 
-	if(response[1] != 0x00) {
+	if(response[1] != 0x00) 
+	{
 		_printInfoLine(F("sleep enabled"));
 		set_sleep = true;
-	}else {
+	}
+	else 
+	{
 		_printInfoLine(F("sleep disabled"));
 	}
 
@@ -509,30 +438,35 @@ bool ESPNexUpload::_handlingSleepAndDim(void) {
 	this->sendCommand(cmd.c_str());
 
 	this->recvRetString(response);
-
-	if(response[0] != 0x71) {
+	if(response[0] != 0x71) 
+	{
 		statusMessage = F("unknown response from 'get dim' request");
 		_printInfoLine(statusMessage);
 		return false;
 	}
 
-	if(response[1] == 0x00) {
+	if(response[1] == 0x00)
+	{
 		_printInfoLine(F("dim is 0%, backlight from display is turned off"));
 		set_dim = true;
-	}else {
+	}
+	else 
+	{
 		_printInfoLine();
 		dbSerialPrint(F("dim "));
 		dbSerialPrint((uint8_t) response[1] );
 		dbSerialPrintln(F("%"));
 	}
 
-    if(!_echoTest("ABC")){
+    if(!_echoTest("ABC"))
+	{
 		statusMessage = F("echo test in 'handling sleep and dim' failed");
         _printInfoLine(statusMessage);
         return false;
     }
 
-	if(set_sleep) {
+	if(set_sleep) 
+	{
 		cmd = F("sleep=0");
 		this->sendCommand(cmd.c_str());
 		// Unfortunately the display doesn't send any respone on the wake up request (sleep=0)
@@ -541,7 +475,8 @@ bool ESPNexUpload::_handlingSleepAndDim(void) {
 		delay(1000);
 	}
 
-	if(set_dim) {
+	if(set_dim)
+	{
 		cmd = F("dim=100");
 		this->sendCommand(cmd.c_str());
 		delay(15);
@@ -550,23 +485,22 @@ bool ESPNexUpload::_handlingSleepAndDim(void) {
 	return true;
 }
 
-
-
-void ESPNexUpload::_printSerialData(bool esp_request, String input){
-
+void ESPNexUpload::_printSerialData(bool esp_request, String input)
+{
 	char c;
 	if(esp_request)
 		dbSerialPrint(F("ESP     request: "));
 	else
 		dbSerialPrint(F("Nextion respone: "));
 
-	if(input.length() == 0) {
+	if(input.length() == 0) 
+	{
 		dbSerialPrintln(F("none"));
 		return;
 	}
 
-	for(int i=0; i < input.length(); i++) {
-		
+	for(int i=0; i < input.length(); i++) 
+	{	
 		c = input[i];
 		if((uint8_t) c >= 0x20 && (uint8_t) c <= 0x7E)
 			dbSerialPrint(c);
@@ -579,7 +513,8 @@ void ESPNexUpload::_printSerialData(bool esp_request, String input){
 	dbSerialPrintln();
 }
 
-uint32_t ESPNexUpload::calculateTransmissionTimeMs(String message){
+uint32_t ESPNexUpload::calculateTransmissionTimeMs(String message)
+{
 	// In general, 1 second (s) = 1000 (10^-3) millisecond (ms) or 
 	//             1 second (s) = 1000 000 (10^-6) microsecond (us). 
 	// To calculate how much microsecond one BIT of data takes with a certain baudrate you have to divide 
@@ -599,8 +534,9 @@ uint32_t ESPNexUpload::calculateTransmissionTimeMs(String message){
 	_printInfoLine("calculated transmission time: " + String(return_value_ms) + " ms");
 	return return_value_ms;
 }
-
-void ESPNexUpload::_printInfoLine(String line){
+ 
+void ESPNexUpload::_printInfoLine(String line)
+{
 	dbSerialPrint(F("Status     info: "));
 	if(line.length() != 0)
 		dbSerialPrintln(line);

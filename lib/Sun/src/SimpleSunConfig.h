@@ -1,4 +1,4 @@
-#include <debuglib.h>
+#include <libDebug.h>
 
 #ifndef NUM_LEDS
 #define NUM_LEDS 14     //number of LEDs in the strip

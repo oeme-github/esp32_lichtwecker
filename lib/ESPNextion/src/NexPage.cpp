@@ -24,15 +24,17 @@ bool NexPage::show(void)
 {
     //uint8_t buffer[4] = {0};
 
-    const char *name = getObjName();
+    const char *name = getObjName();    
     if (!name)
     {
         return false;
     }
     
-    String cmd = String("page ");
-    cmd += name;
-    sendCommand(cmd.c_str());
+    //String cmd = String("page ");
+    //cmd += name;
+
+//    dbSerialPrintf("sendCommand(%s);", name);
+    sendCommand(name);
     return recvRetCommandFinished();
 }
 

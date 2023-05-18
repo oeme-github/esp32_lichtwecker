@@ -1,0 +1,1260 @@
+Page page0
+    Attributes
+        ID               : 0
+        Scope            : local
+        Send Component ID: disabled
+        Locked           : no
+    
+    Events
+        Preinitialize Event
+            //------------------------------------------------------------------
+            // communication
+            //------------------------------------------------------------------
+            bauds=115200
+            //------------------------------------------------------------------
+            // init from EEPROM
+            //------------------------------------------------------------------
+            repo page1.vaAlarm1State.txt,0
+            repo page1.vaAlarm2State.txt,14
+            repo page1.vaAlarm3State.txt,28
+            repo page2.nOffsetSun.val,42
+            repo page2.nSnooze.val,50
+            repo page2.nTimeout.val,54
+            repo page2.nDim.val,58
+            repo page0.vaFarbschema.val,62
+            //------------------------------------------------------------------
+            // init
+            //------------------------------------------------------------------
+            page2.vaSnooze.val=page2.nSnooze.val*60
+            page2.vaTimeout.val=page2.nTimeout.val
+            vaDim.val=page2.nDim.val
+            vaDim_.val=vaDim.val
+            if(page0.vaFarbschema.val==0)
+            {
+                page4.r0.val=1
+                page4.r1.val=0
+                page4.r2.val=0
+            }
+            if(page0.vaFarbschema.val==1)
+            {
+                page4.r0.val=0
+                page4.r1.val=1
+                page4.r2.val=0
+            }
+            if(page0.vaFarbschema.val==2)
+            {
+                page4.r0.val=0
+                page4.r1.val=0
+                page4.r2.val=1
+            }
+            //------------------------------------------------------------------
+            // Farbschema:
+            //------------------------------------------------------------------
+            if(page4.r0.val==1)
+            {
+                tDate.bco=page4.t0.bco
+                tDate.pco=page4.t0.pco
+                tTime.bco=page4.t2.bco
+                tTime.pco=page4.t2.pco
+            }
+            if(page4.r1.val==1)
+            {
+                tDate.bco=page4.t5.bco
+                tDate.pco=page4.t5.pco
+                tTime.bco=page4.t8.bco
+                tTime.pco=page4.t8.pco
+            }
+            if(page4.r2.val==1)
+            {
+                tDate.bco=page4.t10.bco
+                tDate.pco=page4.t10.pco
+                tTime.bco=page4.t13.bco
+                tTime.pco=page4.t13.pco
+            }
+            // strlen <txt>,<len>
+            strlen page1.vaAlarm1State.txt,vaTempNum.val
+            if(vaTempNum.val<14)
+            {
+                //init
+                page1.vaAlarm1State.txt="00000000h00m00"
+                wepo page1.vaAlarm1State.txt,0
+            }
+            strlen page1.vaAlarm2State.txt,vaTempNum.val
+            if(vaTempNum.val<14)
+            {
+                //init
+                page1.vaAlarm2State.txt="00000000h00m00"
+                wepo page1.vaAlarm2State.txt,14
+            }
+            strlen page1.vaAlarm2State.txt,vaTempNum.val
+            if(vaTempNum.val<14)
+            {
+                //init
+                page1.vaAlarm3State.txt="00000000h00m00"
+                wepo page1.vaAlarm3State.txt,0
+            }
+            //----------------------------------------
+            //"00000000h00m00"
+            // 0 - onoff
+            // 1 - Mo
+            // 2 - Di
+            // 3 - Mi
+            // 4 - Do
+            // 5 - Fr
+            // 6 - Sa
+            // 7 - So
+            // 8 - h
+            // 9 - hour
+            // 11 - m
+            // 12 - min
+            //----------------------------------------
+            //--- ALRAM 1 ---
+            //-- page1.cbOnOff1
+            substr page1.vaAlarm1State.txt,vaTempTxt.txt,0,1
+            covx vaTempTxt.txt,page1.cbOnOff1.val,0,0
+            if(page1.cbOnOff1.val==0)
+            {
+                page0.tAlarm1.txt="off"
+            }
+            if(page1.cbOnOff1.val==1)
+            {
+                page0.tAlarm1.txt="on"
+            }
+            //-- Mo --
+            substr page1.vaAlarm1State.txt,vaTempTxt.txt,1,1
+            covx vaTempTxt.txt,page1.cbMo1.val,0,0
+            if(page1.cbMo1.val==1)
+            {
+                page0.tAlarm1.txt+=" Mo"
+            }
+            //-- Di --
+            substr page1.vaAlarm1State.txt,vaTempTxt.txt,2,1
+            covx vaTempTxt.txt,page1.cbDi1.val,0,0
+            if(page1.cbDi1.val==1)
+            {
+                page0.tAlarm1.txt+=" Di"
+            }
+            //-- Mi --
+            substr page1.vaAlarm1State.txt,vaTempTxt.txt,3,1
+            covx vaTempTxt.txt,page1.cbMi1.val,0,0
+            if(page1.cbMi1.val==1)
+            {
+                page0.tAlarm1.txt+=" Mi"
+            }
+            //-- Do --
+            substr page1.vaAlarm1State.txt,vaTempTxt.txt,4,1
+            covx vaTempTxt.txt,page1.cbDo1.val,0,0
+            if(page1.cbDo1.val==1)
+            {
+                page0.tAlarm1.txt+=" Do"
+            }
+            //-- Fr --
+            substr page1.vaAlarm1State.txt,vaTempTxt.txt,5,1
+            covx vaTempTxt.txt,page1.cbFr1.val,0,0
+            if(page1.cbFr1.val==1)
+            {
+                page0.tAlarm1.txt+=" Fr"
+            }
+            //-- Sa --
+            substr page1.vaAlarm1State.txt,vaTempTxt.txt,6,1
+            covx vaTempTxt.txt,page1.cbSa1.val,0,0
+            if(page1.cbSa1.val==1)
+            {
+                page0.tAlarm1.txt+=" Sa"
+            }
+            //-- So --
+            substr page1.vaAlarm1State.txt,vaTempTxt.txt,7,1
+            covx vaTempTxt.txt,page1.cbSo1.val,0,0
+            if(page1.cbSo1.val==1)
+            {
+                page0.tAlarm1.txt+=" So"
+            }
+            //covx <src>,<dest>,<length>,<format>
+            page0.tAlarm1.txt+=" - "
+            //--- hour ---
+            substr page1.vaAlarm1State.txt,vaTempTxt.txt,9,2
+            covx vaTempTxt.txt,page1.nHour1.val,0,0
+            //covx page1.nHour1.val,vaTempTxt.txt,2,0
+            page0.tAlarm1.txt+=vaTempTxt.txt
+            page0.tAlarm1.txt+=":"
+            //--- min ---
+            substr page1.vaAlarm1State.txt,vaTempTxt.txt,12,2
+            covx vaTempTxt.txt,page1.nMin1.val,0,0
+            //covx page1.nMin1.val,vaTempTxt.txt,2,0
+            page0.tAlarm1.txt+=vaTempTxt.txt
+            page0.tAlarm1.txt+=" Uhr"
+            //----------------------------------------
+            //--- ALRAM 2 ---
+            //-- page1.cbOnOff1
+            substr page1.vaAlarm2State.txt,vaTempTxt.txt,0,1
+            covx vaTempTxt.txt,page1.cbOnOff2.val,0,0
+            if(page1.cbOnOff2.val==0)
+            {
+                page0.tAlarm2.txt="off"
+            }
+            if(page1.cbOnOff2.val==1)
+            {
+                page0.tAlarm2.txt="on"
+            }
+            //-- Mo --
+            substr page1.vaAlarm2State.txt,vaTempTxt.txt,1,1
+            covx vaTempTxt.txt,page1.cbMo2.val,0,0
+            if(page1.cbMo2.val==1)
+            {
+                page0.tAlarm2.txt+=" Mo"
+            }
+            //-- Di --
+            substr page1.vaAlarm2State.txt,vaTempTxt.txt,2,1
+            covx vaTempTxt.txt,page1.cbDi2.val,0,0
+            if(page1.cbDi2.val==1)
+            {
+                page0.tAlarm2.txt+=" Di"
+            }
+            //-- Mi --
+            substr page1.vaAlarm2State.txt,vaTempTxt.txt,3,1
+            covx vaTempTxt.txt,page1.cbMi2.val,0,0
+            if(page1.cbMi2.val==1)
+            {
+                page0.tAlarm2.txt+=" Mi"
+            }
+            //-- Do --
+            substr page1.vaAlarm2State.txt,vaTempTxt.txt,4,1
+            covx vaTempTxt.txt,page1.cbDo2.val,0,0
+            if(page1.cbDo2.val==1)
+            {
+                page0.tAlarm2.txt+=" Do"
+            }
+            //-- Fr --
+            substr page1.vaAlarm2State.txt,vaTempTxt.txt,5,1
+            covx vaTempTxt.txt,page1.cbFr2.val,0,0
+            if(page1.cbFr2.val==1)
+            {
+                page0.tAlarm2.txt+=" Fr"
+            }
+            //-- Sa --
+            substr page1.vaAlarm2State.txt,vaTempTxt.txt,6,1
+            covx vaTempTxt.txt,page1.cbSa2.val,0,0
+            if(page1.cbSa2.val==1)
+            {
+                page0.tAlarm2.txt+=" Sa"
+            }
+            //-- So --
+            substr page1.vaAlarm2State.txt,vaTempTxt.txt,7,1
+            covx vaTempTxt.txt,page1.cbSo2.val,0,0
+            if(page1.cbSo2.val==1)
+            {
+                page0.tAlarm2.txt+=" So"
+            }
+            //covx <src>,<dest>,<length>,<format>
+            page0.tAlarm2.txt+=" - "
+            //--- hour ---
+            substr page1.vaAlarm2State.txt,vaTempTxt.txt,9,2
+            covx vaTempTxt.txt,page1.nHour2.val,0,0
+            //covx page1.nHour2.val,vaTempTxt.txt,2,0
+            page0.tAlarm2.txt+=vaTempTxt.txt
+            page0.tAlarm2.txt+=":"
+            //--- min ---
+            substr page1.vaAlarm2State.txt,vaTempTxt.txt,12,2
+            covx vaTempTxt.txt,page1.nMin2.val,0,0
+            //covx page1.nMin2.val,vaTempTxt.txt,2,0
+            page0.tAlarm2.txt+=vaTempTxt.txt
+            page0.tAlarm2.txt+=" Uhr"
+            //----------------------------------------
+            //--- ALRAM 3 ---
+            //-- page1.cbOnOff3
+            substr page1.vaAlarm3State.txt,vaTempTxt.txt,0,1
+            covx vaTempTxt.txt,page1.cbOnOff3.val,0,0
+            if(page1.cbOnOff3.val==0)
+            {
+                page0.tAlarm3.txt="off"
+            }
+            if(page1.cbOnOff3.val==1)
+            {
+                page0.tAlarm3.txt="on"
+            }
+            //-- Mo --
+            substr page1.vaAlarm3State.txt,vaTempTxt.txt,1,1
+            covx vaTempTxt.txt,page1.cbMo3.val,0,0
+            if(page1.cbMo3.val==1)
+            {
+                page0.tAlarm3.txt+=" Mo"
+            }
+            //-- Di --
+            substr page1.vaAlarm3State.txt,vaTempTxt.txt,2,1
+            covx vaTempTxt.txt,page1.cbDi3.val,0,0
+            if(page1.cbDi3.val==1)
+            {
+                page0.tAlarm3.txt+=" Di"
+            }
+            //-- Mi --
+            substr page1.vaAlarm3State.txt,vaTempTxt.txt,3,1
+            covx vaTempTxt.txt,page1.cbMi3.val,0,0
+            if(page1.cbMi3.val==1)
+            {
+                page0.tAlarm3.txt+=" Mi"
+            }
+            //-- Do --
+            substr page1.vaAlarm3State.txt,vaTempTxt.txt,4,1
+            covx vaTempTxt.txt,page1.cbDo3.val,0,0
+            if(page1.cbDo3.val==1)
+            {
+                page0.tAlarm3.txt+=" Do"
+            }
+            //-- Fr --
+            substr page1.vaAlarm3State.txt,vaTempTxt.txt,5,1
+            covx vaTempTxt.txt,page1.cbFr3.val,0,0
+            if(page1.cbFr3.val==1)
+            {
+                page0.tAlarm3.txt+=" Fr"
+            }
+            //-- Sa --
+            substr page1.vaAlarm3State.txt,vaTempTxt.txt,6,1
+            covx vaTempTxt.txt,page1.cbSa3.val,0,0
+            if(page1.cbSa3.val==1)
+            {
+                page0.tAlarm3.txt+=" Sa"
+            }
+            //-- So --
+            substr page1.vaAlarm3State.txt,vaTempTxt.txt,7,1
+            covx vaTempTxt.txt,page1.cbSo3.val,0,0
+            if(page1.cbSo3.val==1)
+            {
+                page0.tAlarm3.txt+=" So"
+            }
+            //covx <src>,<dest>,<length>,<format>
+            page0.tAlarm3.txt+=" - "
+            //--- hour ---
+            substr page1.vaAlarm3State.txt,vaTempTxt.txt,9,2
+            covx vaTempTxt.txt,page1.nHour3.val,0,0
+            //covx page1.nHour3.val,vaTempTxt.txt,2,0
+            page0.tAlarm3.txt+=vaTempTxt.txt
+            page0.tAlarm3.txt+=":"
+            //--- min ---
+            substr page1.vaAlarm3State.txt,vaTempTxt.txt,12,2
+            covx vaTempTxt.txt,page1.nMin3.val,0,0
+            //covx page1.nMin3.val,vaTempTxt.txt,2,0
+            page0.tAlarm3.txt+=vaTempTxt.txt
+            page0.tAlarm3.txt+=" Uhr"
+        
+Variable (string) timeStr
+    Attributes
+        ID            : 2
+        Scope         : local
+        Text          : newtxt
+        Max. Text Size: 20
+    
+Variable (int32) va0
+    Attributes
+        ID   : 4
+        Scope: local
+        Value: 0
+    
+Variable (int32) vaDim
+    Attributes
+        ID   : 5
+        Scope: global
+        Value: 0
+    
+Variable (string) vaTempTxt
+    Attributes
+        ID            : 6
+        Scope         : local
+        Text          : newtxt
+        Max. Text Size: 10
+    
+Variable (int32) vaDim_
+    Attributes
+        ID   : 7
+        Scope: global
+        Value: 0
+    
+Variable (int32) vaTempNum
+    Attributes
+        ID   : 12
+        Scope: local
+        Value: 0
+    
+Variable (int32) vaAlarm
+    Attributes
+        ID   : 17
+        Scope: global
+        Value: 0
+    
+Variable (int32) vaAlarm2
+    Attributes
+        ID   : 18
+        Scope: global
+        Value: 0
+    
+Variable (int32) vaNumTimer
+    Attributes
+        ID   : 19
+        Scope: global
+        Value: 10
+    
+Variable (int32) vaHourTmp
+    Attributes
+        ID   : 21
+        Scope: local
+        Value: 0
+    
+Variable (int32) vaMinTmp
+    Attributes
+        ID   : 22
+        Scope: local
+        Value: 0
+    
+Variable (int32) vaSunrise
+    Attributes
+        ID   : 23
+        Scope: local
+        Value: 0
+    
+Variable (int32) vaDayTmp
+    Attributes
+        ID   : 24
+        Scope: local
+        Value: 0
+    
+Variable (int32) vaTempCalc
+    Attributes
+        ID   : 25
+        Scope: local
+        Value: 0
+    
+Variable (string) vaLogString50
+    Attributes
+        ID            : 26
+        Scope         : local
+        Text          : newtxt
+        Max. Text Size: 50
+    
+Variable (int32) vaFarbschema
+    Attributes
+        ID   : 29
+        Scope: global
+        Value: 0
+    
+Text tTime
+    Attributes
+        ID                 : 3
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : 00:00:00
+        Max. Text Size     : 10
+    
+    Events
+        Touch Press Event
+            vaDim.val=vaDim_.val
+            dim=100
+        
+Text tAlarm1
+    Attributes
+        ID                 : 9
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : tAlarm1
+        Max. Text Size     : 40
+    
+    Events
+        Touch Press Event
+            //----------------------------------------------------
+            //DIM
+            vaDim.val=vaDim_.val
+            dim=100
+        
+        Touch Release Event
+            //==================================
+            // ALRAM 1
+            //==================================
+            if(page1.cbOnOff1.val==0)
+            {
+                page0.tAlarm1.txt="off"
+                page1.vaAlarm1State.txt="0"
+            }else
+            {
+                page0.tAlarm1.txt="on"
+                page1.vaAlarm1State.txt="1"
+            }
+            // Montag
+            if(page1.cbMo1.val==1)
+            {
+                page0.tAlarm1.txt+=" Mo"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Dienstag
+            if(page1.cbDi1.val==1)
+            {
+                page0.tAlarm1.txt+=" Di"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Mittwoch
+            if(page1.cbMi1.val==1)
+            {
+                page0.tAlarm1.txt+=" Mi"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Donnerstag
+            if(page1.cbDo1.val==1)
+            {
+                page0.tAlarm1.txt+=" Do"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Freitag
+            if(page1.cbFr1.val==1)
+            {
+                page0.tAlarm1.txt+=" Fr"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Samstag
+            if(page1.cbSa1.val==1)
+            {
+                page0.tAlarm1.txt+=" Sa"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Sontag
+            if(page1.cbSo1.val==1)
+            {
+                page0.tAlarm1.txt+=" So"
+                page1.vaAlarm1State.txt+="1"
+            }else
+            {
+                page1.vaAlarm1State.txt+="0"
+            }
+            // Trenner
+            page0.tAlarm1.txt+=" - "
+            // Stunden
+            //covx <src>,<dest>,<length>,<format>
+            covx page1.nHour1.val,vaTempTxt.txt,2,0
+            page0.tAlarm1.txt+=vaTempTxt.txt
+            page1.vaAlarm1State.txt+="h"
+            page1.vaAlarm1State.txt+=vaTempTxt.txt
+            // Trenner
+            page0.tAlarm1.txt+=":"
+            // Minuten
+            covx page1.nMin1.val,vaTempTxt.txt,2,0
+            page0.tAlarm1.txt+=" Uhr"
+            page1.vaAlarm1State.txt+="m"
+            page0.tAlarm1.txt+=vaTempTxt.txt
+            page1.vaAlarm1State.txt+=vaTempTxt.txt
+            // save state to EEPROM
+            wepo page1.vaAlarm1State.txt,0
+        
+Text tAlarm2
+    Attributes
+        ID                 : 10
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : tAlarm2
+        Max. Text Size     : 40
+    
+    Events
+        Touch Press Event
+            //DIM
+            vaDim.val=vaDim_.val
+            dim=100
+        
+        Touch Release Event
+            //==================================
+            // ALRAM 2
+            //==================================
+            if(page1.cbOnOff2.val==0)
+            {
+                page0.tAlarm2.txt="off"
+                page1.vaAlarm2State.txt="0"
+            }else
+            {
+                page0.tAlarm2.txt="on"
+                page1.vaAlarm2State.txt="1"
+            }
+            // Montag
+            if(page1.cbMo2.val==1)
+            {
+                page0.tAlarm2.txt+=" Mo"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Dienstag
+            if(page1.cbDi2.val==1)
+            {
+                page0.tAlarm2.txt+=" Di"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Mittwoch
+            if(page1.cbMi2.val==1)
+            {
+                page0.tAlarm2.txt+=" Mi"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Donnerstag
+            if(page1.cbDo2.val==1)
+            {
+                page0.tAlarm2.txt+=" Do"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Freitag
+            if(page1.cbFr2.val==1)
+            {
+                page0.tAlarm2.txt+=" Fr"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Samstag
+            if(page1.cbSa2.val==1)
+            {
+                page0.tAlarm2.txt+=" Sa"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Sontag
+            if(page1.cbSo2.val==1)
+            {
+                page0.tAlarm2.txt+=" So"
+                page1.vaAlarm2State.txt+="1"
+            }else
+            {
+                page1.vaAlarm2State.txt+="0"
+            }
+            // Trenner
+            page0.tAlarm2.txt+=" - "
+            // Stunden
+            //covx <src>,<dest>,<length>,<format>
+            covx page1.nHour2.val,vaTempTxt.txt,2,0
+            page0.tAlarm2.txt+=vaTempTxt.txt
+            page1.vaAlarm2State.txt+="h"
+            page1.vaAlarm2State.txt+=vaTempTxt.txt
+            // Trenner zwischen Stunde und Minute
+            page0.tAlarm2.txt+=":"
+            // Minuten
+            covx page1.nMin2.val,vaTempTxt.txt,2,0
+            page0.tAlarm2.txt+=vaTempTxt.txt
+            page0.tAlarm2.txt+=" Uhr"
+            page1.vaAlarm2State.txt+="m"
+            page1.vaAlarm2State.txt+=vaTempTxt.txt
+            // save state to EEPROM
+            wepo page1.vaAlarm2State.txt,14
+        
+Text tAlarm3
+    Attributes
+        ID                 : 11
+        Scope              : global
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : tAlarm3
+        Max. Text Size     : 40
+    
+    Events
+        Touch Press Event
+            //DIM
+            vaDim.val=vaDim_.val
+            dim=100
+        
+        Touch Release Event
+            //==================================
+            // ALRAM 3
+            //==================================
+            if(page1.cbOnOff3.val==0)
+            {
+                page0.tAlarm3.txt="off"
+                page1.vaAlarm3State.txt="0"
+            }else
+            {
+                page0.tAlarm3.txt="on"
+                page1.vaAlarm3State.txt="1"
+            }
+            // Montag
+            if(page1.cbMo3.val==1)
+            {
+                page0.tAlarm3.txt+=" Mo"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Dienstag
+            if(page1.cbDi3.val==1)
+            {
+                page0.tAlarm3.txt+=" Di"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Mittwoch
+            if(page1.cbMi3.val==1)
+            {
+                page0.tAlarm3.txt+=" Mi"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Donnerstag
+            if(page1.cbDo3.val==1)
+            {
+                page0.tAlarm3.txt+=" Do"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Freitag
+            if(page1.cbFr3.val==1)
+            {
+                page0.tAlarm3.txt+=" Fr"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Samstag
+            if(page1.cbSa3.val==1)
+            {
+                page0.tAlarm3.txt+=" Sa"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Sontag
+            if(page1.cbSo3.val==1)
+            {
+                page0.tAlarm3.txt+=" So"
+                page1.vaAlarm3State.txt+="1"
+            }else
+            {
+                page1.vaAlarm3State.txt+="0"
+            }
+            // Trenner
+            page0.tAlarm3.txt+=" - "
+            // Stunden
+            //covx <src>,<dest>,<length>,<format>
+            covx page1.nHour3.val,vaTempTxt.txt,2,0
+            page0.tAlarm3.txt+=vaTempTxt.txt
+            page1.vaAlarm3State.txt+="h"
+            page1.vaAlarm3State.txt+=vaTempTxt.txt
+            // Trenner
+            page0.tAlarm3.txt+=":"
+            // Minuten
+            covx page1.nMin3.val,vaTempTxt.txt,2,0
+            page0.tAlarm3.txt+=vaTempTxt.txt
+            page0.tAlarm3.txt+=" Uhr"
+            page1.vaAlarm3State.txt+="m"
+            page1.vaAlarm3State.txt+=vaTempTxt.txt
+            // save state to EEPROM
+            wepo page1.vaAlarm3State.txt,28
+        
+Text tDate
+    Attributes
+        ID                 : 13
+        Scope              : local
+        Send Component ID  : disabled
+        Associated Keyboard: none
+        Text               : 01.01.2000
+        Max. Text Size     : 25
+    
+    Events
+        Touch Press Event
+            vaDim.val=vaDim_.val
+            dim=100
+        
+Picture p0
+    Attributes
+        ID               : 20
+        Scope            : local
+        Send Component ID: disabled
+    
+    Events
+        Touch Press Event
+            page 2
+        
+Picture p1
+    Attributes
+        ID               : 27
+        Scope            : global
+        Send Component ID: disabled
+    
+Button b0
+    Attributes
+        ID               : 8
+        Scope            : local
+        Send Component ID: disabled
+        State            : unpressed
+        Text             : 
+        Max. Text Size   : 10
+    
+    Events
+        Touch Press Event
+            print "on"
+            vaDim.val=vaDim_.val
+            dim=100
+            page 1
+        
+Dual-state Button btSound
+    Attributes
+        ID               : 28
+        Scope            : global
+        Send Component ID: on press
+        State            : unpressed
+        Text             : 
+        Max. Text Size   : 10
+    
+Timer tm0
+    Attributes
+        ID         : 1
+        Scope      : local
+        Period (ms): 100
+        Enabled    : yes
+    
+    Events
+        Timer Event
+            //----------------------------
+            // Zeit: hh:mm:ss
+            //----------------------------
+            // Stunden
+            covx rtc3,timeStr.txt,2,0
+            tTime.txt=timeStr.txt
+            tTime.txt+=":"
+            // Minuten
+            covx rtc4,timeStr.txt,2,0
+            tTime.txt+=timeStr.txt
+            tTime.txt+=":"
+            // Sekunden
+            covx rtc5,timeStr.txt,2,0
+            tTime.txt+=timeStr.txt
+            //----------------------------
+            // Datum: dd.mm.yyyy
+            //----------------------------
+            // Tag
+            covx rtc2,timeStr.txt,2,0
+            tDate.txt=timeStr.txt
+            tDate.txt+="."
+            // Monat
+            covx rtc1,timeStr.txt,2,0
+            tDate.txt+=timeStr.txt
+            tDate.txt+="."
+            // Jahr
+            covx rtc0,timeStr.txt,4,0
+            tDate.txt+=timeStr.txt
+        
+Timer tmAlarm1
+    Attributes
+        ID         : 14
+        Scope      : local
+        Period (ms): 400
+        Enabled    : yes
+    
+    Events
+        Timer Event
+            // check alarm 1
+            //------------------------------------
+            // rtc0 is year 2000 to 2099,
+            // rtc1 is month 1 to 12,
+            // rtc2 is day 1 to 31,
+            // rtc3 is hour 0 to 23,
+            // rtc4 is minute 0 to 59,
+            // rtc5 is second 0 to 59.
+            // rtc6 is dayofweek 0 to 6 (Sunday=0, Saturday=6)
+            // rtc6 is readonly and calculated by RTC when date is valid.
+            //----------------------------------
+            // erster Alarm aktiv?
+            if(page1.cbOnOff1.val==1)
+            {
+                //---- SUNRISE ----
+                // calc start of sunrise
+                // 1. check minutes
+                vaDayTmp.val=0
+                // we need to cal start of sunnrise
+                // 1. check minutes
+                if(page1.nMin1.val<page2.nOffsetSun.val)
+                {
+                    //prints "adjust!",7
+                    //we need to adjust the hour
+                    // check hour
+                    if(page1.nHour1.val==0)
+                    {
+                        //we need to adjust day
+                        vaDayTmp.val=-1
+                        //here we can set also the hour
+                        vaHourTmp.val=23
+                    }else
+                    {
+                        // same day
+                        vaDayTmp.val=0
+                        vaHourTmp.val=page1.nHour1.val-1
+                        vaMinTmp.val=60+page1.nMin1.val-page2.nOffsetSun.val
+                    }
+                }else
+                {
+                    //prints "no adjus ",9
+                    vaDayTmp.val=0
+                    vaHourTmp.val=page1.nHour1.val
+                    vaMinTmp.val=page1.nMin1.val-page2.nOffsetSun.val
+                }
+                // debug
+                //  covx vaDayTmp.val,vaTempTxt.txt,2,0
+                //  vaLogString50.txt=vaTempTxt.txt
+                //  covx vaHourTmp.val,vaTempTxt.txt,2,0
+                //  vaLogString50.txt=vaLogString50.txt+";"+vaTempTxt.txt
+                //  covx vaMinTmp.val,vaTempTxt.txt,2,0
+                //  vaLogString50.txt=vaLogString50.txt+";"+vaTempTxt.txt
+                //  prints vaLogString50.txt,50
+                // now we can check when we have to start with sunrise
+                // calc the day of the sunrise
+                if(vaDayTmp.val==-1)
+                {
+                    //Sonntag||Montag||Dienstag||Mittwoch||Donnerstag||Freitag||Samstag?
+                    if(page1.cbSo1.val==1&&rtc6==6)
+                    {
+                        if(vaHourTmp.val==rtc3&&vaMinTmp.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                    if(page1.cbMo1.val==1&&rtc6==0)
+                    {
+                        if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                    if(page1.cbDi1.val==1&&rtc6==1)
+                    {
+                        if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                    if(page1.cbMi1.val==1&&rtc6==2)
+                    {
+                        if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                    if(page1.cbDo1.val==1&&rtc6==3)
+                    {
+                        if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                    if(page1.cbFr1.val==1&&rtc6==4)
+                    {
+                        if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                    if(page1.cbSa1.val==1&&rtc6==5)
+                    {
+                        if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                }else
+                {
+                    //Sonntag||Montag||Dienstag||Mittwoch||Donnerstag||Freitag||Samstag?
+                    if(page1.cbSo1.val==1&&rtc6==0)
+                    {
+                        if(vaHourTmp.val==rtc3&&vaMinTmp.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                    if(page1.cbMo1.val==1&&rtc6==1)
+                    {
+                        if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                    if(page1.cbDi1.val==1&&rtc6==2)
+                    {
+                        if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                    if(page1.cbMi1.val==1&&rtc6==3)
+                    {
+                        if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                    if(page1.cbDo1.val==1&&rtc6==4)
+                    {
+                        if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                    if(page1.cbFr1.val==1&&rtc6==5)
+                    {
+                        if(vaHourTmp.val==rtc3&&vaMinTmp.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                    if(page1.cbSa1.val==1&&rtc6==6)
+                    {
+                        if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                        {
+                            page0.vaSunrise.val=1
+                        }
+                    }
+                }
+                //<<< END SUNRISE >>>
+                //>>> ALARAM <<<
+                //Sonntag||Montag||Dienstag||Mittwoch||Donnerstag||Freitag||Samstag?
+                if(page1.cbSo1.val==1&&rtc6==0)
+                {
+                    //Alarm: check hour and minute
+                    if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                }
+                if(page1.cbMo1.val==1&&rtc6==1)
+                {
+                    //Alarm: check hour and minute
+                    if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                }
+                if(page1.cbDi1.val==1&&rtc6==2)
+                {
+                    //Alarm: check hour and minute
+                    if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                }
+                if(page1.cbMi1.val==1&&rtc6==3)
+                {
+                    //Alarm: check hour and minute
+                    if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                }
+                if(page1.cbDo1.val==1&&rtc6==4)
+                {
+                    //Alarm: check hour and minute
+                    if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                }
+                if(page1.cbFr1.val==1&&rtc6==5)
+                {
+                    //Alarm: check hour and minute
+                    if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                }
+                if(page1.cbSa1.val==1&&rtc6==6)
+                {
+                    //Alarm: check hour and minute
+                    if(page1.nHour1.val==rtc3&&page1.nMin1.val==rtc4)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                }
+                //<<< END ALARAM >>>
+            }
+            if(page0.vaSunrise.val==1)
+            {
+                prints "START SUNRISE",13
+                page0.p1.pic=2
+                printh 65 00 00 00 FF FF FF
+                page0.vaSunrise.val=0
+            }
+            if(page0.vaAlarm.val==1)
+            {
+                prints "START ALARM",11
+                page0.p1.pic=3
+                printh 65 00 00 00 FF FF FF
+                page0.vaAlarm.val=0
+            }
+        
+Timer tmAlarm2
+    Attributes
+        ID         : 15
+        Scope      : local
+        Period (ms): 400
+        Enabled    : yes
+    
+    Events
+        Timer Event
+            // check alarm 2
+            //------------------------------------
+            // rtc0 is year 2000 to 2099,
+            // rtc1 is month 1 to 12,
+            // rtc2 is day 1 to 31,
+            // rtc3 is hour 0 to 23,
+            // rtc4 is minute 0 to 59,
+            // rtc5 is second 0 to 59.
+            // rtc6 is dayofweek 0 to 6 (Sunday=0, Saturday=6)
+            // rtc6 is readonly and calculated by RTC when date is valid.
+            //----------------------------------
+            // erster Alarm aktiv?
+            if(page1.cbOnOff2.val==1)
+            {
+                // check hour and minute
+                if(page1.nHour2.val==rtc3&&page1.nMin2.val==rtc4)
+                {
+                    //Sonntag||Montag||Dienstag||Mittwoch||Donnerstag||Freitag||Samstag?
+                    if(page1.cbSo2.val==1&&rtc6==0)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                    if(page1.cbMo2.val==1&&rtc6==1)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                    if(page1.cbDi2.val==1&&rtc6==2)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                    if(page1.cbMi2.val==1&&rtc6==3)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                    if(page1.cbDo2.val==1&&rtc6==4)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                    if(page1.cbFr2.val==1&&rtc6==5)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                    if(page1.cbSa2.val==1&&rtc6==6)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                }
+            }
+        
+Timer tmAlarm3
+    Attributes
+        ID         : 16
+        Scope      : local
+        Period (ms): 400
+        Enabled    : yes
+    
+    Events
+        Timer Event
+            // check alarm 3
+            //------------------------------------
+            // rtc0 is year 2000 to 2099,
+            // rtc1 is month 1 to 12,
+            // rtc2 is day 1 to 31,
+            // rtc3 is hour 0 to 23,
+            // rtc4 is minute 0 to 59,
+            // rtc5 is second 0 to 59.
+            // rtc6 is dayofweek 0 to 6 (Sunday=0, Saturday=6)
+            // rtc6 is readonly and calculated by RTC when date is valid.
+            //----------------------------------
+            // erster Alarm aktiv?
+            if(page1.cbOnOff3.val==1)
+            {
+                // check hour and minute
+                if(page1.nHour3.val==rtc3&&page1.nMin3.val==rtc4)
+                {
+                    //Sonntag||Montag||Dienstag||Mittwoch||Donnerstag||Freitag||Samstag?
+                    if(page1.cbSo3.val==1&&rtc6==0)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                    if(page1.cbMo3.val==1&&rtc6==1)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                    if(page1.cbDi3.val==1&&rtc6==2)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                    if(page1.cbMi3.val==1&&rtc6==3)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                    if(page1.cbDo3.val==1&&rtc6==4)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                    if(page1.cbFr3.val==1&&rtc6==5)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                    if(page1.cbSa3.val==1&&rtc6==6)
+                    {
+                        page0.vaAlarm.val=1
+                    }
+                }
+            }
+        
+Timer tm1
+    Attributes
+        ID         : 30
+        Scope      : local
+        Period (ms): 1000
+        Enabled    : yes
+    
+    Events
+        Timer Event
+            //------------------------------------------------------------------
+            // dim
+            //------------------------------------------------------------------
+            if(vaDim.val>0)
+            {
+                vaDim.val=vaDim.val-1
+                covx vaDim.val,vaTempTxt.txt,0,0
+            }else
+            {
+                if(dim>0)
+                {
+                    dim=dim-4
+                }
+            }
+        

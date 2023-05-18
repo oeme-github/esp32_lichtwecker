@@ -1,54 +1,57 @@
-#pragma once
+#include <libConfig.h>
 
-#include <lw_config.h>
+#include <FS.h>
+#ifdef WITH_SPIFFS
+    #include <SPIFFS.h>
+#endif // DEBUG
+#ifdef WITH_SD
+    #include <SD.h>
+#endif // DEBUG
 
-#include <WiFiManager.h>
-#include <ESPAsyncWebServer.h>
-#include <SPIFFS.h>
-#include <ESPmDNS.h>
-
+#include <WebServer.h>
+#include <libDebug.h>
+#include <libFile.h>
 #include <MyConfigServer.h>
-#include <filelib.h>
-#include <debuglib.h>
 
-#include <ESPNexUpload.h>
 
 typedef struct
 { 
-    String msg; 
     int iRet; 
+    String msg; 
 } RetCode;
+
 
 class MyWebServer
 {
 private:
     /* data */
-    AsyncWebServer *server;
+    WebServer *server;
     MyConfigServer *configServer;
-    boolean hasSD = false;
-    fs::FS *fs;
-    boolean isConfigLoaded = false;
+
+    FS *fs;
+    boolean hasFS;
     int port;
-
-    void createConfigJson();
-
+    File uploadFile;
 public:
-    MyWebServer();
+    MyWebServer(/* args */);
     ~MyWebServer();
 
-    void startWebServer();
-    boolean loadConfig();
-    boolean loadSD(fs::FS *fs_);
-    boolean begin();
-    bool checkWebAuth(AsyncWebServerRequest * request); 
-    bool loadFromFS(AsyncWebServerRequest *request);
+    RetCode loadWebServer(FS *fs);
+    RetCode loadConfig();
+    RetCode begin();
 
-    void printAllParams(AsyncWebServerRequest *request);
-    void printAllArgs(AsyncWebServerRequest *request);
+    void returnOK(String msg);
+    void returnFail( uint16_t iRet, String type, String msg);
 
-    RetCode deleteRecursive(fs::FS *fs_, String path); 
-    RetCode createDir(fs::FS *fs_, String path); 
-    RetCode upload2nextion(fs::FS *fs_, String path);
+    void printDirectory();
+    void handleDelete();
+    void handleCreate();
+    void handleFileUpload();
+    void handleGetValue();
+    void handleNotFound();
+    bool loadFromFS(String path);
+
+    void handleClient(){this->server->handleClient();}
 
 };
 

@@ -40,7 +40,7 @@ MyConfigServer::MyConfigServer()
  */
 boolean MyConfigServer::loadConfig(FS *_fs)
 {
-    return this->loadConfig(_fs, "/config.map", FileFormat::MAP);
+    return this->loadConfig(_fs, "/config.map");
 }
 
 /**
@@ -51,13 +51,12 @@ boolean MyConfigServer::loadConfig(FS *_fs)
  * @param  _format: FileFormat::JSON or FileFormat::MAP
  * @retval true|false success of loading
  */
-boolean MyConfigServer::loadConfig(FS *_fs, const char *_filename, FileFormat _format)
+boolean MyConfigServer::loadConfig(FS *_fs, const char *_filename)
 {
     /* ------------------------------------------------- */
     /* init                                              */
     this->fs         = _fs;
     this->configFile = _filename;
-    this->format     = _format;
     /* ------------------------------------------------- */
     /* filesystem mounted                                */
     if(this->fs->exists(this->configFile)) 
@@ -68,19 +67,7 @@ boolean MyConfigServer::loadConfig(FS *_fs, const char *_filename, FileFormat _f
       if(file) 
       {
         String content = file.readString();
-        switch (this->format)
-        {
-#ifdef CONFIG_WITH_JSON
-        case FileFormat::JSON:
-          this->loaded = this->loadConfigJson(content);  
-          break;
-#endif
-        case FileFormat::MAP:
-          this->loaded = this->loadConfigMap(content);  
-          break;
-        default:
-          break;
-        }
+        this->loaded = this->loadConfigMap(content);  
       }
       file.close();
     }
@@ -98,24 +85,9 @@ boolean MyConfigServer::loadConfig(FS *_fs, const char *_filename, FileFormat _f
  */
 void MyConfigServer::printConfig()
 {
-  switch (this->format)
+  for (auto const& x : this->mapConfig)
   {
-#ifdef CONFIG_WITH_JSON
-  case FileFormat::JSON:
-    char buffer[CONFIG_JSON_SIZE+1]; 
-    serializeJsonPretty(this->jsonConfig, buffer);
-    Serial.println(buffer);
-    break;
-#endif
-  case FileFormat::MAP:
-    for (auto const& x : this->mapConfig)
-    {
-      Serial.print(x.first.c_str()); Serial.print(" -> "); Serial.println(x.second.c_str());
-    }
-    break; 
-  default:
-    Serial.print("Format "); Serial.print(this->format); Serial.println(" unknown.");
-    break;
+    dbSerialPrintf( "%s -> %s", x.first.c_str(), x.second.c_str());
   }
 }
 
@@ -126,49 +98,23 @@ void MyConfigServer::printConfig()
  */
 void MyConfigServer::saveToConfigfile()
 {
+  dbSerialPrintf("save to file");
   int ret = 0;
   File file = this->fs->open(this->configFile, FILE_WRITE);
   if (file) 
   {
-    switch (this->format)
+    for (auto const& x : this->mapConfig)
     {
-#ifdef CONFIG_WITH_JSON
-    case FileFormat::JSON:
-      ret = serializeJson(this->jsonConfig, file);
-      break;
-#endif
-    case FileFormat::MAP:
-      for (auto const& x : this->mapConfig)
-      {
-        file.print(x.first.c_str());file.print(":");file.print(x.second.c_str());file.println(",");
-      }
-      break;
-    
-    default:
-      break;
+      file.print(x.first.c_str());file.print(":");file.print(x.second.c_str());file.println(",");
     }
     file.close();
   }
   else
   {
-    Serial.print("can not open file: "); Serial.println(this->configFile);
+    dbSerialPrintf("can not open file:[%s]", this->configFile);
   }    
 }
 
-/**
- * @brief  saveConfig(const JsonDocument& _jsonDoc)
- * @note   save a json configuration
- * @param  _jsonDoc: json document
- * @retval true
- */
-#ifdef CONFIG_WITH_JSON
-boolean MyConfigServer::saveConfig(const JsonDocument& _jsonDoc)
-{
-  this->jsonConfig = _jsonDoc;
-  this->saveToConfigfile();
-  return true;
-}
-#endif
 
 /**
  * @brief  saveConfig(MapConfig *_map)
@@ -187,25 +133,6 @@ boolean MyConfigServer::saveConfig(MapConfig *_map)
 }
 
 /**
- * @brief  loadConfigJson(String content)
- * @note   loads a json config from String content
- * @param  content: String content
- * @retval true|false
- */
-#ifdef CONFIG_WITH_JSON
-boolean MyConfigServer::loadConfigJson(String content)
-{
-  DeserializationError error = deserializeJson(this->jsonConfig, content);
-  if(error) 
-  {
-      Serial.print( "Failed to read file: " );
-      Serial.println( error.c_str() );
-      return false;
-  }
-  return true;
-}
-#endif
-/**
  * @brief  loadConfigMap(String content)
  * @note   loads a map config from String content 
  * @param  content: String content
@@ -217,6 +144,7 @@ boolean MyConfigServer::loadConfigMap(String content)
   // remove \n\r from content
   test.erase(std::remove(test.begin(), test.end(), '\n'), test.cend());
   test.erase(std::remove(test.begin(), test.end(), '\r'), test.cend());
+  test.erase(std::remove(test.begin(), test.end(), ' ' ), test.cend());
   std::vector<std::string> vecHelper;
   std::vector<std::string> elemt;
   std::string key;
@@ -251,18 +179,7 @@ boolean MyConfigServer::loadConfigMap(String content)
  */
 bool MyConfigServer::containsKey(const char *_index)
 {
-  switch (this->format)
-  {
-#ifdef CONFIG_WITH_JSON
-  case FileFormat::JSON :
-    return this->jsonConfig.containsKey(_index); 
-    break;
-#endif
-  case FileFormat::MAP :
-    return (this->mapConfig.find(_index) != this->mapConfig.end());
-    break;
-  }
-  return false;
+  return (this->mapConfig.find(_index) != this->mapConfig.end());
 }
 
 /**
@@ -272,40 +189,35 @@ bool MyConfigServer::containsKey(const char *_index)
  * @retval 
  */
 std::string MyConfigServer::getElement( const char *_index )
-{ 
-  switch (this->format)
+{
+  if( !this->containsKey(_index) )
   {
-#ifdef CONFIG_WITH_JSON
-  case FileFormat::JSON :
-    return this->jsonConfig[_index]; 
-    break;
-#endif
-  case FileFormat::MAP :
-    return this->mapConfig[_index];
-    break;
+    dbSerialPrintf("key[%s] not in config", _index);
+    return "";
   }
-  return "";
+  return this->mapConfig[_index];
 }
 
 /**
  * @brief  putElement( const char *_index, const char *_value )
  * @note   puts an key value pair in a map or json document
- * @param  *_index: const char pointer to index
- * @param  *_value: const char pointer to value
+ * @param  *_index: std::string
+ * @param  *_value: std::string
  * @retval None
  */
-void MyConfigServer::putElement( const char *_index, const char *_value )
+void MyConfigServer::putElement( std::string _index, std::string _value )
 { 
-  switch (this->format)
-  {
-#ifdef CONFIG_WITH_JSON
-  case FileFormat::JSON :
-    this->jsonConfig[_index]=_value;
-    break;
-#endif
-  case FileFormat::MAP :
-    this->mapConfig[_index]=_value;
-    break;  
-  }
-  return;
+  this->mapConfig[_index]=_value;
+}
+
+/**
+ * @brief  putElement( const char *_index, const char *_value )
+ * @note   puts an key value pair in a map or json document
+ * @param  *_index: std::string
+ * @param  *_value: int
+ * @retval None
+ */
+void MyConfigServer::putElement(  std::string _index, int _value )
+{ 
+  this->mapConfig[_index]=std::to_string(_value);
 }

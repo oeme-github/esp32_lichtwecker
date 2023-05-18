@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
   <head>
     <meta charset="utf-8">
@@ -6,235 +6,153 @@
     <link rel="stylesheet" type="text/css" href="/style.css">
     <link rel="icon" href="/lichtwecker.ico">
     <title>Lichtwecker</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.21.0/ace.js" type="text/javascript" charset="utf-8"></script>
     <script>
-
-      //---------------------------------------------------
-      // 
       function createFileUploader(element, tree, editor)
       {
         var xmlHttp;
-
-        var input          = document.createElement("input");
-        input.type         = "file";
-        input.multiple     = false;
-        input.name         = "file";
-        input.id           = "file";
+        var input = document.createElement("input");
+        input.type = "file";
+        input.multiple = false;
+        input.name = "data";
         document.getElementById(element).appendChild(input);
-        
-        var path           = document.createElement("input");
-        path.id            = "path";
-        path.type          = "text";
-        path.name          = "path";
-        path.defaultValue  = "";
-        path.placeholder   = "<upload to>/<select file>";
+        var path = document.createElement("input");
+        path.id = "upload-path";
+        path.type = "text";
+        path.name = "path";
+        path.defaultValue = "/";
         document.getElementById(element).appendChild(path);
-        
-        var uplbtn         = document.createElement("button");
-        uplbtn.innerHTML   = 'Upload';
-        uplbtn.id          = 'uploadbtn';
-        document.getElementById(element).appendChild(uplbtn);
-        
-        var mkdir          = document.createElement("button");
-        mkdir.innerHTML    = 'MkDir';
-        mkdir.id           = 'mkdirbtn';
+        var button = document.createElement("button");
+        button.innerHTML = 'Upload';
+        document.getElementById(element).appendChild(button);
+        var mkdir = document.createElement("button");
+        mkdir.innerHTML = 'MkDir';
         document.getElementById(element).appendChild(mkdir);
-        
-        var rfdir          = document.createElement("button");
-        rfdir.innerHTML    = 'Refresh';
-        rfdir.id           = "refreshbtn";
-        document.getElementById(element).appendChild(rfdir);
+        var mkfile = document.createElement("button");
+        mkfile.innerHTML = 'MkFile';
+        document.getElementById(element).appendChild(mkfile);
   
         function httpPostProcessRequest()
         {
-          console.log("httpPostProcessRequest..");
           if (xmlHttp.readyState == 4)
           {
-            if(xmlHttp.status != 200)
-            {
+            if(xmlHttp.status != 200) 
               alert("ERROR["+xmlHttp.status+"]: "+xmlHttp.responseText);
-            }
             else 
-            {
-              console.log("call tree.refreshPath("+path.value+")");
               tree.refreshPath(path.value);
-
-              console.log("clean up...");
-              // clean up
-              path.value  = "";
-              input.value = "";
-              document.getElementById("details").innerHTML = "";
-              // refreshes the table 
-              console.log("refresh site...");
-              document.getElementById("reload").click();
-            }
           }
         }
-        
-        function createPath(dir)
+        function createPath(p)
         {
-          console.log("createPath() called.."+dir);
           xmlHttp = new XMLHttpRequest();
           xmlHttp.onreadystatechange = httpPostProcessRequest;
-          // create the form
           var formData = new FormData();
-          formData.append('method' , 'CREATE');
-          formData.append('action' , 'create');
-          formData.append('enctype', '/multipart/form-data');
-          formData.append('fs'     , getSelectedFS());
-          formData.append('name'   , dir );
-          // process request
-          xmlHttp.open("POST", "/file");
+          formData.append("path", p);
+          xmlHttp.open("PUT", "/edit");
           xmlHttp.send(formData);
-          path.value = dir;
         }
-
-        rfdir.onclick = function(e)
-        {
-          console.log("refresh clicked..");
-          tree.refreshPath("");
-        };
         
+        mkfile.onclick = function(e)
+        {
+          if(path.value.indexOf(".") === -1) 
+            return;
+          createPath(path.value);
+          editor.loadUrl(path.value);
+        }
         mkdir.onclick = function(e)
         {
-          console.log("mkdir clicked..");
           if(path.value.length < 2) 
             return;
           var dir = path.value
           if(dir.indexOf(".") !== -1)
           {
-            if(dir.lastIndexOf("/") === 0) return;
+            if(dir.lastIndexOf("/") === 0) 
+              return;
             dir = dir.substring(0, dir.lastIndexOf("/"));
           }
           createPath(dir);
-          path.value = dir;
-        };
-
-        uplbtn.onclick = function(e)
+        }
+        button.onclick = function(e)
         {
-          console.log("uplbtn.onclick..");
           if(input.files.length === 0)
           {
-            console.log("input.files.length == 0");
             return;
           }
-          console.log("start upload..."+input.files[0]+","+path.value);  
           xmlHttp = new XMLHttpRequest();
           xmlHttp.onreadystatechange = httpPostProcessRequest;
-          // swith on progress bar
-          var progressform = "<progress id=\"progressBar\" value=\"0\" max=\"100\" style=\"width:300px;\"></progress>";
-          document.getElementById("details").innerHTML = progressform;          
-          xmlHttp.upload.addEventListener("progress", progressHandler, false);
-          // create formData and add key, value pairs
           var formData = new FormData();
-          formData.append('method' , 'POST');
-          formData.append('action' , '/handleupload');
-          formData.append('enctype', '/multipart/form-data');
-          formData.append('file'   , input.files[0], path.value);
-          formData.append('fs'     , getSelectedFS());
-          // cprocess request
-          xmlHttp.open("POST", "/?fs="+getSelectedFS());
+          formData.append("data", input.files[0], path.value);
+          xmlHttp.open("POST", "/edit");
           xmlHttp.send(formData);
         }
-
-        function progressHandler(event) 
-        {
-          var percent = (event.loaded / event.total) * 100;
-          console.log("progress:"+percent);
-          document.getElementById("progressBar").value = Math.round(percent);
-        }
-
-        //-------------------------------------------------
-        // bei Änderunge des input Elementes (-> bei Auswahl einer Datei)
         input.onchange = function(e)
         {
-          console.log("input.onchange..");
-
           if(input.files.length === 0) 
             return;
-
           var filename = input.files[0].name;
-          var ext      = /(?:\.([^.]+))?$/.exec(filename)[1];
-          var name     = /(.*)\.[^.]+$/.exec(filename)[1];
-          
-          console.log("filename: " + filename);
-          console.log("ext     : " + ext );
-          console.log("name    : " + name );  
-
-          console.log("path.value.length:"+path.value.length);
-          
-          if( path.value.length > 0 )
+          var ext = /(?:\.([^.]+))?$/.exec(filename)[1];
+          var name = /(.*)\.[^.]+$/.exec(filename)[1];
+          if(typeof name !== undefined)
           {
-            if( path.value.substring(0, path.value.length-1) == "/" )
-              path.value = path.value.substring(0, path.value.length)+filename;
-            else
-              path.value = path.value.substring(0, path.value.length)+"/"+filename;
+            filename = name;
           }
-          else
+          if(typeof ext !== undefined)
           {
-            if( getSelectedFS() == "SD" )
-              path.value = "/" + filename;
-            else
-              path.value = filename;
+            filename = filename + "." + ext;
           }
-          console.log("path.value: " + path.value );
+          if(path.value === "/" || path.value.lastIndexOf("/") === 0)
+          {
+            path.value = "/"+filename;
+          } 
+          else 
+          {
+            path.value = path.value.substring(0, path.value.lastIndexOf("/")+1)+filename;
+          }
         }
       }
 
       function createTree(element, editor)
       {
-        var preview  = document.getElementById("preview");
+        var preview = document.getElementById("preview");
         var treeRoot = document.createElement("div");
         treeRoot.className = "css-treeview";
         document.getElementById(element).appendChild(treeRoot);
   
         function loadDownload(path)
         {
-          console.log("loadDownload("+path+")");
-          document.getElementById('download-frame').src = "file/?action=download&fs="+getSelectedFS()+"&name="+path;
+          document.getElementById('download-frame').src = path+"?download=true";
         }
   
-        function playAudio(path)
+        function loadPreview(path)
         {
-          console.log("playAudio("+path+")");
           document.getElementById("editor").style.display = "none";
           preview.style.display = "block";
-          preview.innerHTML =  '<audio controls autoplay> \
-                                  <source src="'+path+'" type="audio/mpeg"> \
-                                Your browser does not support the audio element. \
-                                </audio>'; 
+          preview.innerHTML = '<img src="'+path+'" style="max-width:100%; max-height:100%; margin:auto; display:block;" />';
         }
-
+  
         function fillFolderMenu(el, path)
         {
-          console.log("fillFolderMenu("+el+","+path+")");
-          
           var list = document.createElement("ul");
           el.appendChild(list);
-          
           var action = document.createElement("li");
           list.appendChild(action);
-          
           var isChecked = document.getElementById(path).checked;
-          
           var expnd = document.createElement("li");
           list.appendChild(expnd);
-          
           if(isChecked)
           {
             expnd.innerHTML = "<span>Collapse</span>";
             expnd.onclick = function(e)
             {
               document.getElementById(path).checked = false;
-              if(document.body.getElementsByClassName('contextMenu').length > 0) 
+              if(document.body.getElementsByClassName('contextMenu').length > 0)
                 document.body.removeChild(el);
             };
-            
             var refrsh = document.createElement("li");
             list.appendChild(refrsh);
             refrsh.innerHTML = "<span>Refresh</span>";
-            
-            refrsh.onclick = function(e)
-            {
+            refrsh.onclick = function(e){
               var leaf = document.getElementById(path).parentNode;
               if(leaf.childNodes.length == 3) 
                 leaf.removeChild(leaf.childNodes[2]);
@@ -257,100 +175,73 @@
                 document.body.removeChild(el);
             };
           }
-
-          if( getSelectedFS() == "SD" )
+          var upload = document.createElement("li");
+          list.appendChild(upload);
+          upload.innerHTML = "<span>Upload</span>";
+          upload.onclick = function(e)
           {
-            var upload = document.createElement("li");
-            list.appendChild(upload);
-            upload.innerHTML = "<span>Upload to</span>";
-            upload.onclick = function(e)
+            var pathEl = document.getElementById("upload-path");
+            if(pathEl)
             {
-              console.log("upload.onclick..");
-              var pathEl = document.getElementById("path");
-              if(pathEl)
-              {
-                var subPath = pathEl.value;
-                if(subPath.lastIndexOf("/") < 1) 
-                  pathEl.value = path+subPath;
-                else 
-                  pathEl.value = path.substring(subPath.lastIndexOf("/"))+subPath;
-              }
-              if(document.body.getElementsByClassName('contextMenu').length > 0) 
-                document.body.removeChild(el);
-            };
-          }
-
+              var subPath = pathEl.value;
+              if(subPath.lastIndexOf("/") < 1)
+                pathEl.value = path+subPath;
+              else 
+                pathEl.value = path.substring(subPath.lastIndexOf("/"))+subPath;
+            }
+            if(document.body.getElementsByClassName('contextMenu').length > 0) 
+              document.body.removeChild(el);
+          };
           var delFile = document.createElement("li");
           list.appendChild(delFile);
           delFile.innerHTML = "<span>Delete</span>";
           delFile.onclick = function(e)
           {
-            console.log("foldermenu-delFile.onclick:"+path);
             httpDelete(path);
-            if(document.body.getElementsByClassName('contextMenu').length > 0)
-              document.body.removeChild(el);
+            if(document.body.getElementsByClassName('contextMenu').length > 0) document.body.removeChild(el);
           };
         }
   
         function fillFileMenu(el, path)
         {
-          console.log("fillFileMenu("+el+","+path+")");
-          
           var list = document.createElement("ul");
           el.appendChild(list);
-          
-          var action1 = document.createElement("li");
-          list.appendChild(action1);
-
-          var action2 = document.createElement("li");
-          list.appendChild(action2);
-          
-          if(isAudioFile(path))
+          var action = document.createElement("li");
+          list.appendChild(action);
+          if(isTextFile(path))
           {
-            action1.innerHTML = "<span>Play</span>";
-            action1.onclick = function(e)
+            action.innerHTML = "<span>Edit</span>";
+            action.onclick = function(e)
             {
-              playAudio(path);
+              editor.loadUrl(path);
               if(document.body.getElementsByClassName('contextMenu').length > 0) 
                 document.body.removeChild(el);
             };
-
-            action2.innerHTML = "<span>Play on Box</span>";
-            action2.onclick = function(e)
-            {
-              httpPlay(path);
-              if(document.body.getElementsByClassName('contextMenu').length > 0) 
-                document.body.removeChild(el);
-            };
-
-          }
-          if(isTftFile(path))
+          } 
+          else if(isImageFile(path))
           {
-            action1.innerHTML = "<span>Upload to nextion</span>";
-            action1.onclick = function(e)
+            action.innerHTML = "<span>Preview</span>";
+            action.onclick = function(e)
             {
-              uploadToNextion(path);
-              if(document.body.getElementsByClassName('contextMenu').length > 0) 
+              loadPreview(path);
+              if(document.body.getElementsByClassName('contextMenu').length > 0)
                 document.body.removeChild(el);
             };
           }
-
           var download = document.createElement("li");
           list.appendChild(download);
           download.innerHTML = "<span>Download</span>";
           download.onclick = function(e)
           {
             loadDownload(path);
-            if(document.body.getElementsByClassName('contextMenu').length > 0) 
+            if(document.body.getElementsByClassName('contextMenu').length > 0)
               document.body.removeChild(el);
           };
-
           var delFile = document.createElement("li");
           list.appendChild(delFile);
           delFile.innerHTML = "<span>Delete</span>";
           delFile.onclick = function(e)
           {
-            console.log("filemenu-delFile.onclick:"+path);
             httpDelete(path);
             if(document.body.getElementsByClassName('contextMenu').length > 0) 
               document.body.removeChild(el);
@@ -359,7 +250,6 @@
   
         function showContextMenu(e, path, isfile)
         {
-          console.log("showContextMenu("+e+","+path+","+isfile+")");
           var divContext = document.createElement("div");
           var scrollTop = document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
           var scrollLeft = document.body.scrollLeft ? document.body.scrollLeft : document.documentElement.scrollLeft;
@@ -388,12 +278,22 @@
   
         function createTreeLeaf(path, name, size)
         {
-          console.log("ceateTreeLeaf("+path+","+name+","+size+")");
           var leaf = document.createElement("li");
-          leaf.id = name.toLowerCase();
+          leaf.id = name;
           var label = document.createElement("span");
-          label.textContent = name.toLowerCase();
+          label.textContent = name;
           leaf.appendChild(label);
+          leaf.onclick = function(e)
+          {
+            if(isTextFile(leaf.id))
+            {
+              editor.loadUrl(leaf.id);
+            } 
+            else if(isImageFile(leaf.id))
+            {
+              loadPreview(leaf.id);
+            }
+          };
           leaf.oncontextmenu = function(e)
           {
             e.preventDefault();
@@ -405,41 +305,33 @@
   
         function createTreeBranch(path, name, disabled)
         {
-          console.log("ceateTreeBranch("+path+","+name+","+disabled+")");
-          var leaf   = document.createElement("li");
-          var check  = document.createElement("input");
+          var leaf = document.createElement("li");
+          var check = document.createElement("input");
           check.type = "checkbox";
-          check.id   = name.toLowerCase();
-          if(typeof disabled !== "undefined" && disabled)
-          {
+          check.id = name;
+          if(typeof disabled !== "undefined" && disabled) 
             check.disabled = "disabled";
-          }
           leaf.appendChild(check);
           var label = document.createElement("label");
           label.for = check.id;
-          label.textContent = name.toLowerCase();
+          label.textContent = name;
           leaf.appendChild(label);
-          
           check.onchange = function(e)
           {
-            console.log("check.onchange...");
             if(check.checked)
             {
-              if(leaf.childNodes.length == 3) leaf.removeChild(leaf.childNodes[2]);
+              if(leaf.childNodes.length == 3) 
+                leaf.removeChild(leaf.childNodes[2]);
               httpGet(leaf, check.id);
             }
           };
-
           label.onclick = function(e)
           {
-            console.log("label.onclick...");
             if(!check.checked)
             {
               check.checked = true;
               if(leaf.childNodes.length == 3) 
-              {
                 leaf.removeChild(leaf.childNodes[2]);
-              }
               httpGet(leaf, check.id);
             } 
             else 
@@ -447,10 +339,8 @@
               check.checked = false;
             }
           };
-
           leaf.oncontextmenu = function(e)
           {
-            console.log("leaf.oncontextmenu..");
             e.preventDefault();
             e.stopPropagation();
             showContextMenu(e, check.id, false);
@@ -460,7 +350,6 @@
   
         function addList(parent, path, items)
         {
-          console.log("addList("+parent+","+path+","+items+")");
           var list = document.createElement("ul");
           parent.appendChild(list);
           var ll = items.length;
@@ -478,56 +367,57 @@
             }
             list.appendChild(itemEl);
           }
+    
         }
   
-        function isAudioFile(path)
+        function isTextFile(path)
         {
-          console.log("isAudioFile("+path+")");
           var ext = /(?:\.([^.]+))?$/.exec(path)[1];
           if(typeof ext !== undefined)
           {
             switch(ext)
             {
-              case "mpeg":
-              case "mp3":
-              case "mp4":
-              case "m4a":
+              case "txt":
+              case "htm":
+              case "html":
+              case "js":
+              case "json":
+              case "c":
+              case "h":
+              case "cpp":
+              case "css":
+              case "xml":
+              case "map":
                 return true;
             }
           }
           return false;
         }
-
-        function isTftFile(path)
+  
+        function isImageFile(path)
         {
-          console.log("isTftFile("+path+")");
           var ext = /(?:\.([^.]+))?$/.exec(path)[1];
           if(typeof ext !== undefined)
           {
             switch(ext)
             {
-              case "tft":
+              case "png":
+              case "jpg":
+              case "gif":
+              case "ico":
                 return true;
             }
           }
           return false;
         }
-        
+  
         this.refreshPath = function(path)
         {
-          console.log("this.refreshPath.. : "+path);
-
-          if( path.substring(path.length-1) == "/" )
-          {
-            path = path.substring(0, path.length-1);
-            console.log("corrected path to :" + path);
-          }
-
           if(path.lastIndexOf('/') < 1)
           {
-            path = '';
+            path = '/';
             treeRoot.removeChild(treeRoot.childNodes[0]);
-            httpGet(treeRoot, "");
+            httpGet(treeRoot, "/");
           } 
           else 
           {
@@ -541,7 +431,6 @@
   
         function delCb(path)
         {
-          console.log("delCB("+path+")");
           return function()
           {
             if (xmlHttp.readyState == 4)
@@ -549,129 +438,75 @@
               if(xmlHttp.status != 200)
               {
                 alert("ERROR["+xmlHttp.status+"]: "+xmlHttp.responseText);
-              } 
+              }
               else 
               {
                 if(path.lastIndexOf('/') < 1)
                 {
-                  path = '';
+                  path = '/';
                   treeRoot.removeChild(treeRoot.childNodes[0]);
-                  httpGet(treeRoot, "");
-                } 
-                else 
+                  httpGet(treeRoot, "/");
+                }
+                else
                 {
                   path = path.substring(0, path.lastIndexOf('/'));
                   var leaf = document.getElementById(path).parentNode;
                   if(leaf.childNodes.length == 3) 
-                  {
                     leaf.removeChild(leaf.childNodes[2]);
-                  }
                   httpGet(leaf, path);
                 }
               }
             }
           }
         }
-
-        function httpPlay(filename)
-        {
-          console.log("httpPlay("+filename+")");
-          xmlHttp = new XMLHttpRequest();
-          xmlHttp.onreadystatechange = httpPostProcessRequest;
-          
-          var formData = new FormData();
-          formData.append('method' , 'POST');
-          formData.append('action' , 'play');
-          formData.append('fs'     , getSelectedFS());
-          formData.append('name'   , filename );
-          // process request
-          xmlHttp.open("POST", "/file");
-          xmlHttp.send(formData);
-        }
-
-        function uploadToNextion(filename)
-        {
-          console.log("uploadToNextion("+filename+")");
-          xmlHttp = new XMLHttpRequest();
-          xmlHttp.onreadystatechange = httpPostProcessRequest;
-          
-          var formData = new FormData();
-          formData.append('method' , 'POST');
-          formData.append('action' , 'upload2nextion');
-          formData.append('fs'     , getSelectedFS());
-          formData.append('name'   , filename );
-          // process request
-          xmlHttp.open("POST", "/file");
-          xmlHttp.send(formData);
-        }
-
-        //post
-        function httpPostProcessRequest(){
-          if (xmlHttp.readyState == 4){
-            if(xmlHttp.status != 200) alert("ERROR["+xmlHttp.status+"]: "+xmlHttp.responseText);
-          }
-        }
-        
-
+  
         function httpDelete(filename)
         {
-          console.log("httpDelete("+filename+")");
           xmlHttp = new XMLHttpRequest();
           xmlHttp.onreadystatechange = delCb(filename);
-          
-          console.log("process delete...")
-
           var formData = new FormData();
-          formData.append('method' , 'DELETE');
-          formData.append('action' , 'delete');
-          formData.append('fs'     , getSelectedFS());
-          formData.append('name'   , filename );
-          
-          console.log("process delete...");
-          // process request
-          xmlHttp.open("POST", "/file");
+          formData.append("path", filename);
+          xmlHttp.open("DELETE", "/edit");
           xmlHttp.send(formData);
-
-          // refreshes the table 
-          console.log("refresh site...");
-          document.getElementById("reload").click();
         }
   
         function getCb(parent, path)
         {
-          console.log("getCb("+parent+","+path+")");
           return function()
           {
             if (xmlHttp.readyState == 4)
             {
               //clear loading
-              if(xmlHttp.status == 200) 
-              {
+              if(xmlHttp.status == 200)
                 addList(parent, path, JSON.parse(xmlHttp.responseText));
-              }
             }
           }
         }
   
         function httpGet(parent, path)
         {
-          console.log("httpGet("+parent+","+path+")");
           xmlHttp = new XMLHttpRequest(parent, path);
           xmlHttp.onreadystatechange = getCb(parent, path);
-          xmlHttp.open("GET", "/list?fs="+getSelectedFS()+"&dir="+path, true);
+          xmlHttp.open("GET", "/list?dir="+path, true);
           xmlHttp.send(null);
+          //start loading
         }
   
-        httpGet(treeRoot, " ");
+        httpGet(treeRoot, "/");
         return this;
       }
 
-      function createEditor(element, file, lang, theme, type){
-        function getLangFromFilename(filename){
+      function createEditor(element, file, lang, theme, type)
+      {
+        function getLangFromFilename(filename)
+        {
           var lang = "plain";
           var ext = /(?:\.([^.]+))?$/.exec(filename)[1];
-          if(typeof ext !== undefined){
-            switch(ext){
+          if(typeof ext !== undefined)
+          {
+            switch(ext)
+            {
+              case "map": lang = "plain"; break;
               case "txt": lang = "plain"; break;
               case "htm": lang = "html"; break;
               case "js": lang = "javascript"; break;
@@ -689,61 +524,73 @@
           return lang;
         }
   
-        if(typeof file === "undefined") file = "/index.html";
+        if(typeof file === "undefined") 
+          file = "/index.html";
   
-        if(typeof lang === "undefined"){
+        if(typeof lang === "undefined")
           lang = getLangFromFilename(file);
-        }
   
-        if(typeof theme === "undefined") theme = "textmate";
+        if(typeof theme === "undefined") 
+          theme = "textmate";
   
-        if(typeof type === "undefined"){
+        if(typeof type === "undefined")
+        {
           type = "text/"+lang;
-          if(lang === "c_cpp") type = "text/plain";
+          if(lang === "c_cpp")
+            type = "text/plain";
         }
   
         var xmlHttp = null;
         var editor = ace.edit(element);
-  
+
         //post
-        function httpPostProcessRequest(){
-          if (xmlHttp.readyState == 4){
-            if(xmlHttp.status != 200) alert("ERROR["+xmlHttp.status+"]: "+xmlHttp.responseText);
+        function httpPostProcessRequest()
+        {
+          if (xmlHttp.readyState == 4)
+          {
+            if(xmlHttp.status != 200)
+              alert("ERROR["+xmlHttp.status+"]: "+xmlHttp.responseText);
           }
         }
-        function httpPost(filename, data, type){
-          xmlHttp                    = new XMLHttpRequest();
+        function httpPost(filename, data, type)
+        {
+          xmlHttp = new XMLHttpRequest();
           xmlHttp.onreadystatechange = httpPostProcessRequest;
-          var formData               = new FormData();
+          var formData = new FormData();
           formData.append("data", new Blob([data], { type: type }), filename);
-          xmlHttp.open("POST", "/");
+          xmlHttp.open("POST", "/edit");
           xmlHttp.send(formData);
         }
         //get
-        function httpGetProcessRequest(){
-          if (xmlHttp.readyState == 4){
+        function httpGetProcessRequest()
+        {
+          if (xmlHttp.readyState == 4)
+          {
             document.getElementById("preview").style.display = "none";
             document.getElementById("editor").style.display = "block";
-            if(xmlHttp.status == 200) editor.setValue(xmlHttp.responseText);
-            else editor.setValue("");
+            if(xmlHttp.status == 200) 
+              editor.setValue(xmlHttp.responseText);
+            else 
+              editor.setValue("");
             editor.clearSelection();
           }
         }
-        function httpGet(theUrl){
+        function httpGet(theUrl)
+        {
             xmlHttp = new XMLHttpRequest();
             xmlHttp.onreadystatechange = httpGetProcessRequest;
             xmlHttp.open("GET", theUrl, true);
             xmlHttp.send(null);
         }
   
-        if(lang !== "plain") editor.getSession().setMode("ace/mode/"+lang);
+        if(lang !== "plain") 
+          editor.getSession().setMode("ace/mode/"+lang);
         editor.setTheme("ace/theme/"+theme);
         editor.$blockScrolling = Infinity;
         editor.getSession().setUseSoftTabs(true);
         editor.getSession().setTabSize(2);
         editor.setHighlightActiveLine(true);
         editor.setShowPrintMargin(false);
-
         editor.commands.addCommand(
           {
             name: 'saveCommand',
@@ -755,7 +602,6 @@
             readOnly: false
           }
         );
-        
         editor.commands.addCommand(
           {
             name: 'undoCommand',
@@ -767,21 +613,17 @@
             readOnly: false
           }
         );
-        
         editor.commands.addCommand(
           {
             name: 'redoCommand',
             bindKey: {win: 'Ctrl-Shift-Z',  mac: 'Command-Shift-Z'},
-            exec: function(editor) 
-            {
+            exec: function(editor) {
               editor.getSession().getUndoManager().redo(false);
             },
             readOnly: false
           }
         );
-
         httpGet(file);
-        
         editor.loadUrl = function(filename)
         {
           file = filename;
@@ -793,109 +635,83 @@
         }
         return editor;
       }
+      function httpGetValue(param)
+      {
+        var PARvalRequest = new XMLHttpRequest();
+        PARvalRequest.onreadystatechange = function()
+        {
+          if(this.readyState == 4 && this.status == 200)
+          {
+            document.getElementById(param).innerHTML =
+            this.responseText;
+          }
+        };
+        PARvalRequest.open("GET", "/getValue?param="+param, true);
+        PARvalRequest.send();
+      }
 
       function onBodyLoad()
       {
-        console.log("*** onBodyLoad ***")
+        httpGetValue("TITLE");
+        httpGetValue("FIRMWARE");
+        httpGetValue("SPIFFSFREE");
+        httpGetValue("SPIFFSUSED");
+        httpGetValue("SPIFFSTOTAL");        
         var vars = {};
         var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) { vars[key] = value; });
         var editor = createEditor("editor", vars.file, vars.lang, vars.theme);
         var tree = createTree("tree", editor);
-        createFileUploader("uploader", tree, editor);        
-        ValidateForm();
+        createFileUploader("uploader", tree, editor);
       };
-
-      function ValidateForm()
-      { 
-        console.log("ValidateForm()");
-        document.getElementById("storagename").innerHTML = "Programmspeicher";
-        document.getElementById("mkdirbtn").disabled = true;
-        document.getElementById("file" ).value = "";
-        document.getElementById("path" ).value = "";
-        document.getElementById("path" ).placeholder = "<Datei auswählen>";
-      }      
-
-      function getSelectedFS()
-      {
-          var radioButtons = document.getElementsByName("speicher");
-          for(var i = 0; i < radioButtons.length; i++)
-          {
-              if(radioButtons[i].checked == true)
-              {
-                return radioButtons[i].value;
-              }
-          }
-          return "";
-      }      
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.18.0/ace.js" type="text/javascript" charset="utf-8"></script>
+    </script>  
   </head>
-
   <body onload="onBodyLoad();">
-    <logo>
-      <img alias="main_logo" src="lichtwecker.png" alt="Logo des Lichtweckers" 
-          style="object-fit:contain;
-                width: 150px; height: auto;
-                border: solid 1px #CCC" >
-    </logo>
-    <header>
-      <h1>%TITLE%</h1>
-    </header>
-
-    <nav>
-      <form method="post">
-        <div class="toggle-buttons">
-            <table id="radio-buttons">
-              <tr>
-                <td>
-                  <input type="radio" id="spiffs" name="speicher" value="SPIFFS" onclick="ValidateForm();" checked>
-                  <label for="spiffs">Programmspeicher</label>
-                </td>
-              </tr>
-            </table>
-        </div>
-      </form>      
-    </nav>
-
-    <article>
-      <h3 id="storagename"></h3>
-      <div id="uploader"></div>
-      <div id="tree"></div>
-      <div id="editor"></div>
-      <div id="preview"></div>
-      <div id="details"></div>
-      <iframe id=download-frame></iframe>
-    </article>
-  
-    <news>
-      <h3>%FIRMWARE%</h3>
-    </news>
-  
-    <aside>
-      <table>
-        <tr>
-          <th><h3>Speicher</h3></th>
-          <th><input id="reload" type="button" value="Reload" onClick="document.location.reload(true)"></th>
-        </tr>
-      </table>
-      <table id="storageinfo">
-        <tr>
-          <th>Speicher</th>
-          <th>frei</th>
-          <th>belegt</th>
-          <th>gesamt</th>
-        </tr>
-        <tr>
-          <td>SPIFFS</th>
-          <td><span id="spiffsfree">%SPIFFS_FREE%</span></td>
-          <td><span id="spiffsused">%SPIFFS_USED%</span></td>
-          <td><span id="spiffstotal">%SPIFFS_TOTAL%</span></td>
-        </tr>
-      </table>
-    </aside>
-    
-    <footer>
-      <p>Lichtwecker (c) 2023 by jr</p>
-    </footer>    
+    <section id="page">
+      <logo>
+        <img alias="main_logo" src="lichtwecker.png" alt="Logo des Lichtweckers" class="center">
+      </logo>
+      <header>
+        <h1 id="TITLE">%TITLE%</h1>
+        <div id="uploader"></div>
+      </header>
+      <nav>
+        <h1>Filemanager</h1>
+        <div id="tree"></div>
+      </nav>
+      <main>
+        <div id="editor" name="editor" class="editor"></div>
+        <div id="preview" name="preview" style="display:none;"></div>
+        <iframe id="download-frame" name="download-frame" style='display:none;'></iframe>            
+      </main>
+      <stor>
+        <table id="storageinfo">
+          <caption>Speicher-Info</caption>
+          <tr>
+            <th>free</th>
+            <th>used</th>
+            <th>total</th>
+          </tr>
+          <tr>
+            <td><span id="SPIFFSFREE">%SPIFFSFREE%</span></td>
+            <td><span id="SPIFFSUSED">%SPIFFSUSED%</span></td>
+            <td><span id="SPIFFSTOTAL">%SPIFFSTOTAL%</span></td>
+          </tr>
+        </table>
+        <input id="reload" type="button" value="Reload" onClick="document.location.reload(true)">
+      </stor>
+      <footer>
+        <table>
+          <caption>Programm-Info</caption>
+          <tr>
+            <th>Firmware</th>
+            <th>Copyright</th>
+          </tr>
+          <tr>
+            <td id="FIRMWARE">%FIRMWARE%</td>
+            <td id="COPYRIGHT">Lichtwecker (c) 2023 by jr</td>
+          </tr>
+        </table>
+      </footer>
+    </section>
   </body>
 </html>

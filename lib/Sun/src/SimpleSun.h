@@ -5,12 +5,12 @@
 #include <SimpleTimer.h> 
 #include <genericstate.h>
 #include <MDispatcher.h>
+#include <libDebug.h>
 
 #include <SimpleSunConfig.h>
 
 #ifndef SIMPLE_SUN_H
 #define SIMPLE_SUN_H
-
 
 class SimpleSun : public SimpleTimer {
 /* data */
@@ -64,6 +64,8 @@ public:
      * @return false 
      */
     bool init_ledDriver();
+
+    int getMapValue( int _level);
     /**
      * @brief Set the Num Leds object
      * 
@@ -346,49 +348,11 @@ private:
 
 private:
     /**
-     * @brief print function for string
-     * 
-     * @param str 
-     * @param bNewLine 
-     */
-    static void print(const std::string &str, bool bNewLine = true) {
-        if( bNewLine )
-            dbSerialPrintln(str.c_str());
-        else
-            dbSerialPrint(str.c_str());
-    }
-    /**
-     * @brief print function for int
-     * 
-     * @param iNum 
-     * @param bNewLine 
-     */
-    static void print(int iNum, bool bNewLine = true) { 
-        if( bNewLine )
-            dbSerialPrintln(iNum);
-        else
-            dbSerialPrint(iNum);
-    }
-    /**
-     * @brief print function for int
-     * 
-     * @param fNum 
-     * @param bNewLine 
-     */
-    static void print(float_t fNum, bool bNewLine = true) {
-        char msg[10];
-        sprintf(msg,"%f",fNum); 
-        if( bNewLine )
-            dbSerialPrintln(msg);
-        else
-            dbSerialPrint(msg);
-    }
-    /**
      * @brief default unhandled event function
      * 
      * @param str 
      */
-    static void unhandledEvent(const std::string &str) { print("unhandled event " + str); }
+    static void unhandledEvent(const std::string &str) { dbSerialPrintf("unhandled event %s", str); }
 
 
 private:
@@ -418,7 +382,6 @@ private:
         }
         void sunDown() 
         { 
-            //print("sun is already down");
             return;
         }
         void sunRise() 
@@ -454,12 +417,10 @@ private:
         }
         void sunDown() 
         { 
-            //print("sun is rising, can not switch to SunDown");
             return;
         }
         void sunRise() 
         { 
-            //print("sun is already rising");
             return;
         }
         void sunUp()
@@ -472,7 +433,6 @@ private:
         }
         void exit() 
         { 
-            //print( "exit SunRise done.");
             return;
         }
     };
@@ -492,12 +452,10 @@ private:
         }
         void sunRise() 
         { 
-            //print("sun is up, can not switch to SunRise");
             return;
         }
         void sunUp()
         {
-            //print("sun is already up");
             return;
         }
         const char *getSunState() 
@@ -506,7 +464,6 @@ private:
         }
         void exit() 
         { 
-            //print("exit SunUp"); 
             return;
         }
     };
@@ -538,7 +495,6 @@ private:
         }
         void lightOn() 
         { 
-            //print("light is already on"); 
             return;
         }
         void lightOff() 
@@ -555,7 +511,6 @@ private:
         }
         void exit() 
         { 
-            //print("leaving LightOn"); 
             return;
         }
     };
@@ -571,7 +526,6 @@ private:
         }
         void lightOff() 
         { 
-            //print("light is already off"); 
             return;
         }
         void lightOn() 
@@ -588,7 +542,6 @@ private:
         }
         void exit() 
         { 
-            //print("exit LightOff"); 
             return;
         }
     };
@@ -620,7 +573,6 @@ private:
         }
         void exit() 
         { 
-            print("leaving LightRGB"); 
         }
     };
 };
