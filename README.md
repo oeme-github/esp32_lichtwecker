@@ -18,9 +18,10 @@ Lichtwecker mit WebServer
 |ESP32|16|NEXTION|TX
 |ESP32|17|NEXTION|RX
 
-MAX:
-SD_MODE left auf +5V
-SD_MODE right über R 39k auf +5V
+|MAX:|
+| ------------- |
+|SD_MODE left auf +5V|
+|SD_MODE right über R 39k auf +5V|
 
 ## Software
 - Software
