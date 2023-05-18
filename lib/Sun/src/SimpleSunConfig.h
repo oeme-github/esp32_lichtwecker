@@ -1,7 +1,7 @@
 #include <libDebug.h>
 
 #ifndef NUM_LEDS
-#define NUM_LEDS 14     //number of LEDs in the strip
+#define NUM_LEDS 28     //number of LEDs in the strip
 #endif
 #ifndef BRIGHTNESS      
 #define BRIGHTNESS 255  //strip brightness 255 max

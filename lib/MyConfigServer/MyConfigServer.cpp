@@ -98,7 +98,6 @@ void MyConfigServer::printConfig()
  */
 void MyConfigServer::saveToConfigfile()
 {
-  dbSerialPrintf("save to file");
   int ret = 0;
   File file = this->fs->open(this->configFile, FILE_WRITE);
   if (file) 

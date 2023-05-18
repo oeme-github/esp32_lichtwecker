@@ -409,7 +409,7 @@ void setup(void)
   xTaskCreatePinnedToCore(
                 taskWebServerCode,        /* Task function. */
                 "TaskWebServer",          /* name of task. */
-                3072,                     /* Stack size of task */
+                4096,                     /* Stack size of task */
                 NULL,                     /* parameter of the task */
                 1,                        /* priority of the task */
                 &hTaskWebServer,          /* Task handle to keep track of created task */

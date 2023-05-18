@@ -130,7 +130,7 @@ public:
         xTaskCreatePinnedToCore(
                         this->pvTaskCode,       /* Task function. */
                         "TaskSoundLoop",        /* name of task. */
-                        2048,                   /* Stack size of task */
+                        4096,                   /* Stack size of task */
                         NULL,                   /* parameter of the task */
                         2 | portPRIVILEGE_BIT,  /* priority of the task */
                         &this->hTaskSoundLoop,  /* Task handle to keep track of created task */
@@ -312,7 +312,9 @@ public:
      * @param string_ 
      * @param event_ 
      */
-    void listener(String string_, EventEnum event_) {
+    void listener(String string_, EventEnum event_) 
+    {
+        dbSerialPrintf("listener[%s]",string_);
         /* -------------------------------------------------- */
         /* alaup -> switch alarm on                           */
         if( (strcmp("alaup", string_.c_str() ) == 0))  

@@ -327,7 +327,7 @@ void SimpleSun::startSunLoopTask()
     xTaskCreatePinnedToCore(
                     this->pvTaskCode,       /* Task function. */
                     "TaskSunLoop",          /* name of task. */
-                    1024,                   /* Stack size of task */
+                    4096,                   /* Stack size of task */
                     NULL,                   /* parameter of the task */
                     1,                      /* priority of the task */
                     &this->hTaskSunLoop,    /* Task handle to keep track of created task */
@@ -354,6 +354,7 @@ void SimpleSun::stopSunLoopTask()
  */
 void SimpleSun::listener(String string_, EventEnum event_) 
 {
+    dbSerialPrintf("listener[%s]",string_);
     /* -------------------------------------------------- */
     /* switch light on                                    */
     if( (strcmp("light_on", string_.c_str() ) == 0))  
@@ -391,4 +392,18 @@ void SimpleSun::listener(String string_, EventEnum event_)
         /* switch off the ligh                           */
         this->lightOff();
     }
+    if( (strcmp("alaup", string_.c_str() ) == 0))  
+    {
+        this->sunUp();
+        this->lightOn();
+    }
+    /* -------------------------------------------------- */
+    /* a_off -> switch alarm off                          */
+    if( (strcmp("a_off", string_.c_str() ) == 0))  
+    {
+        this->sunUp();
+        this->lightOn();
+    }
+
+
 }    
