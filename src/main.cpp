@@ -7,6 +7,9 @@
 #include <MyAudioPlayer.h>
 #include <MyWifiServer.h>
 #include <MyWebServer.h>
+#include <MyMqttClient.h>
+#include <deflib.h>
+
 
 uint32_t iTemp = 0;
 
@@ -16,12 +19,17 @@ MyWifiServer wifiServer;
 MyWebServer webServer;
 Lichtwecker lichtwecker;
 MyAudioPlayer audioPlayer;
+MyMqttClient mqttClient;
+MyQueueHandler queueHandler;
 
 /** 
  * === TASKS ===
  */
 TaskHandle_t hTaskNexLoop;
 TaskHandle_t hTaskWebServer;
+TaskHandle_t hTaskMQTTLoop;
+
+xQueueHandle hQueue_global;
 
 /**
  * @brief  taskNexLoopCode()
@@ -112,6 +120,36 @@ void taskWebServerCode( void * pvParameters )
     vTaskDelay(20/portTICK_PERIOD_MS);
   }
 }
+
+
+/**
+ * @brief  taskMQTTCode() 
+ * @note   ist started during setup()
+ * @param  pvParameters: 
+ * @retval None
+ */
+void taskMQTTCode( void * pvParameters )
+{
+  dbSerialPrintf("taskMQTTCode running on core [%i]", xPortGetCoreID());
+  /* -------------------------------------------------- */ 
+  /* start AudioPlayer                                  */
+	CHAR100 Rptrtostruct;
+	uint32_t TickDelay = pdMS_TO_TICKS(100);
+  RetCode retCode;
+  /*-------------------------------------------------------*/
+  /* setup the queue                                       */
+  while(true)
+  {
+ 	  retCode = mqttClient.readFromQueue();
+    if(retCode.first == 0)
+    {
+      mqttClient.sendMsg(retCode.second);
+    }      
+		vTaskDelay(TickDelay);
+  }
+}
+
+
 /** 
  * === END TASKS SECTION ===
  */
@@ -127,16 +165,8 @@ void taskWebServerCode( void * pvParameters )
  */
 void sunRiseMain()
 {
-  if(lichtwecker.getSimpleSun()->getSunPhase())
-  {
-    /* let sun rise (without parameter) */
-    lichtwecker.getSimpleSun()->letSunRise();
-  }
-  else
-  {
-    /* sun is risen */
-    lichtwecker.getSimpleSun()->sunUp();
-  }
+  /* let sun rise (without parameter) */
+  lichtwecker.getSimpleSun()->letSunRise();
 }
 /**
  * === END SUN FUNCTIONS ===
@@ -321,7 +351,7 @@ void page6_btLightTestPushCallback(void *ptr)
   if( iTemp == 1 )
   {
     lichtwecker.getSimpleSun()->setWhite(std::stoi(lichtwecker.configGetElement("nWhite").c_str()));
-    lichtwecker.getSimpleSun()->setRed(  std::stoi(lichtwecker.configGetElement("nRet"  ).c_str()));
+    lichtwecker.getSimpleSun()->setRed(  std::stoi(lichtwecker.configGetElement("nRed"  ).c_str()));
     lichtwecker.getSimpleSun()->setGreen(std::stoi(lichtwecker.configGetElement("nGreen").c_str()));
     lichtwecker.getSimpleSun()->setBlue( std::stoi(lichtwecker.configGetElement("nBlue" ).c_str())); 
     /* ----------------------------------------------- */
@@ -361,7 +391,19 @@ void setup(void)
       ESP.restart();
   }
   /*-------------------------------------------------------*/
+  /* create QUEUE                                          */
+  hQueue_global = xQueueCreate(QUEUE_SIZE, sizeof(CHAR100));
+  if (hQueue_global == 0) // if there is some error while creating queue
+  {
+ 	  dbSerialPrintln( "Unable to create STRUCTURE Queue" );
+  }
+  else
+  {
+ 	  dbSerialPrintln( "STRUCTURE Queue Created successfully" );
+  }
+  /*-------------------------------------------------------*/
   /* connect to Wifi                                       */
+  wifiServer.setQueue(hQueue_global);
   if(!wifiServer.connectWifi())
   {
       dbSerialPrintln("ERROR: Can not connect to WIFI.");
@@ -372,16 +414,36 @@ void setup(void)
   /* just wait a while                                     */
   vTaskDelay(100/portTICK_PERIOD_MS);
   /*-------------------------------------------------------*/
+  /* update local time from internet                       */
+  lichtwecker.getNexRtc()->getNTPTime(); //  nexRtc.updateDateTime();
+  /*-------------------------------------------------------*/
+  /* start mqtt client                                     */
+  mqttClient.setQueue(hQueue_global);
+  RetCode rc = mqttClient.loadMqttClient(&SPIFFS);
+  if( rc.first != 0 )
+  {
+    dbSerialPrint( "MQTT_ERROR: ");
+    dbSerialPrintln(rc.second.c_str());
+    vTaskDelay(1000/portTICK_PERIOD_MS);
+  }
+  /*-------------------------------------------------------*/
+  /* just wait a while                                     */
+  vTaskDelay(100/portTICK_PERIOD_MS);
+  /*-------------------------------------------------------*/
   /* start HTTP server                                     */
+  webServer.setQueue(hQueue_global);
   webServer.loadWebServer(&SPIFFS);
   /*-------------------------------------------------------*/
   /* startup lichtwecker                                   */
+  lichtwecker.setQueue(hQueue_global);
+  lichtwecker.getSimpleSun()->setQueue(hQueue_global);
   lichtwecker.start();
   lichtwecker.getSimpleSun()->setTaskFunction(taskSunLoopCode);                
   lichtwecker.getSimpleSun()->setTimerCB( sunRiseMain );
   vTaskDelay(100/portTICK_PERIOD_MS);
   /*-------------------------------------------------------*/
   /* start audio                                           */
+  audioPlayer.setQueue(hQueue_global);
   audioPlayer.begin();
   audioPlayer.registerCB(lichtwecker.getMDispatcher());
   audioPlayer.setTaskFunction(taskSoundLoopCode);  
@@ -391,6 +453,17 @@ void setup(void)
   lichtwecker.getSimpleSun()->startSunLoopTask();
   vTaskDelay(100/portTICK_PERIOD_MS);
   audioPlayer.startSoundLoopTask();
+  /*-------------------------------------------------------*/
+  /* create task for mqtt-client                           */
+  xTaskCreatePinnedToCore(
+                  taskMQTTCode,           /* Task function.                            */
+                  "TaskMQTT",             /* name of task.                             */
+                  4096,                   /* Stack size of task                        */
+                  NULL,                   /* parameter of the task                     */
+                  0,                      /* priority of the task                      */
+                  &hTaskMQTTLoop,         /* Task handle to keep track of created task */
+                  0                       /* pin task to core 0                        */
+  );      
   vTaskDelay(100/portTICK_PERIOD_MS);
   /*-------------------------------------------------------*/
   /* create task for touch events                          */
@@ -415,14 +488,9 @@ void setup(void)
                 &hTaskWebServer,          /* Task handle to keep track of created task */
                 0);                       /* pin task to core 0 */                    
   vTaskDelay(100/portTICK_PERIOD_MS);
-}
-/**
- * @brief loop() function
- * 
- */
-void loop(void){
   /* -------------------------------------------------- */
   /* we need the loop just for start up tests           */
+  mqttClient.sendToQueue("Starte Test-Sequenz ....");
   lichtwecker.getSimpleSun()->lightOn();
   vTaskDelay(2000/portTICK_PERIOD_MS);
   lichtwecker.getSimpleSun()->lightOff();
@@ -435,7 +503,25 @@ void loop(void){
   audioPlayer.alaramOn();
   vTaskDelay(1000/portTICK_PERIOD_MS);
   audioPlayer.alaramOff();
-  /* ---------------------------------------------- */
-  /* delete the task                                */
-  vTaskDelete(NULL);
+  mqttClient.sendToQueue("Testsequenz beendet.");
+}
+/**
+ * @brief loop() function
+ * 
+ */
+void loop(void)
+{
+  mqttClient.sendToQueue("running main loop");
+  //--------------------
+  // check wifi
+  if( !wifiServer.connected())
+  {
+    wifiServer.reconnect();
+  }
+  //--------------------
+  // update datetime
+  lichtwecker.getNexRtc()->updateDateTime();
+  //--------------------
+  // own wd
+  vTaskDelay((1000*60*60)/portTICK_PERIOD_MS);
 }

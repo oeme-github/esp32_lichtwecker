@@ -12,14 +12,7 @@
 #include <libDebug.h>
 #include <libFile.h>
 #include <MyConfigServer.h>
-
-
-typedef struct
-{ 
-    int iRet; 
-    String msg; 
-} RetCode;
-
+#include <MyQueueHandler.h>
 
 class MyWebServer
 {
@@ -27,6 +20,8 @@ private:
     /* data */
     WebServer *server;
     MyConfigServer *configServer;
+
+    MyQueueHandler myQueueHandler;
 
     FS *fs;
     boolean hasFS;
@@ -53,5 +48,7 @@ public:
 
     void handleClient(){this->server->handleClient();}
 
+    void setQueue(xQueueHandle hQueue_){this->myQueueHandler.setQueue(hQueue_);}
+    void sendToQueue(std::string msg_){this->myQueueHandler.sendToQueue(msg_);}
 };
 

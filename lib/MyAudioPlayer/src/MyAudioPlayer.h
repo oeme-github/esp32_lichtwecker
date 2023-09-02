@@ -8,6 +8,7 @@
 #include <AudioTools.h>
 #include <AudioCodecs/CodecMP3Helix.h>
 
+#include <MyQueueHandler.h>
 
 /**
  * @brief audio 
@@ -24,8 +25,8 @@ private:
     LogarithmicVolumeControl lvc;
 
     I2SConfig cfg     = i2s.defaultConfig();
-    int sample_rate   = 24000;
-    int channels      = 1;
+    int sample_rate   = 44100;
+    int channels      = 2;
     float fVolume     = 0.1;
     char filename[20] = "/double_beep.mp3";
     File audioFile;
@@ -34,6 +35,8 @@ private:
 
     TaskHandle_t hTaskSoundLoop;
     TaskFunction_t pvTaskCode;
+
+    MyQueueHandler myQueueHandler;
 
 public:
     enum Snooze_t
@@ -314,7 +317,8 @@ public:
      */
     void listener(String string_, EventEnum event_) 
     {
-        dbSerialPrintf("listener[%s]",string_);
+        std::string msg = string_.c_str();
+        this->myQueueHandler.sendToQueue(msg);
         /* -------------------------------------------------- */
         /* alaup -> switch alarm on                           */
         if( (strcmp("alaup", string_.c_str() ) == 0))  
@@ -340,6 +344,10 @@ public:
             vTaskResume(this->hTaskSoundLoop);
         }
     }    
+
+    void setQueue(xQueueHandle hQueue_){this->myQueueHandler.setQueue(hQueue_);}
+    void sendToQueue(std::string msg_){this->myQueueHandler.sendToQueue(msg_);}
+
 /**
  * @brief private methodes
  * 

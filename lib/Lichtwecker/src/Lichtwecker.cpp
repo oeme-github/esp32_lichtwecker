@@ -51,12 +51,12 @@ void Lichtwecker::setNextValue( const char *cNameElemet)
  */
 void Lichtwecker::start()
 {
-  dbSerialPrintf("*** %s ***", "start Lichtwecker");
+  this->myQueueHandler.sendToQueue("*** START LICHTWECKER ***");
   /*-----------------------------------------------------*/
   /* load config                                         */
   if(!this->loadConfig())
   {
-      dbSerialPrintln("ERROR: Failed to load config -> create on and restart...");
+      this->myQueueHandler.sendToQueue("ERROR: Failed to load config -> create on and restart...");
       this->createConfigJson();
       ESP.restart();
   }
@@ -68,7 +68,7 @@ void Lichtwecker::start()
   /* RTC                                                */
   if(!nexRtc.updateDateTime())
   {
-    dbSerialPrintln("ERROR: updateDateTime went wrong -> restart...");
+    this->myQueueHandler.sendToQueue("ERROR: updateDateTime went wrong -> restart...");
     ESP.restart();
   }
   /* -------------------------------------------------- */
@@ -156,7 +156,7 @@ void Lichtwecker::start()
   /* LED                                                */
   if( !this->simpleSun.init_ledDriver() )
   {
-    dbSerialPrintf("ERROR: could not init ledDriver!! rc := %i", this->simpleSun.getRc());
+    this->myQueueHandler.sendToQueue( "ERROR: could not init ledDriver!! rc :=[" + std::to_string(this->simpleSun.getRc()) + "]");
   }
   /* -------------------------------------------------- */
   /* register dispatcher                                */
@@ -172,7 +172,7 @@ void Lichtwecker::start()
  */
 boolean Lichtwecker::loadConfig()
 {
-  dbSerialPrintln("*** Lichtwecker::loadConfig() ***");
+  this->myQueueHandler.sendToQueue("*** Lichtwecker::loadConfig() ***");
   /*-----------------------------------------------------*/
   /* check if configfile exists                          */
   if(SPIFFS.exists(LW_CONFIG_FILE))

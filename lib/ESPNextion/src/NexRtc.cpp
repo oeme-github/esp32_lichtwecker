@@ -332,15 +332,15 @@ uint32_t NexRtc::read_rtc_time(char *time_type,uint32_t *number)
  * @brief getNTPTime()  
  * 
  */
-boolean NexRtc::getNTPTime() {
+boolean NexRtc::getNTPTime() 
+{
     // setup this after wifi connected
-    dbSerialPrintln("getNTPTime()");
-
     configTime(0, 0, "pool.ntp.org", "de.pool.ntp.org", "europe.pool.ntp.org");
     setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);
 
     if(getLocalTime(&timeinfo))
     {
+        printDateTime();
         return true;
     }
     return false;  
@@ -352,7 +352,6 @@ boolean NexRtc::getNTPTime() {
  */
 void NexRtc::printDateTime()
 {
-    getNTPTime();    
     char output[80];
     strftime(output, 80, "%d-%b-%y, %H:%M:%S", &timeinfo);
     String time_str = String(output);
@@ -365,10 +364,9 @@ void NexRtc::printDateTime()
  */
 boolean NexRtc::updateDateTime()
 {
-    dbSerialPrintln("getNTPTime:");
+//    dbSerialPrintln("NexRtc::updateDateTime()");
     if(getNTPTime())
     {
-        printDateTime();
         /** 
          * set rtc
          */

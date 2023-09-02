@@ -295,6 +295,7 @@ void SimpleSun::letSunRise( int intWakeDelay_, bool bInit_ )
 {
     if( bInit_ )
     {
+        this->sendToQueue("init with delay [" + std::to_string(intWakeDelay_) + "] Phase[" + std::to_string(this->sunPhase) + "]" );
         /* ----------------------------------------------- */
         /* set start parameters                            */
         this->init(intWakeDelay_);
@@ -303,7 +304,7 @@ void SimpleSun::letSunRise( int intWakeDelay_, bool bInit_ )
     /* rise the sun                                       */
     this->sunrise();
     /* -------------------------------------------------- */
-    /* start timer                                        */
+    /* check SunPhase                                     */
     if( this->getSunPhase() )
     {
         /* ----------------------------------------------- */
@@ -354,7 +355,8 @@ void SimpleSun::stopSunLoopTask()
  */
 void SimpleSun::listener(String string_, EventEnum event_) 
 {
-    dbSerialPrintf("listener[%s]",string_);
+    std::string msg = string_.c_str();
+    this->sendToQueue( "SimpleSun::listener[" + msg + "]" );
     /* -------------------------------------------------- */
     /* switch light on                                    */
     if( (strcmp("light_on", string_.c_str() ) == 0))  

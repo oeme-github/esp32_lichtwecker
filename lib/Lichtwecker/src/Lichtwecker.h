@@ -8,7 +8,9 @@
 #include <SimpleSun.h>
 #include <NextionDisplay.h>
 #include <MyConfigServer.h>
+#include <MyQueueHandler.h>
 #include <libConfig.h>
+#include <deflib.h>
 
 #ifndef LICHTWECKER_H
 #define LICHTWECKER_H
@@ -24,6 +26,7 @@ private:
     MDispatcher<String, EventEnum> dispatcher;
     
     MyConfigServer *configServer;
+    MyQueueHandler myQueueHandler;
     
     boolean loadConfig();
     void createConfigJson();
@@ -97,6 +100,10 @@ public:
 
     bool configContainsKey(const char *_index){ return this->configServer->containsKey(_index); };
     std::string configGetElement(const char *_index){ return this->configServer->getElement(_index); }
+
+    void setQueue(xQueueHandle hQueue_){this->myQueueHandler.setQueue(hQueue_);}
+    void sendToQueue(std::string msg_){this->myQueueHandler.sendToQueue(msg_);}
+
 };
 
 

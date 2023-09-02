@@ -9,6 +9,8 @@
 
 #include <SimpleSunConfig.h>
 
+#include <MyQueueHandler.h>
+
 #ifndef SIMPLE_SUN_H
 #define SIMPLE_SUN_H
 
@@ -39,6 +41,8 @@ private:
     u_int16_t iBlue  = 0;
     u_int16_t iWhite = 0;
 
+    MyQueueHandler myQueueHandler;
+
 /* methodes */
 public:
     /**
@@ -65,7 +69,11 @@ public:
      */
     bool init_ledDriver();
 
+
+    void setQueue(xQueueHandle hQueue_){this->myQueueHandler.setQueue(hQueue_);}
+    void sendToQueue(std::string msg_){this->myQueueHandler.sendToQueue(msg_);}
     int getMapValue( int _level);
+
     /**
      * @brief Set the Num Leds object
      * 
@@ -213,6 +221,8 @@ public:
      */
     void sunUp()
     { 
+        this->sendToQueue( "sunUp Phase[" + std::to_string(this->sunPhase) +"] (will be set to SUN_PHASE)");
+        sunPhase = SUN_PHASE;
         sunState->sunUp();  
     }
     /**
@@ -405,7 +415,8 @@ private:
      * @brief sun rise state
      * 
      */
-    struct SunRise : public SunState {
+    struct SunRise : public SunState 
+    {
         using SunState::SunState;
         void entry() 
         { 

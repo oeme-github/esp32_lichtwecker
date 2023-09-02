@@ -1,0 +1,5 @@
+id:esp33lichtwecker,
+server:mqtt.localdomain,
+port:12948,
+user:yourMQTTuser,
+password:yourMQTTpassword

@@ -5,6 +5,7 @@
 #define LW_CONFIG_FILE "/config_lw.map"
 #define WIFI_CONFIG_FILE "/config_wifi.map"
 #define WS_CONFIG_FILE "/config_ws.map"
+#define MQTT_CONFIG_FILE "/config_mqtt.map"
 
 #ifndef SWS_RX
 #define SWS_RX 18

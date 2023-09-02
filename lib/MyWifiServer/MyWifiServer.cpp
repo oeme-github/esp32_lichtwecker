@@ -63,6 +63,27 @@ boolean MyWifiServer::connectWifi()
     {
         return false;
     }
+    return this->reconnect();
+}
+
+void MyWifiServer::resetWifi()
+{
+    wm.resetSettings();
+}
+
+boolean MyWifiServer::connected()
+{
+    // if WiFi is down, try reconnecting
+    if ((WiFi.status() != WL_CONNECTED)) 
+    {
+        wm.disconnect();
+        return false;
+    }
+    return true;
+}
+
+boolean MyWifiServer::reconnect()
+{
     if(!wm.autoConnect( this->configServer->getElement("ap").c_str(), this->configServer->getElement("appw").c_str()) )
     {
         return false;
@@ -72,10 +93,4 @@ boolean MyWifiServer::connectWifi()
         return false;
     }
     return true; 
-}
-
-
-void MyWifiServer::resetWifi()
-{
-    wm.resetSettings();
 }

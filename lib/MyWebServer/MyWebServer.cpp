@@ -21,7 +21,7 @@ MyWebServer::~MyWebServer()
 /**
  * @brief  loadWebServer()
  * @note   startup for webserver -> loading config, connect to wifi, start webserver, register to MDNS
- * @retval None
+ * @retval std::pair<int, String>
  */
 RetCode MyWebServer::loadWebServer(FS *fs)
 {
@@ -36,7 +36,7 @@ RetCode MyWebServer::loadWebServer(FS *fs)
   /*-----------------------------------------------------*/
   /* load config                                         */
   retCode = this->loadConfig();
-  if(retCode.iRet != 0)
+  if(retCode.first != 0)
   {
       return retCode;
   }
@@ -50,7 +50,7 @@ RetCode MyWebServer::loadWebServer(FS *fs)
   /*-----------------------------------------------------*/
   /* start web-server                                    */ 
   retCode = this->begin();
-  if(retCode.iRet != 0)
+  if(retCode.first != 0)
   {
       return retCode;
   }
@@ -60,19 +60,19 @@ RetCode MyWebServer::loadWebServer(FS *fs)
 /**
  * @brief  loadConfig()
  * @note   creats a MyConfigServer and loads the config file
- * @retval true|false
+ * @retval std::pair<int, String>
  */
 RetCode MyWebServer::loadConfig()
 {
   RetCode retCode;
-  retCode.iRet = 0;
-  retCode.msg  = "";
+  retCode.first  = 0;
+  retCode.second = "";
   /*-----------------------------------------------------*/
   /* check if configfile exists                          */
   if(!this->fs->exists(WS_CONFIG_FILE))
   {
-    retCode.iRet = -1;
-    retCode.msg  = "ERROR: Can not Load config.";
+    retCode.first  = -1;
+    retCode.second = "ERROR: Can not Load config.";
   }
   else
   {
@@ -82,8 +82,8 @@ RetCode MyWebServer::loadConfig()
     
     if(!this->configServer->loadConfig(this->fs, WS_CONFIG_FILE))
     {
-      retCode.iRet = -1;
-      retCode.msg  = "ERROR: Can not Load config.";
+      retCode.first = -1;
+      retCode.second = "ERROR: Can not Load config.";
     }
   }
   return retCode;
@@ -92,13 +92,13 @@ RetCode MyWebServer::loadConfig()
 /**
  * @brief  begin()
  * @note   starts the webserver services
- * @retval true|false
+ * @retval std::pair<int, String>
  */
 RetCode MyWebServer::begin()
 {
     RetCode retCode;
-    retCode.iRet = 0;
-    retCode.msg = "";
+    retCode.first  = 0;
+    retCode.second = "";
     /*-----------------------------------------------------*/
     /* start the web-server                                */
     int port = std::stoi(this->configServer->getElement("port"));

@@ -1,5 +1,5 @@
-host:esp32lichtwecker,
+host:esp33lichtwecker,
 ap:AutoConnectAP,
 appw:lichtwecker2wifi,
 port:80,
-domain:local
+domain:localdomain
