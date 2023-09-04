@@ -109,6 +109,11 @@ RetCode MyMqttClient::begin()
     this->mqttClient = new PubSubClient(  this->configServer->getElement("server").c_str()
                                         , stoul(this->configServer->getElement("port"))
                                         , this->espClient );
+    if( this->configServer->containsKey("keepalive") )
+    {
+        this->mqttClient->setKeepAlive( stoul(this->configServer->getElement("keepalive")) );
+        this->mqttClient->setSocketTimeout( stoul(this->configServer->getElement("keepalive")) );
+    }
     
 // connect(const char *id, const char *user, const char *pass)
     if( !this->mqttClient->connect(   this->configServer->getElement("id").c_str()

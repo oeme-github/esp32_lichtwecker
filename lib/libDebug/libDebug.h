@@ -7,7 +7,7 @@
  * Define DEBUG_SERIAL_ENABLE to enable debug serial. 
  * Comment it to disable debug serial. 
  */
-#define DEBUG_SERIAL_ENABLE true
+#define DEBUG_SERIAL_ENABLE false
 
 /**
  * Define dbSerial for the output of debug messages. 

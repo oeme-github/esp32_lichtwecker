@@ -454,7 +454,7 @@ private:
     struct SunUp : public SunState {
         using SunState::SunState;
         void entry() 
-        { 
+        {
             stm.lightOn();
         }
         void sunDown() 

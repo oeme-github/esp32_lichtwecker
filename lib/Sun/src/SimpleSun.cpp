@@ -403,8 +403,7 @@ void SimpleSun::listener(String string_, EventEnum event_)
     /* a_off -> switch alarm off                          */
     if( (strcmp("a_off", string_.c_str() ) == 0))  
     {
-        this->sunUp();
-        this->lightOn();
+        
     }
 
 

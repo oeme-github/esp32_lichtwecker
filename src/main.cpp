@@ -511,17 +511,22 @@ void setup(void)
  */
 void loop(void)
 {
-  mqttClient.sendToQueue("running main loop");
+  //mqttClient.sendToQueue("running main loop");
   //--------------------
   // check wifi
   if( !wifiServer.connected())
   {
-    wifiServer.reconnect();
+    //wifiServer.sendToQueue("Wifi lost - try reconnect");
+    if( !wifiServer.reconnect() )
+    {
+      wifiServer.sendToQueue("ERROR: reconnect to Wifi");
+    }
   }
   //--------------------
   // update datetime
   lichtwecker.getNexRtc()->updateDateTime();
   //--------------------
   // own wd
-  vTaskDelay((1000*60*60)/portTICK_PERIOD_MS);
+  //vTaskDelay((1000*60*60)/portTICK_PERIOD_MS);
+  vTaskDelay((1000*60*10)/portTICK_PERIOD_MS);
 }
