@@ -119,7 +119,8 @@ public:
         }
         else
         {
-            dbSerialPrintf("file %s did not exists", this->filename);
+            std::string msg(this->filename);
+            this->sendToQueue("file " + msg + " did not exists");
         }
     }
     /**
@@ -317,8 +318,8 @@ public:
      */
     void listener(String string_, EventEnum event_) 
     {
-        std::string msg = string_.c_str();
-        this->myQueueHandler.sendToQueue(msg);
+        std::string msg(string_.c_str());
+        this->myQueueHandler.sendToQueue( "MyAudioPlayer::listener(" + msg + ")" );
         /* -------------------------------------------------- */
         /* alaup -> switch alarm on                           */
         if( (strcmp("alaup", string_.c_str() ) == 0))  
