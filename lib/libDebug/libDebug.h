@@ -7,7 +7,7 @@
  * Define DEBUG_SERIAL_ENABLE to enable debug serial. 
  * Comment it to disable debug serial. 
  */
-#define DEBUG_SERIAL_ENABLE false
+//#define DEBUG_SERIAL_ENABLE true
 
 /**
  * Define dbSerial for the output of debug messages. 
@@ -28,11 +28,11 @@
    } while (0)
 
 #else
-#define dbSerialPrint(a)    do{}while(0)
-#define dbSerialPrintln(a)  do{}while(0)
-#define dbSerialPrintHex(a) do{}while(0)
-#define dbSerialBegin(a)    do{}while(0)
-#define dbSerialPrintf(a)    do{}while(0)
+#define dbSerialPrint(a)         do{}while(0)
+#define dbSerialPrintln(a)       do{}while(0)
+#define dbSerialPrintHex(a)      do{}while(0)
+#define dbSerialBegin(a)         do{}while(0)
+#define dbSerialPrintf(a, ...)   do{}while(0)
 #endif
 
 /**
