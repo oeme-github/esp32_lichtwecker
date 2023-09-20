@@ -14,6 +14,9 @@ void SimpleSun::init( int iWakeDelay)
     uint16_t iDelta = round((float_t)iWakeDelay*fMap);
 
     this->wakeDelay = iWake - iDelta;
+    this->sunPhase  = 0;
+
+    this->sendToQueue( "SimpleSun::init(" + std::to_string(iWakeDelay) + ") - wakeDelay[" + std::to_string(this->wakeDelay) + "] sunPhase[" + std::to_string(this->sunPhase) + "]" );
 }
 /**
  * @brief initialzes the led driver
@@ -178,6 +181,7 @@ int SimpleSun::getNumLeds()
  */
 void SimpleSun::setWakeDelay(unsigned int iDelay)
 {
+    this->sendToQueue("SimpleSun::setWakeDelay(" + std::to_string(iDelay) + ")");
     this->wakeDelay = iDelay;
 }
 /**
@@ -187,6 +191,7 @@ void SimpleSun::setWakeDelay(unsigned int iDelay)
  */
 unsigned int SimpleSun::getWakeDelay()
 {
+    this->sendToQueue("SimpleSun::getWakeDelay(): " + this->wakeDelay );
     return this->wakeDelay;
 }
 /**drawSun
@@ -295,7 +300,7 @@ void SimpleSun::letSunRise( int intWakeDelay_, bool bInit_ )
 {
     if( bInit_ )
     {
-        this->sendToQueue("init with delay [" + std::to_string(intWakeDelay_) + "] Phase[" + std::to_string(this->sunPhase) + "]" );
+        this->sendToQueue("SimpleSun::letSunRise(" + std::to_string(intWakeDelay_) + "," + std::to_string(bInit_) + ") Phase[" + std::to_string(this->sunPhase) + "] wakeDelay[" + std::to_string(this->wakeDelay) + "]" );
         /* ----------------------------------------------- */
         /* set start parameters                            */
         this->init(intWakeDelay_);
@@ -309,7 +314,8 @@ void SimpleSun::letSunRise( int intWakeDelay_, bool bInit_ )
     {
         /* ----------------------------------------------- */
         /* continue sunrise                                */
-        this->setNumTimer(this->setTimeout( this->getWakeDelay(), this->ptrTimerCB ));
+        //this->setNumTimer(this->setTimeout( this->getWakeDelay(), this->ptrTimerCB ));
+        this->setNumTimer(this->setTimeout( this->wakeDelay, this->ptrTimerCB ));
     }
     else
     {

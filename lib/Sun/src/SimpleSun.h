@@ -424,7 +424,8 @@ private:
             vTaskResume(stm.hTaskSunLoop);
             vTaskDelay(50/portTICK_PERIOD_MS);
             /* get wake delay in minutes and start sunrise with seconds */
-            stm.letSunRise( stm.getWakeDelay()*60, true );
+            //stm.letSunRise( stm.getWakeDelay()*60, true );
+            stm.letSunRise( stm.wakeDelay, true );
         }
         void sunDown() 
         { 
