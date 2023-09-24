@@ -8,15 +8,15 @@
  */
 void SimpleSun::init( int iWakeDelay)
 {
-    uint16_t iWake  = iWakeDelay*1000/SUN_PHASE;
-    uint16_t iMap   = map(iWakeDelay, 60, 1800, 3, 15);
-    float_t  fMap   = 1.0/(float_t)iMap;
-    uint16_t iDelta = round((float_t)iWakeDelay*fMap);
-
-    this->wakeDelay = iWake - iDelta;
+    this->sendToQueue( "SimpleSun::init(" + std::to_string(iWakeDelay) + ")" );
+    /* -------------------------------------------------- */
+    /*  1 Sekunde entspricht 1.000 Millisekunden          */
+    this->wakeDelay = iWakeDelay * 60 * 1000/SUN_PHASE;
     this->sunPhase  = 0;
 
-    this->sendToQueue( "SimpleSun::init(" + std::to_string(iWakeDelay) + ") - wakeDelay[" + std::to_string(this->wakeDelay) + "] sunPhase[" + std::to_string(this->sunPhase) + "]" );
+    this->sendToQueue( "wakeDelay [" + std::to_string(this->wakeDelay) + "]" );
+    this->sendToQueue( "sunPhase  [" + std::to_string(this->sunPhase)  + "]" );
+
 }
 /**
  * @brief initialzes the led driver
@@ -308,6 +308,12 @@ void SimpleSun::letSunRise( int intWakeDelay_, bool bInit_ )
     /* -------------------------------------------------- */
     /* rise the sun                                       */
     this->sunrise();
+    /* -------------------------------------------------- */
+    /* debug info                                         */
+    if( this->sunPhase%100 == 0 )
+    {
+        this->sendToQueue("SimpleSun::letSunRise() - this->sunPhase [" + std::to_string(this->sunPhase) + "]");
+    }
     /* -------------------------------------------------- */
     /* check SunPhase                                     */
     if( this->getSunPhase() )

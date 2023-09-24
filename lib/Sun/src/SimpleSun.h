@@ -27,7 +27,7 @@ private:
     int rc                 = 0;
 
     int iLeds              = NUM_LEDS;
-    uint32_t wakeDelay     = WAKE_DELAY;
+    unsigned long wakeDelay= WAKE_DELAY;
     int sunPhase           = 0;
     int numTimer           = 0;
     int iBrightness        = 8;

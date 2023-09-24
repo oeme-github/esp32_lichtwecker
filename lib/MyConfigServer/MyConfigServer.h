@@ -36,4 +36,7 @@ public:
 	std::string getElement( const char *_index );
 	void putElement( std::string _index, std::string _value );
 	void putElement( std::string _index, int _value );
+
+	void reload();
+
 };

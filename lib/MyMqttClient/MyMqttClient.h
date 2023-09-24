@@ -28,6 +28,9 @@ private:
     FS *fs;
     boolean hasFS;
 
+    std::string server;
+    int16_t port;
+
     MyQueueHandler myQueueHandler;
 
 public:
@@ -40,6 +43,7 @@ public:
 
     boolean connected(){ return this->mqttClient->connected(); } ;
     void reconnect();
+    
     void setQueue(xQueueHandle hQueue_){this->myQueueHandler.setQueue(hQueue_);}
     void sendToQueue(std::string msg_){this->myQueueHandler.sendToQueue(msg_);}
     RetCode readFromQueue(){ return this->myQueueHandler.readFromQueue();}

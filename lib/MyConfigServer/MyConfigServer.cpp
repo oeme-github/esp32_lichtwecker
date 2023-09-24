@@ -220,3 +220,9 @@ void MyConfigServer::putElement(  std::string _index, int _value )
 { 
   this->mapConfig[_index]=std::to_string(_value);
 }
+
+
+void MyConfigServer::reload()
+{
+  this->loadConfig(this->fs, this->configFile.c_str()); 
+}

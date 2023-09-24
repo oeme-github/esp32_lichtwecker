@@ -15,11 +15,11 @@ uint32_t iTemp = 0;
 
 /*---------------------------------------------------------*/
 /* global varaibles                                        */
-MyWifiServer wifiServer;
-MyWebServer webServer;
-Lichtwecker lichtwecker;
-MyAudioPlayer audioPlayer;
-MyMqttClient mqttClient;
+MyWifiServer   wifiServer;
+MyWebServer    webServer;
+Lichtwecker    lichtwecker;
+MyAudioPlayer  audioPlayer;
+MyMqttClient   mqttClient;
 MyQueueHandler queueHandler;
 
 /** 

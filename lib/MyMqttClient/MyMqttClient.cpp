@@ -42,14 +42,16 @@ RetCode MyMqttClient::loadMqttClient(FS *fs)
       return retCode;
   }
   /*-----------------------------------------------------*/
-  /* check if we should start the webserver              */
+  /* check if we should start the mqtt-client            */
   if( this->configServer->containsKey("server") && this->configServer->getElement("server") == "0" )
   {
       dbSerialPrintln("WARNING: mqtt config server = 0 !!!");
       vTaskDelete(NULL);
   }
+  this->server = this->configServer->getElement("server").c_str();
+  this->port   = stoul(this->configServer->getElement("port"));
   /*-----------------------------------------------------*/
-  /* start web-server                                    */ 
+  /* start mqtt-client                                   */ 
   retCode = this->begin();
   if(retCode.first != 0)
   {
@@ -106,13 +108,14 @@ RetCode MyMqttClient::begin()
     retCode.second = "";
 
 // PubSubClient(const char* domain, uint16_t port, Client& client)
-    this->mqttClient = new PubSubClient(  this->configServer->getElement("server").c_str()
-                                        , stoul(this->configServer->getElement("port"))
+    this->mqttClient = new PubSubClient(  this->server.c_str()
+                                        , this->port
                                         , this->espClient );
+
     if( this->configServer->containsKey("keepalive") )
     {
         this->mqttClient->setKeepAlive( stoul(this->configServer->getElement("keepalive")) );
-        this->mqttClient->setSocketTimeout( stoul(this->configServer->getElement("keepalive")) );
+        this->mqttClient->setSocketTimeout( stoul(this->configServer->getElement("keepalive"))+1 );
     }
     
 // connect(const char *id, const char *user, const char *pass)
@@ -178,13 +181,17 @@ void MyMqttClient::reconnect()
     while( !this->mqttClient->connected() ) 
     {
         dbSerialPrintln("Attempting MQTT (re)connection...");
+        this->configServer->reload();
         dbSerialPrint("server:"); dbSerialPrintln(this->configServer->getElement("server").c_str());
         dbSerialPrint("port  :"); dbSerialPrintln(this->configServer->getElement("port"  ).c_str());
         dbSerialPrint("id    :"); dbSerialPrintln(this->configServer->getElement("id"    ).c_str());
-        // Attempt to connect 
 
-        this->mqttClient->setServer(  this->configServer->getElement("server").c_str()
-                                    , stoul(this->configServer->getElement("port")));
+        this->server = this->configServer->getElement("server").c_str();
+        this->port   = stoul(this->configServer->getElement("port"));
+
+        // Attempt to connect 
+        this->mqttClient->setServer(  this->server.c_str()
+                                    , this->port );
 
         if( !this->mqttClient->connect(this->configServer->getElement("id").c_str()
                                     , this->configServer->getElement("user").c_str()
