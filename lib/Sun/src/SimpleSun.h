@@ -24,13 +24,13 @@ private:
     int STRANDCNT = sizeof(STRANDS); 
     #pragma GCC diagnostic pop
 
-    int rc                 = 0;
-
-    int iLeds              = NUM_LEDS;
-    unsigned long wakeDelay= WAKE_DELAY;
-    int sunPhase           = 0;
-    int numTimer           = 0;
-    int iBrightness        = 8;
+    int rc                   = 0;
+    int iLeds                = NUM_LEDS;
+    int iWakeDelay           = WAKE_DELAY;
+    unsigned long timerDelay = iWakeDelay * 60 * 1000/SUN_PHASE;
+    int sunPhase             = 0;
+    int numTimer             = 0;
+    int iBrightness          = 8;
 
     timer_callback ptrTimerCB;
     TaskHandle_t hTaskSunLoop;
@@ -58,9 +58,8 @@ public:
     /**
      * @brief initialize parameter of sun
      * 
-     * @param iWakeDelay 
      */
-    void init(int iWakeDelay);
+    void init();
     /**
      * @brief initialize led driver
      * 
@@ -68,7 +67,6 @@ public:
      * @return false 
      */
     bool init_ledDriver();
-
 
     void setQueue(xQueueHandle hQueue_){this->myQueueHandler.setQueue(hQueue_);}
     void sendToQueue(std::string msg_){this->myQueueHandler.sendToQueue(msg_);}
@@ -178,10 +176,9 @@ public:
     /**
      * @brief let the sun rise
      * 
-     * @param intwakeDelay_ 
      * @param bInit_ 
      */
-    void letSunRise( int intwakeDelay_ = 0, bool bInit_ = false );
+    void letSunRise( bool bInit_ = false );
     /**
      * @brief start the sun loop task
      * 
@@ -424,8 +421,7 @@ private:
             vTaskResume(stm.hTaskSunLoop);
             vTaskDelay(50/portTICK_PERIOD_MS);
             /* get wake delay in minutes and start sunrise with seconds */
-            //stm.letSunRise( stm.getWakeDelay()*60, true );
-            stm.letSunRise( stm.wakeDelay, true );
+            stm.letSunRise( true );
         }
         void sunDown() 
         { 

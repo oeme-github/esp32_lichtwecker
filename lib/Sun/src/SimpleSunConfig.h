@@ -7,7 +7,7 @@
 #define BRIGHTNESS 255  //strip brightness 255 max
 #endif
 #ifndef WAKE_DELAY
-#define WAKE_DELAY 1800 //sunrise span in sec
+#define WAKE_DELAY 20   //sunrise span in minutes
 #endif
 #ifndef SUN_PHASE
 #define SUN_PHASE 1000   // cound of sun phases 

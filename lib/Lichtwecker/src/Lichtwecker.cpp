@@ -224,7 +224,7 @@ void Lichtwecker::getNextValue( const char *cNameElemet )
  */
 void Lichtwecker::saveToConfigfile( const char *ptr)
 {
-  uint32_t value;
+  this->sendToQueue( "Lichtwecker::saveToConfigfile(" + std::string(ptr) + ")" );
 
   while( !getNextionDisplay()->getNexPageByName(std::string(ptr).c_str())->show() )
     vTaskDelay(100/portTICK_PERIOD_MS);
