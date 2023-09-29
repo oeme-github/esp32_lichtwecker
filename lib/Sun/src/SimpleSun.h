@@ -202,7 +202,11 @@ public:
      */
     void sunDown() 
     {  
-        sunState->sunDown();  
+        this->sendToQueue( "sunDown Phase[" + std::to_string(this->sunPhase) +"] (will be set to SUN_PHASE)");
+        sunPhase = 0;
+        sunState->sunDown();
+        this->deleteTimer(this->numTimer);
+        this->numTimer = -1;
     }
     /**
      * @brief companion function sun rise state
@@ -221,6 +225,8 @@ public:
         this->sendToQueue( "sunUp Phase[" + std::to_string(this->sunPhase) +"] (will be set to SUN_PHASE)");
         sunPhase = SUN_PHASE;
         sunState->sunUp();  
+        this->deleteTimer(this->numTimer);
+        this->numTimer = -1;
     }
     /**
      * @brief Get the Sun State object
@@ -419,8 +425,9 @@ private:
         { 
             /* start sunrise */
             vTaskResume(stm.hTaskSunLoop);
-            vTaskDelay(50/portTICK_PERIOD_MS);
+            vTaskDelay(10/portTICK_PERIOD_MS);
             /* get wake delay in minutes and start sunrise with seconds */
+            stm.sendToQueue("SunState:SunRise.entry -> call letSunRise(true)");
             stm.letSunRise( true );
         }
         void sunDown() 

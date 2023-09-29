@@ -14,9 +14,19 @@ void SimpleSun::init()
     this->timerDelay = this->iWakeDelay * 60 * 1000/SUN_PHASE;
     this->sunPhase  = 0;
 
-    this->sendToQueue( "timerDelay[" + std::to_string(this->timerDelay) + "]" );
-    this->sendToQueue( "sunPhase  [" + std::to_string(this->sunPhase)   + "]" );
-
+    this->sendToQueue( "  timerDelay[" + std::to_string(this->timerDelay) + "]" );
+    this->sendToQueue( "  sunPhase  [" + std::to_string(this->sunPhase)   + "]" );
+    /* -------------------------------------------------- */
+    /* create the timer                                   */
+    this->setNumTimer(this->setInterval( this->timerDelay, this->ptrTimerCB ));
+    if( this->getNumTimer() < 0 )
+    {
+        this->sendToQueue("  ERROR: NumTimer[" + std::to_string( this->getNumTimer() ) + "]");
+    }
+    else
+    {
+        this->sendToQueue("  NumTimer[" + std::to_string( this->getNumTimer() ) + "] created");
+    }
 }
 /**
  * @brief initialzes the led driver
@@ -300,36 +310,34 @@ int SimpleSun::getNumTimer()
  */
 void SimpleSun::letSunRise( boolean bInit_ )
 {
+    /* -------------------------------------------------- */
+    /* init sunrise                                       */
     if( bInit_ )
     {
         this->sendToQueue("SimpleSun::letSunRise(" + std::to_string(bInit_) + ")" );
         /* ----------------------------------------------- */
-        /* set start parameters                            */
+        /* set start parameters and create timer           */
         this->init();
+    }
+    /* -------------------------------------------------- */
+    /* debug info                                         */
+    if( this->sunPhase%100 == 0 )
+    {
+        this->sendToQueue("SimpleSun::letSunRise(" + std::to_string(bInit_) + ")" );
+        this->sendToQueue("SimpleSun::letSunRise() - this->sunPhase [" + std::to_string(this->sunPhase) + "]");
     }
     /* -------------------------------------------------- */
     /* rise the sun                                       */
     this->sunrise();
     /* -------------------------------------------------- */
-    /* debug info                                         */
-    if( this->sunPhase%100 == 0 )
-    {
-        this->sendToQueue("SimpleSun::letSunRise() - this->sunPhase [" + std::to_string(this->sunPhase) + "]");
-    }
-    /* -------------------------------------------------- */
-    /* check SunPhase                                     */
-    if( this->getSunPhase() )
-    {
-        /* ----------------------------------------------- */
-        /* continue sunrise                                */
-        this->setNumTimer(this->setTimeout( this->timerDelay, this->ptrTimerCB ));
-    }
-    else
+    /* check if sunPhase has reached SUN_PHASE            */
+    if( !this->getSunPhase() )
     {
         /* ----------------------------------------------- */
         /* sun is risen                                    */
+        this->deleteTimer(this->numTimer);
         this->sunUp();
-    }    
+    }
 }
 
 /**

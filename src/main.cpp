@@ -65,7 +65,7 @@ void taskSunLoopCode( void * pvParameters )
       if( strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunRise") == 0 
           || strcmp(lichtwecker.getSimpleSun()->getSunState(), "SunSet") == 0 )
       {
-          lichtwecker.getSimpleSun()->run();
+        lichtwecker.getSimpleSun()->run();
       }
       else
       {
@@ -165,7 +165,7 @@ void taskMQTTCode( void * pvParameters )
  */
 void sunRiseMain()
 {
-  /* let sun rise (without parameter) */
+    /* let sun rise (without parameter) */
   lichtwecker.getSimpleSun()->letSunRise();
 }
 /**
