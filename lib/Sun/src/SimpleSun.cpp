@@ -108,10 +108,10 @@ void SimpleSun::drawSun()
     {
         if( iMod1 == 1 )
         {
-            this->iRed   = getMapValue(RED_LEVEL);
-            this->iGreen = getMapValue(GREEN_LEVEL);
-            this->iBlue  = getMapValue(BLUE_LEVEL);
-            this->iWhite = getMapValue(WHITE_LEVEL);
+            this->iRed   = this->getMapValue(RED_LEVEL);
+            this->iGreen = this->getMapValue(GREEN_LEVEL);
+            this->iBlue  = this->getMapValue(BLUE_LEVEL);
+            this->iWhite = this->getMapValue(WHITE_LEVEL);
         }
         else{
             /* set all led step by step to the new values */
