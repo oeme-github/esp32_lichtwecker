@@ -111,6 +111,11 @@ public:
         if(SPIFFS.exists(this->filename))
         {
             this->audioFile = SPIFFS.open(this->filename, FILE_READ);
+            if(!this->audioFile)
+            {
+                this->sendToQueue("There was an error opening the file for reding");
+                return;
+            }
             this->helix.begin();
             this->volume.setVolume(this->fVolume);
             this->copier.copyAll();
@@ -160,9 +165,11 @@ public:
      */
     void resumeSoundLoopTask()
     {
+        this->sendToQueue("MyAudioPlayer::resumeSoundLoopTask()");
         this->bActive=true;
         vTaskDelay(10/portTICK_PERIOD_MS);
         vTaskResume(this->hTaskSoundLoop);
+        this->sendToQueue("   Task resumed");
     }
     /**
      * @brief Get the Active object
@@ -324,13 +331,13 @@ public:
         /* alaup -> switch alarm on                           */
         if( (strcmp("alaup", string_.c_str() ) == 0))  
         {
-            alaramOn();
+            this->alaramOn();
         }
         /* -------------------------------------------------- */
         /* a_off -> switch alarm off                          */
         if( (strcmp("a_off", string_.c_str() ) == 0))  
         {
-            alaramOff();
+            this->alaramOff();
         }
         /* -------------------------------------------------- */
         /* SnoozeOn -> switch snooze on                       */
@@ -438,6 +445,7 @@ private:
         void entry() 
         { 
             /* start sound task */
+            stm.sendToQueue("MyAudioPlayer:AlarmOn.entry -> call resumeSoundTask");
             stm.resumeSoundLoopTask(); 
         }
         void alarmOn() 

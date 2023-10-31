@@ -86,11 +86,17 @@ void taskSunLoopCode( void * pvParameters )
  */
 void taskSoundLoopCode( void * pvParameters )
 {
-  dbSerialPrintln("*** void taskSoundLoopCode( void * pvParameters ) ***");
+  boolean bCheck = true;
+  audioPlayer.sendToQueue("*** void taskSoundLoopCode( void * pvParameters ) ***");
   while(true)
   {
     if( audioPlayer.getActive() == true )
     {
+      if( bCheck )
+      {
+        audioPlayer.sendToQueue("call audioPlayer.play()");
+        bCheck = false;
+      }
       /* -------------------------------------------------- */    
       /* check the sun and run it                           */
       /* need to delay the task because of warchdog         */
@@ -98,7 +104,12 @@ void taskSoundLoopCode( void * pvParameters )
     }
     else
     {
-      vTaskSuspend(NULL);        
+      if( !bCheck )
+      {
+        audioPlayer.sendToQueue("call vTaskSuspend(NULL)");
+        bCheck = true;
+      }
+      vTaskSuspend(NULL);
     }
     vTaskDelay(100/portTICK_PERIOD_MS);
   }
