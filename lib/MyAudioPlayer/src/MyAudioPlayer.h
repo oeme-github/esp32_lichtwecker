@@ -83,11 +83,11 @@ public:
         this->cfg.channels    = this->channels;
         this->i2s.begin(this->cfg);
         // set init volume
-        this->volume.setTarget(this->i2s);
+        this->volume.setStream(this->i2s);
         this->volume.setVolumeControl(this->lvc);
         this->volume.setVolume(this->fVolume);
         // begin
-        this->out.setInput(&volume);
+        this->out.setStream(&volume);
         this->out.setDecoder(&helix);
         this->out.begin();
         this->copier.begin(this->out, this->audioFile);
